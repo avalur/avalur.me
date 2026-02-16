@@ -1,0 +1,309 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ShareLinks from "../../components/ShareLinks.astro";
+import EditPost from "../../components/EditPost.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("blog")).sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      prevPost: index < posts.length - 1 ? posts[index + 1] : null,
+      nextPost: index > 0 ? posts[index - 1] : null,
+    },
+  }));
+}
+
+const { post, prevPost, nextPost } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="max-w-3xl mx-auto px-4 py-12">
+    <!-- Article Header -->
+    <header class="mb-8">
+      <a
+        href="/posts"
+        class="inline-flex items-center gap-1 text-sm font-medium mb-6 transition-colors duration-200"
+        style="color: var(--accent);"
+      >
+        &larr; Back to posts
+      </a>
+
+      <h1
+        class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
+        style="color: var(--fg);"
+      >
+        {post.data.title}
+      </h1>
+
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3 text-sm" style="color: var(--fg-secondary);">
+          <time datetime={post.data.date.toISOString()}>
+            {post.data.date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </time>
+          {post.data.readingTime && (
+            <span>&middot; {post.data.readingTime}</span>
+          )}
+        </div>
+        <div class="hidden sm:block">
+          <EditPost slug={post.id} />
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        {
+          post.data.tags.map((tag: string) => (
+            <span class="post-tag text-xs px-2.5 py-1 rounded-full font-medium">
+              {tag}
+            </span>
+          ))
+        }
+      </div>
+    </header>
+
+    <!-- Article Content -->
+    <div
+      id="article"
+      class="prose prose-lg max-w-none
+        prose-headings:font-bold
+        prose-headings:leading-tight
+        prose-a:no-underline
+        hover:prose-a:underline
+        prose-img:rounded-lg
+        prose-pre:rounded-lg"
+    >
+      <Content />
+    </div>
+
+    <!-- Newsletter -->
+    <NewsletterForm />
+
+    <!-- Divider -->
+    <hr class="my-8 border-dashed" style="border-color: var(--border);" />
+
+    <!-- Edit on GitHub (mobile only) -->
+    <div class="sm:hidden mb-6">
+      <EditPost slug={post.id} />
+    </div>
+
+    <!-- Share Links + Back to Top -->
+    <div class="flex items-center justify-between">
+      <ShareLinks />
+      <button
+        id="back-to-top"
+        class="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer"
+        style="color: var(--fg-secondary); background: none; border: none;"
+        type="button"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m18 15-6-6-6 6" />
+        </svg>
+        Back to top
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <hr class="my-8 border-dashed" style="border-color: var(--border);" />
+
+    <!-- Previous / Next Navigation -->
+    <nav
+      class="flex justify-between gap-4"
+      data-prev-url={prevPost ? `/posts/${prevPost.id}` : undefined}
+      data-next-url={nextPost ? `/posts/${nextPost.id}` : undefined}
+      id="post-nav"
+    >
+      <div class="flex-1 min-w-0">
+        {prevPost && (
+          <a
+            href={`/posts/${prevPost.id}`}
+            class="group block transition-colors duration-200"
+          >
+            <span class="text-xs font-medium uppercase tracking-wide" style="color: var(--fg-secondary);">
+              &larr; Previous Post
+            </span>
+            <p
+              class="mt-1 font-medium truncate transition-colors duration-200"
+              style="color: var(--fg);"
+            >
+              {prevPost.data.title}
+            </p>
+          </a>
+        )}
+      </div>
+      <div class="flex-1 min-w-0 text-right">
+        {nextPost && (
+          <a
+            href={`/posts/${nextPost.id}`}
+            class="group block transition-colors duration-200"
+          >
+            <span class="text-xs font-medium uppercase tracking-wide" style="color: var(--fg-secondary);">
+              Next Post &rarr;
+            </span>
+            <p
+              class="mt-1 font-medium truncate transition-colors duration-200"
+              style="color: var(--fg);"
+            >
+              {nextPost.data.title}
+            </p>
+          </a>
+        )}
+      </div>
+    </nav>
+  </article>
+
+  <!-- Inline Script: progress bar, heading anchors, copy buttons, keyboard nav, back to top -->
+  <script is:inline>
+    (function () {
+      // ─── Progress Bar ───
+      var bar = document.createElement("div");
+      bar.id = "progress-bar";
+      bar.style.cssText =
+        "position:fixed;top:0;left:0;height:4px;width:0%;z-index:9999;background:var(--accent);transition:width 0.1s linear;";
+      document.body.appendChild(bar);
+
+      function updateProgress() {
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + "%";
+      }
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+
+      // ─── Heading Anchor Links ───
+      var article = document.getElementById("article");
+      if (article) {
+        var headings = article.querySelectorAll("h2, h3, h4, h5, h6");
+        headings.forEach(function (heading) {
+          if (!heading.id) return;
+          heading.classList.add("group", "relative");
+          heading.style.scrollMarginTop = "2rem";
+          var anchor = document.createElement("a");
+          anchor.href = "#" + heading.id;
+          anchor.className = "heading-anchor";
+          anchor.setAttribute("aria-hidden", "true");
+          anchor.textContent = "#";
+          anchor.style.cssText =
+            "position:absolute;left:-1.5em;top:50%;transform:translateY(-50%);font-weight:400;opacity:0;transition:opacity 0.2s ease;color:var(--accent);text-decoration:none;";
+          heading.appendChild(anchor);
+
+          heading.addEventListener("mouseenter", function () {
+            anchor.style.opacity = "1";
+          });
+          heading.addEventListener("mouseleave", function () {
+            anchor.style.opacity = "0";
+          });
+        });
+      }
+
+      // ─── Code Copy Buttons ───
+      var preBlocks = document.querySelectorAll("#article pre");
+      preBlocks.forEach(function (pre) {
+        pre.style.position = "relative";
+        var btn = document.createElement("button");
+        btn.textContent = "Copy";
+        btn.className = "copy-btn";
+        btn.style.cssText =
+          "position:absolute;top:0.5rem;right:0.5rem;padding:0.25rem 0.5rem;font-size:0.75rem;border-radius:0.375rem;border:1px solid var(--border);background:var(--bg-secondary);color:var(--fg-secondary);cursor:pointer;opacity:0;transition:opacity 0.2s ease;";
+        pre.appendChild(btn);
+
+        pre.addEventListener("mouseenter", function () {
+          btn.style.opacity = "1";
+        });
+        pre.addEventListener("mouseleave", function () {
+          btn.style.opacity = "0";
+        });
+
+        btn.addEventListener("click", function () {
+          var code = pre.querySelector("code");
+          var text = code ? code.textContent : pre.textContent;
+          navigator.clipboard.writeText(text || "").then(function () {
+            btn.textContent = "Copied!";
+            btn.style.color = "var(--accent)";
+            setTimeout(function () {
+              btn.textContent = "Copy";
+              btn.style.color = "var(--fg-secondary)";
+            }, 2000);
+          });
+        });
+      });
+
+      // ─── Keyboard Navigation ───
+      var nav = document.getElementById("post-nav");
+      var prevUrl = nav ? nav.getAttribute("data-prev-url") : null;
+      var nextUrl = nav ? nav.getAttribute("data-next-url") : null;
+
+      document.addEventListener("keydown", function (e) {
+        var tag = document.activeElement ? document.activeElement.tagName : "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        if (e.key === "j" || e.key === "J") {
+          if (nextUrl) window.location.href = nextUrl;
+        } else if (e.key === "k" || e.key === "K") {
+          if (prevUrl) window.location.href = prevUrl;
+        }
+      });
+
+      // ─── Back to Top ───
+      var backToTop = document.getElementById("back-to-top");
+      if (backToTop) {
+        backToTop.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+
+      // ─── Center display-math paragraphs ───
+      if (article) {
+        article.querySelectorAll("p").forEach(function (p) {
+          var text = p.textContent.replace(/\s/g, "");
+          var hasKatex = p.querySelector(".katex");
+          if (hasKatex && p.childNodes.length === 1) {
+            p.classList.add("math-block");
+          } else if (hasKatex) {
+            // Check if all text content comes from katex spans only
+            var clone = p.cloneNode(true);
+            clone.querySelectorAll(".katex").forEach(function (k) { k.remove(); });
+            if (clone.textContent.trim() === "") {
+              p.classList.add("math-block");
+            }
+          }
+        });
+      }
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  .post-tag {
+    background-color: rgba(124, 58, 237, 0.1);
+    color: rgb(124, 58, 237);
+  }
+
+  :global([data-theme="dark"]) .post-tag {
+    background-color: rgba(167, 139, 250, 0.15);
+    color: rgb(167, 139, 250);
+  }
+
+  nav a:hover p {
+    color: var(--accent) !important;
+  }
+</style>

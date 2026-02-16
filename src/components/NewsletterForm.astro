@@ -1,0 +1,143 @@
+---
+---
+
+<section class="newsletter-box">
+  <h3 class="newsletter-heading">Stay in the loop</h3>
+  <p class="newsletter-subtext">New posts and insights straight to your inbox.</p>
+
+  <form
+    action="https://buttondown.com/api/emails/embed-subscribe/avalur"
+    method="post"
+    class="newsletter-form"
+  >
+    <input type="hidden" name="tag" value="avalur" />
+    <div class="newsletter-input-row">
+      <input
+        type="email"
+        name="email"
+        placeholder="your@email.com"
+        required
+        class="newsletter-input"
+      />
+      <button type="submit" class="newsletter-btn">Subscribe</button>
+    </div>
+  </form>
+
+  <p class="newsletter-alt">
+    Or join the
+    <a
+      href="https://t.me/TechneNotes"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="newsletter-tg-link"
+    >
+      <svg
+        class="tg-icon"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+      </svg>
+      Telegram channel
+    </a>
+  </p>
+</section>
+
+<style>
+  .newsletter-box {
+    margin-top: 3rem;
+    padding: 1.75rem 2rem;
+    border-radius: 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .newsletter-heading {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--fg);
+  }
+
+  .newsletter-subtext {
+    margin: 0 0 1.25rem;
+    font-size: 0.9375rem;
+    color: var(--fg-secondary);
+  }
+
+  .newsletter-form {
+    margin: 0;
+  }
+
+  .newsletter-input-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .newsletter-input {
+    flex: 1 1 200px;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    background-color: var(--bg);
+    color: var(--fg);
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .newsletter-input::placeholder {
+    color: var(--fg-secondary);
+    opacity: 0.6;
+  }
+
+  .newsletter-input:focus {
+    border-color: var(--accent);
+  }
+
+  .newsletter-btn {
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    background-color: var(--accent);
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .newsletter-btn:hover {
+    background-color: var(--accent-hover);
+  }
+
+  .newsletter-alt {
+    margin: 1rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--fg-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .newsletter-tg-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+  }
+
+  .newsletter-tg-link:hover {
+    opacity: 0.8;
+  }
+
+  .tg-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

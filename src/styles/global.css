@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary: #667eea;
+  --color-primary-dark: #5a67d8;
+  --color-secondary: #764ba2;
+  --color-accent: #4a89dc;
+}
+
+/* ── Light theme (default) ── */
+:root,
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f9fafb;
+  --fg: #1f2937;
+  --fg-secondary: #6b7280;
+  --border: #e5e7eb;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+}
+
+/* ── Dark theme ── */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --bg-secondary: #1e293b;
+  --fg: #e2e8f0;
+  --fg-secondary: #94a3b8;
+  --border: #334155;
+  --accent: #a78bfa;
+  --accent-hover: #c4b5fd;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Gradient utilities ── */
+.gradient-bg {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Prose / Typography dark-mode overrides ── */
+[data-theme="dark"] .prose {
+  --tw-prose-body: #cbd5e1;
+  --tw-prose-headings: #f1f5f9;
+  --tw-prose-links: #a78bfa;
+  --tw-prose-bold: #f1f5f9;
+  --tw-prose-counters: #94a3b8;
+  --tw-prose-bullets: #64748b;
+  --tw-prose-hr: #334155;
+  --tw-prose-quotes: #e2e8f0;
+  --tw-prose-quote-borders: #7c3aed;
+  --tw-prose-captions: #94a3b8;
+  --tw-prose-code: #e2e8f0;
+  --tw-prose-pre-code: #e2e8f0;
+  --tw-prose-pre-bg: #1e293b;
+  --tw-prose-th-borders: #475569;
+  --tw-prose-td-borders: #334155;
+}
+
+[data-theme="dark"] .prose a {
+  color: var(--accent);
+}
+
+[data-theme="dark"] .prose a:hover {
+  color: var(--accent-hover);
+}
+
+[data-theme="dark"] .prose code {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .prose pre {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .prose blockquote {
+  border-left-color: var(--accent);
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .prose img {
+  border-radius: 0.5rem;
+}
+
+/* ── Post images: 90% width, centered; captions centered ── */
+.prose img {
+  width: 90%;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose p:has(> img) {
+  text-align: center;
+}
+
+/* ── Dark-mode overrides for Tailwind color utilities ── */
+[data-theme="dark"] .bg-white {
+  background-color: var(--bg-secondary) !important;
+}
+[data-theme="dark"] .bg-gray-50 {
+  background-color: var(--bg) !important;
+}
+[data-theme="dark"] .bg-gray-100 {
+  background-color: #334155 !important;
+}
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 {
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .divide-gray-100 > :not(:last-child) {
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800 {
+  color: var(--fg) !important;
+}
+[data-theme="dark"] .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+[data-theme="dark"] .text-gray-600 {
+  color: var(--fg-secondary) !important;
+}
+[data-theme="dark"] .text-gray-500 {
+  color: #94a3b8 !important;
+}
+[data-theme="dark"] .text-gray-400 {
+  color: #64748b !important;
+}
+[data-theme="dark"] .bg-purple-50 {
+  background-color: rgba(167, 139, 250, 0.1) !important;
+}
+[data-theme="dark"] .bg-emerald-50 {
+  background-color: rgba(52, 211, 153, 0.1) !important;
+}
+[data-theme="dark"] .bg-emerald-200 {
+  background-color: rgba(52, 211, 153, 0.3) !important;
+}
+[data-theme="dark"] .bg-purple-200 {
+  background-color: rgba(167, 139, 250, 0.3) !important;
+}
+[data-theme="dark"] .bg-amber-100 {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+}
+[data-theme="dark"] .text-amber-700 {
+  color: #fbbf24 !important;
+}
+[data-theme="dark"] .bg-green-100 {
+  background-color: rgba(74, 222, 128, 0.15) !important;
+}
+[data-theme="dark"] .text-green-700 {
+  color: #4ade80 !important;
+}
+[data-theme="dark"] .bg-red-50 {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+}
+[data-theme="dark"] .text-red-600 {
+  color: #f87171 !important;
+}
+[data-theme="dark"] .shadow-md,
+[data-theme="dark"] .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+[data-theme="dark"] .hover\:bg-gray-50\/50:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+[data-theme="dark"] .bg-gray-200 {
+  background-color: #334155 !important;
+}
+[data-theme="dark"] .text-purple-600 {
+  color: #a78bfa !important;
+}
+[data-theme="dark"] .hover\:text-purple-600:hover {
+  color: #c4b5fd !important;
+}
+[data-theme="dark"] .hover\:text-purple-800:hover {
+  color: #c4b5fd !important;
+}
+[data-theme="dark"] .text-emerald-600 {
+  color: #34d399 !important;
+}
+
+/* ── KaTeX ── */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  text-align: center;
+}
+.prose .katex-display > .katex {
+  text-align: center;
+}
+.prose p.math-block {
+  text-align: center;
+}
+.prose .katex-html {
+  overflow-x: auto;
+}
+[data-theme="dark"] .katex .mord,
+[data-theme="dark"] .katex .mrel,
+[data-theme="dark"] .katex .mbin,
+[data-theme="dark"] .katex .mopen,
+[data-theme="dark"] .katex .mclose,
+[data-theme="dark"] .katex .mpunct,
+[data-theme="dark"] .katex .mop,
+[data-theme="dark"] .katex .minner {
+  color: #e2e8f0;
+}
+
+/* ── NetworkBg canvas — always dark, unaffected by theme ── */
+canvas#network-bg {
+  background: transparent !important;
+}

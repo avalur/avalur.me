@@ -1,0 +1,254 @@
+---
+/**
+ * Interactive 3D network graph canvas background.
+ * Supports light ("day sky") and dark ("starry night") color palettes
+ * with smooth crossfade on theme change. Node positions are preserved.
+ *
+ * Props:
+ *  - id: unique canvas id (required when multiple on one page)
+ *  - nodeCount: number of particles (default 60)
+ *  - compact: if true, fewer nodes + smaller radius (for small areas like cards)
+ */
+interface Props {
+  id?: string;
+  nodeCount?: number;
+  compact?: boolean;
+}
+
+const { id = "net-bg", nodeCount = 60, compact = false } = Astro.props;
+const connectDist = compact ? 90 : 140;
+const mouseRadius = compact ? 120 : 180;
+const baseSpeed = compact ? 0.2 : 0.3;
+---
+
+<canvas id={id} class="absolute inset-0 w-full h-full" data-node-count={nodeCount} data-connect-dist={connectDist} data-mouse-radius={mouseRadius} data-base-speed={baseSpeed}></canvas>
+
+<script>
+  /* ── Color palettes ── */
+  interface Palette {
+    bg0: [number, number, number];
+    bg1: [number, number, number];
+    bg2: [number, number, number];
+    lineR: number; lineG: number; lineB: number;
+    glowR: number; glowG: number; glowB: number;
+    nodeR: number; nodeG: number; nodeB: number;
+    nodeGlowR: number; nodeGlowG: number; nodeGlowB: number;
+    auraR: number; auraG: number; auraB: number;
+  }
+
+  const NIGHT: Palette = {
+    bg0: [26, 16, 64],    bg1: [45, 27, 105],   bg2: [74, 32, 128],
+    lineR: 140, lineG: 120, lineB: 220,
+    glowR: 255, glowG: 255, glowB: 255,
+    nodeR: 200, nodeG: 190, nodeB: 255,
+    nodeGlowR: 255, nodeGlowG: 255, nodeGlowB: 255,
+    auraR: 180, auraG: 160, auraB: 255,
+  };
+
+  const DAY: Palette = {
+    bg0: [22, 58, 110],   bg1: [35, 90, 155],   bg2: [55, 125, 195],
+    lineR: 90,  lineG: 155, lineB: 215,
+    glowR: 255, glowG: 225, glowB: 140,
+    nodeR: 175, nodeG: 210, nodeB: 248,
+    nodeGlowR: 255, nodeGlowG: 240, nodeGlowB: 170,
+    auraR: 255, auraG: 210, auraB: 120,
+  };
+
+  function lerpNum(a: number, b: number, t: number): number {
+    return a + (b - a) * t;
+  }
+
+  function lerpPalette(a: Palette, b: Palette, t: number): Palette {
+    const out = {} as any;
+    for (const k of Object.keys(a) as (keyof Palette)[]) {
+      const va = a[k]; const vb = b[k];
+      if (Array.isArray(va) && Array.isArray(vb)) {
+        out[k] = [
+          lerpNum(va[0], vb[0], t),
+          lerpNum(va[1], vb[1], t),
+          lerpNum(va[2], vb[2], t),
+        ];
+      } else {
+        out[k] = lerpNum(va as number, vb as number, t);
+      }
+    }
+    return out as Palette;
+  }
+
+  function getTargetPalette(): Palette {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? NIGHT : DAY;
+  }
+
+  function initNetworkCanvas(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const NODE_COUNT = parseInt(canvas.dataset.nodeCount || "60");
+    const CONNECT_DIST = parseInt(canvas.dataset.connectDist || "140");
+    const MOUSE_RADIUS = parseInt(canvas.dataset.mouseRadius || "180");
+    const BASE_SPEED = parseFloat(canvas.dataset.baseSpeed || "0.3");
+    const DEPTH = 600;
+    const TRANSITION_SPEED = 0.035; // ~30 frames to blend
+
+    let width = 0;
+    let height = 0;
+    let mouse = { x: -9999, y: -9999 };
+    let animId = 0;
+
+    // palette blending state
+    let target = getTargetPalette();
+    let current = { ...target }; // start fully resolved
+    let blendT = 1; // 1 = fully at target
+
+    interface Node {
+      x: number; y: number; z: number;
+      vx: number; vy: number; vz: number;
+      baseR: number;
+    }
+    const nodes: Node[] = [];
+
+    function resize() {
+      const rect = canvas.parentElement!.getBoundingClientRect();
+      width = canvas.width = rect.width;
+      height = canvas.height = rect.height;
+    }
+
+    function initNodes() {
+      nodes.length = 0;
+      for (let i = 0; i < NODE_COUNT; i++) {
+        nodes.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          z: Math.random() * DEPTH,
+          vx: (Math.random() - 0.5) * BASE_SPEED,
+          vy: (Math.random() - 0.5) * BASE_SPEED,
+          vz: (Math.random() - 0.5) * BASE_SPEED * 0.5,
+          baseR: 1.5 + Math.random() * 1.5,
+        });
+      }
+    }
+
+    function project(n: Node) {
+      const scale = DEPTH / (DEPTH + n.z);
+      return {
+        sx: width / 2 + (n.x - width / 2) * scale,
+        sy: height / 2 + (n.y - height / 2) * scale,
+        scale,
+      };
+    }
+
+    function draw() {
+      // advance blend toward target
+      const newTarget = getTargetPalette();
+      if (newTarget !== target) {
+        // theme changed — start blending from wherever we are now
+        current = lerpPalette(current, target, blendT);
+        target = newTarget;
+        blendT = 0;
+      }
+      if (blendT < 1) {
+        blendT = Math.min(1, blendT + TRANSITION_SPEED);
+      }
+      const p = blendT < 1 ? lerpPalette(current, target, blendT) : target;
+
+      // ─── Background gradient ───
+      const grad = ctx!.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, `rgb(${p.bg0[0]},${p.bg0[1]},${p.bg0[2]})`);
+      grad.addColorStop(0.5, `rgb(${p.bg1[0]},${p.bg1[1]},${p.bg1[2]})`);
+      grad.addColorStop(1, `rgb(${p.bg2[0]},${p.bg2[1]},${p.bg2[2]})`);
+      ctx!.fillStyle = grad;
+      ctx!.fillRect(0, 0, width, height);
+
+      // ─── Move nodes ───
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy; n.z += n.vz;
+        if (n.x < 0 || n.x > width) n.vx *= -1;
+        if (n.y < 0 || n.y > height) n.vy *= -1;
+        if (n.z < 0 || n.z > DEPTH) n.vz *= -1;
+      }
+
+      const projected = nodes.map((n) => ({ ...project(n), node: n }));
+
+      // ─── Lines ───
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const a = projected[i];
+          const b = projected[j];
+          const dx = a.sx - b.sx;
+          const dy = a.sy - b.sy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONNECT_DIST) {
+            const opacity = (1 - dist / CONNECT_DIST) * 0.35 * Math.min(a.scale, b.scale);
+            const mx = (a.sx + b.sx) / 2;
+            const my = (a.sy + b.sy) / 2;
+            const mdist = Math.sqrt((mx - mouse.x) ** 2 + (my - mouse.y) ** 2);
+            const glow = mdist < MOUSE_RADIUS ? 1 - mdist / MOUSE_RADIUS : 0;
+            const r = Math.round(p.lineR + glow * (p.glowR - p.lineR));
+            const g = Math.round(p.lineG + glow * (p.glowG - p.lineG));
+            const bl = Math.round(p.lineB + glow * (p.glowB - p.lineB));
+            ctx!.strokeStyle = `rgba(${r},${g},${bl},${opacity + glow * 0.4})`;
+            ctx!.lineWidth = 0.5 + glow * 1.5;
+            ctx!.beginPath();
+            ctx!.moveTo(a.sx, a.sy);
+            ctx!.lineTo(b.sx, b.sy);
+            ctx!.stroke();
+          }
+        }
+      }
+
+      // ─── Nodes ───
+      for (const pt of projected) {
+        const mdist = Math.sqrt((pt.sx - mouse.x) ** 2 + (pt.sy - mouse.y) ** 2);
+        const glow = mdist < MOUSE_RADIUS ? 1 - mdist / MOUSE_RADIUS : 0;
+        const r = pt.node.baseR * pt.scale * (1 + glow * 1.5);
+        const alpha = (0.4 + glow * 0.6) * pt.scale;
+
+        // aura
+        if (glow > 0.1) {
+          ctx!.beginPath();
+          ctx!.arc(pt.sx, pt.sy, r * 3, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(${Math.round(p.auraR)}, ${Math.round(p.auraG)}, ${Math.round(p.auraB)}, ${glow * 0.15})`;
+          ctx!.fill();
+        }
+
+        // dot
+        const nr = Math.round(p.nodeR + glow * (p.nodeGlowR - p.nodeR));
+        const ng = Math.round(p.nodeG + glow * (p.nodeGlowG - p.nodeG));
+        const nb = Math.round(p.nodeB + glow * (p.nodeGlowB - p.nodeB));
+        ctx!.beginPath();
+        ctx!.arc(pt.sx, pt.sy, r, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(${nr}, ${ng}, ${nb}, ${alpha})`;
+        ctx!.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+
+    // IntersectionObserver: only animate when visible
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (!animId) { resize(); initNodes(); draw(); }
+        } else {
+          cancelAnimationFrame(animId);
+          animId = 0;
+        }
+      });
+    }, { threshold: 0.05 });
+    observer.observe(canvas);
+
+    window.addEventListener("resize", () => { if (animId) { resize(); initNodes(); } });
+
+    canvas.parentElement!.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+    canvas.parentElement!.addEventListener("mouseleave", () => {
+      mouse.x = -9999; mouse.y = -9999;
+    });
+  }
+
+  // Init all network canvases on the page
+  document.querySelectorAll<HTMLCanvasElement>("canvas[data-node-count]").forEach(initNetworkCanvas);
+</script>

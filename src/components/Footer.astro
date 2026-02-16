@@ -1,0 +1,36 @@
+---
+import { SOCIAL_LINKS } from "../config";
+---
+
+<footer class="border-t mt-16" style="background-color: var(--bg-secondary); border-color: var(--border);">
+  <div class="max-w-5xl mx-auto px-4 py-8 text-center">
+    <p class="text-sm" style="color: var(--fg-secondary);">
+      &copy; {new Date().getFullYear()} Alexander Avdiushenko. All rights reserved.
+    </p>
+    <div class="flex justify-center gap-4 mt-3">
+      {
+        SOCIAL_LINKS.map((link) => (
+          <a
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm hover:text-purple-600 transition-colors"
+            style="color: var(--fg-secondary);"
+          >
+            {link.name}
+          </a>
+        ))
+      }
+    </div>
+    <p class="text-sm mt-3" style="color: var(--fg-secondary);">
+      <a
+        href="https://github.com/avalur/avalur.me"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-purple-600 transition-colors underline"
+      >
+        MIT License
+      </a>
+    </p>
+  </div>
+</footer>
