@@ -3,7 +3,6 @@
 ---
 
 <button
-  id="theme-toggle"
   type="button"
   aria-label="Toggle theme"
   class="theme-toggle"
@@ -87,23 +86,22 @@
 
 <script>
   function initThemeToggle() {
-    const btn = document.getElementById("theme-toggle");
-    if (!btn) return;
+    document.querySelectorAll(".theme-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
 
-    btn.addEventListener("click", () => {
-      const current = document.documentElement.getAttribute("data-theme") || "light";
-      const next = current === "dark" ? "light" : "dark";
-
-      // Use View Transitions API if available
-      if (document.startViewTransition) {
-        document.startViewTransition(() => {
+        // Use View Transitions API if available
+        if (document.startViewTransition) {
+          document.startViewTransition(() => {
+            document.documentElement.setAttribute("data-theme", next);
+          });
+        } else {
           document.documentElement.setAttribute("data-theme", next);
-        });
-      } else {
-        document.documentElement.setAttribute("data-theme", next);
-      }
+        }
 
-      localStorage.setItem("theme", next);
+        localStorage.setItem("theme", next);
+      });
     });
   }
 
