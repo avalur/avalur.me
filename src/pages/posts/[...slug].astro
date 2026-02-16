@@ -71,21 +71,6 @@ const { Content } = await render(post);
           }
         </div>
 
-        <!-- Mobile TOC (collapsible) -->
-        <div class="toc-mobile" id="toc-mobile">
-          <button class="toc-mobile-toggle" id="toc-mobile-toggle" type="button">
-            <svg class="toc-mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="15" y2="12" />
-              <line x1="3" y1="18" x2="10" y2="18" />
-            </svg>
-            Table of Contents
-            <svg class="toc-mobile-chevron" id="toc-mobile-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
-          <nav class="toc-mobile-nav" id="toc-mobile-nav"></nav>
-        </div>
       </header>
 
       <!-- Article Content -->
@@ -245,13 +230,11 @@ const { Content } = await render(post);
       if (article) {
         var tocHeadings = article.querySelectorAll("h2, h3");
         var sidebarNav = document.getElementById("toc-sidebar-nav");
-        var mobileNav = document.getElementById("toc-mobile-nav");
-        var tocMobile = document.getElementById("toc-mobile");
+        var mobileToc = document.getElementById("mobile-toc");
         var tocSidebar = document.getElementById("toc-sidebar");
 
         if (tocHeadings.length < 2) {
           // Hide TOC if fewer than 2 headings
-          if (tocMobile) tocMobile.style.display = "none";
           if (tocSidebar) tocSidebar.style.display = "none";
         } else {
           // Build TOC links
@@ -261,7 +244,7 @@ const { Content } = await render(post);
             tocItems.push({ id: h.id, text: h.textContent.replace(/#$/, "").trim(), level: h.tagName });
           });
 
-          function buildTocList(container) {
+          function buildTocList(container, closeMobileMenu) {
             var ul = document.createElement("ul");
             ul.className = "toc-list";
             tocItems.forEach(function (item) {
@@ -276,13 +259,7 @@ const { Content } = await render(post);
                 e.preventDefault();
                 var target = document.getElementById(item.id);
                 if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-                // Close mobile TOC after click
-                var mobileNavEl = document.getElementById("toc-mobile-nav");
-                if (mobileNavEl && mobileNavEl.classList.contains("open")) {
-                  mobileNavEl.classList.remove("open");
-                  var chevron = document.getElementById("toc-mobile-chevron");
-                  if (chevron) chevron.style.transform = "";
-                }
+                if (closeMobileMenu) closeMobileMenu();
               });
               li.appendChild(a);
               ul.appendChild(li);
@@ -291,18 +268,21 @@ const { Content } = await render(post);
           }
 
           if (sidebarNav) buildTocList(sidebarNav);
-          if (mobileNav) buildTocList(mobileNav);
 
-          // Mobile toggle
-          var toggleBtn = document.getElementById("toc-mobile-toggle");
-          if (toggleBtn && mobileNav) {
-            toggleBtn.addEventListener("click", function () {
-              mobileNav.classList.toggle("open");
-              var chevron = document.getElementById("toc-mobile-chevron");
-              if (chevron) {
-                chevron.style.transform = mobileNav.classList.contains("open") ? "rotate(180deg)" : "";
-              }
+          // Populate mobile TOC inside hamburger menu
+          if (mobileToc) {
+            var title = document.createElement("p");
+            title.className = "mobile-toc-title";
+            title.textContent = "On this page";
+            mobileToc.appendChild(title);
+
+            buildTocList(mobileToc, function () {
+              // Close hamburger menu after clicking a TOC link
+              var menu = document.getElementById("mobile-menu");
+              if (menu) menu.classList.add("hidden");
             });
+
+            mobileToc.classList.remove("hidden");
           }
 
           // Active heading tracking with IntersectionObserver

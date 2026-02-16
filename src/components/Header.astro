@@ -81,6 +81,8 @@ const currentPath = Astro.url.pathname;
           </a>
         ))
       }
+      <!-- TOC section (populated by JS on post pages) -->
+      <div id="mobile-toc" class="hidden"></div>
       <div class="flex gap-4 pt-2 border-t" style="border-color: var(--border);">
         {
           SOCIAL_LINKS.map((link) => (
