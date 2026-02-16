@@ -24,152 +24,177 @@ const { Content } = await render(post);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <article class="max-w-3xl mx-auto px-4 py-12">
-    <!-- Article Header -->
-    <header class="mb-8">
-      <a
-        href="/posts"
-        class="inline-flex items-center gap-1 text-sm font-medium mb-6 transition-colors duration-200"
-        style="color: var(--accent);"
-      >
-        &larr; Back to posts
-      </a>
+  <div class="post-wrapper">
+    <article class="post-content px-4 py-12">
+      <!-- Article Header -->
+      <header class="mb-8">
+        <a
+          href="/posts"
+          class="inline-flex items-center gap-1 text-sm font-medium mb-6 transition-colors duration-200"
+          style="color: var(--accent);"
+        >
+          &larr; Back to posts
+        </a>
 
-      <h1
-        class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
-        style="color: var(--fg);"
-      >
-        {post.data.title}
-      </h1>
+        <h1
+          class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4"
+          style="color: var(--fg);"
+        >
+          {post.data.title}
+        </h1>
 
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-3 text-sm" style="color: var(--fg-secondary);">
-          <time datetime={post.data.date.toISOString()}>
-            {post.data.date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </time>
-          {post.data.readingTime && (
-            <span>&middot; {post.data.readingTime}</span>
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3 text-sm" style="color: var(--fg-secondary);">
+            <time datetime={post.data.date.toISOString()}>
+              {post.data.date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+            {post.data.readingTime && (
+              <span>&middot; {post.data.readingTime}</span>
+            )}
+          </div>
+          <div class="hidden sm:block">
+            <EditPost slug={post.id} />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          {
+            post.data.tags.map((tag: string) => (
+              <span class="post-tag text-xs px-2.5 py-1 rounded-full font-medium">
+                {tag}
+              </span>
+            ))
+          }
+        </div>
+
+        <!-- Mobile TOC (collapsible) -->
+        <div class="toc-mobile" id="toc-mobile">
+          <button class="toc-mobile-toggle" id="toc-mobile-toggle" type="button">
+            <svg class="toc-mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="15" y2="12" />
+              <line x1="3" y1="18" x2="10" y2="18" />
+            </svg>
+            Table of Contents
+            <svg class="toc-mobile-chevron" id="toc-mobile-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <nav class="toc-mobile-nav" id="toc-mobile-nav"></nav>
+        </div>
+      </header>
+
+      <!-- Article Content -->
+      <div
+        id="article"
+        class="prose prose-lg max-w-none
+          prose-headings:font-bold
+          prose-headings:leading-tight
+          prose-a:no-underline
+          hover:prose-a:underline
+          prose-img:rounded-lg
+          prose-pre:rounded-lg"
+      >
+        <Content />
+      </div>
+
+      <!-- Newsletter -->
+      <NewsletterForm />
+
+      <!-- Divider -->
+      <hr class="my-8 border-dashed" style="border-color: var(--border);" />
+
+      <!-- Edit on GitHub (mobile only) -->
+      <div class="sm:hidden mb-6">
+        <EditPost slug={post.id} />
+      </div>
+
+      <!-- Share Links + Back to Top -->
+      <div class="flex items-center justify-between">
+        <ShareLinks />
+        <button
+          id="back-to-top"
+          class="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer"
+          style="color: var(--fg-secondary); background: none; border: none;"
+          type="button"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m18 15-6-6-6 6" />
+          </svg>
+          Back to top
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <hr class="my-8 border-dashed" style="border-color: var(--border);" />
+
+      <!-- Previous / Next Navigation -->
+      <nav
+        class="flex justify-between gap-4"
+        data-prev-url={prevPost ? `/posts/${prevPost.id}` : undefined}
+        data-next-url={nextPost ? `/posts/${nextPost.id}` : undefined}
+        id="post-nav"
+      >
+        <div class="flex-1 min-w-0">
+          {prevPost && (
+            <a
+              href={`/posts/${prevPost.id}`}
+              class="group block transition-colors duration-200"
+            >
+              <span class="text-xs font-medium uppercase tracking-wide" style="color: var(--fg-secondary);">
+                &larr; Previous Post
+              </span>
+              <p
+                class="mt-1 font-medium truncate transition-colors duration-200"
+                style="color: var(--fg);"
+              >
+                {prevPost.data.title}
+              </p>
+            </a>
           )}
         </div>
-        <div class="hidden sm:block">
-          <EditPost slug={post.id} />
+        <div class="flex-1 min-w-0 text-right">
+          {nextPost && (
+            <a
+              href={`/posts/${nextPost.id}`}
+              class="group block transition-colors duration-200"
+            >
+              <span class="text-xs font-medium uppercase tracking-wide" style="color: var(--fg-secondary);">
+                Next Post &rarr;
+              </span>
+              <p
+                class="mt-1 font-medium truncate transition-colors duration-200"
+                style="color: var(--fg);"
+              >
+                {nextPost.data.title}
+              </p>
+            </a>
+          )}
         </div>
-      </div>
+      </nav>
+    </article>
 
-      <div class="flex flex-wrap gap-2">
-        {
-          post.data.tags.map((tag: string) => (
-            <span class="post-tag text-xs px-2.5 py-1 rounded-full font-medium">
-              {tag}
-            </span>
-          ))
-        }
-      </div>
-    </header>
-
-    <!-- Article Content -->
-    <div
-      id="article"
-      class="prose prose-lg max-w-none
-        prose-headings:font-bold
-        prose-headings:leading-tight
-        prose-a:no-underline
-        hover:prose-a:underline
-        prose-img:rounded-lg
-        prose-pre:rounded-lg"
-    >
-      <Content />
-    </div>
-
-    <!-- Newsletter -->
-    <NewsletterForm />
-
-    <!-- Divider -->
-    <hr class="my-8 border-dashed" style="border-color: var(--border);" />
-
-    <!-- Edit on GitHub (mobile only) -->
-    <div class="sm:hidden mb-6">
-      <EditPost slug={post.id} />
-    </div>
-
-    <!-- Share Links + Back to Top -->
-    <div class="flex items-center justify-between">
-      <ShareLinks />
-      <button
-        id="back-to-top"
-        class="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer"
-        style="color: var(--fg-secondary); background: none; border: none;"
-        type="button"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="m18 15-6-6-6 6" />
-        </svg>
-        Back to top
-      </button>
-    </div>
-
-    <!-- Divider -->
-    <hr class="my-8 border-dashed" style="border-color: var(--border);" />
-
-    <!-- Previous / Next Navigation -->
-    <nav
-      class="flex justify-between gap-4"
-      data-prev-url={prevPost ? `/posts/${prevPost.id}` : undefined}
-      data-next-url={nextPost ? `/posts/${nextPost.id}` : undefined}
-      id="post-nav"
-    >
-      <div class="flex-1 min-w-0">
-        {prevPost && (
-          <a
-            href={`/posts/${prevPost.id}`}
-            class="group block transition-colors duration-200"
-          >
-            <span class="text-xs font-medium uppercase tracking-wide" style="color: var(--fg-secondary);">
-              &larr; Previous Post
-            </span>
-            <p
-              class="mt-1 font-medium truncate transition-colors duration-200"
-              style="color: var(--fg);"
-            >
-              {prevPost.data.title}
-            </p>
-          </a>
-        )}
-      </div>
-      <div class="flex-1 min-w-0 text-right">
-        {nextPost && (
-          <a
-            href={`/posts/${nextPost.id}`}
-            class="group block transition-colors duration-200"
-          >
-            <span class="text-xs font-medium uppercase tracking-wide" style="color: var(--fg-secondary);">
-              Next Post &rarr;
-            </span>
-            <p
-              class="mt-1 font-medium truncate transition-colors duration-200"
-              style="color: var(--fg);"
-            >
-              {nextPost.data.title}
-            </p>
-          </a>
-        )}
-      </div>
-    </nav>
-  </article>
+    <!-- Desktop TOC Sidebar -->
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <nav class="toc-sidebar-nav" id="toc-sidebar-nav">
+        <p class="toc-sidebar-title">On this page</p>
+      </nav>
+    </aside>
+  </div>
 
   <!-- Inline Script: progress bar, heading anchors, copy buttons, keyboard nav, back to top -->
   <script is:inline>
@@ -197,7 +222,7 @@ const { Content } = await render(post);
         headings.forEach(function (heading) {
           if (!heading.id) return;
           heading.classList.add("group", "relative");
-          heading.style.scrollMarginTop = "2rem";
+          heading.style.scrollMarginTop = "5rem";
           var anchor = document.createElement("a");
           anchor.href = "#" + heading.id;
           anchor.className = "heading-anchor";
@@ -214,6 +239,95 @@ const { Content } = await render(post);
             anchor.style.opacity = "0";
           });
         });
+      }
+
+      // ─── Table of Contents ───
+      if (article) {
+        var tocHeadings = article.querySelectorAll("h2, h3");
+        var sidebarNav = document.getElementById("toc-sidebar-nav");
+        var mobileNav = document.getElementById("toc-mobile-nav");
+        var tocMobile = document.getElementById("toc-mobile");
+        var tocSidebar = document.getElementById("toc-sidebar");
+
+        if (tocHeadings.length < 2) {
+          // Hide TOC if fewer than 2 headings
+          if (tocMobile) tocMobile.style.display = "none";
+          if (tocSidebar) tocSidebar.style.display = "none";
+        } else {
+          // Build TOC links
+          var tocItems = [];
+          tocHeadings.forEach(function (h) {
+            if (!h.id) return;
+            tocItems.push({ id: h.id, text: h.textContent.replace(/#$/, "").trim(), level: h.tagName });
+          });
+
+          function buildTocList(container) {
+            var ul = document.createElement("ul");
+            ul.className = "toc-list";
+            tocItems.forEach(function (item) {
+              var li = document.createElement("li");
+              li.className = item.level === "H3" ? "toc-item toc-h3" : "toc-item";
+              var a = document.createElement("a");
+              a.href = "#" + item.id;
+              a.textContent = item.text;
+              a.className = "toc-link";
+              a.setAttribute("data-heading-id", item.id);
+              a.addEventListener("click", function (e) {
+                e.preventDefault();
+                var target = document.getElementById(item.id);
+                if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+                // Close mobile TOC after click
+                var mobileNavEl = document.getElementById("toc-mobile-nav");
+                if (mobileNavEl && mobileNavEl.classList.contains("open")) {
+                  mobileNavEl.classList.remove("open");
+                  var chevron = document.getElementById("toc-mobile-chevron");
+                  if (chevron) chevron.style.transform = "";
+                }
+              });
+              li.appendChild(a);
+              ul.appendChild(li);
+            });
+            container.appendChild(ul);
+          }
+
+          if (sidebarNav) buildTocList(sidebarNav);
+          if (mobileNav) buildTocList(mobileNav);
+
+          // Mobile toggle
+          var toggleBtn = document.getElementById("toc-mobile-toggle");
+          if (toggleBtn && mobileNav) {
+            toggleBtn.addEventListener("click", function () {
+              mobileNav.classList.toggle("open");
+              var chevron = document.getElementById("toc-mobile-chevron");
+              if (chevron) {
+                chevron.style.transform = mobileNav.classList.contains("open") ? "rotate(180deg)" : "";
+              }
+            });
+          }
+
+          // Active heading tracking with IntersectionObserver
+          var allTocLinks = document.querySelectorAll(".toc-link");
+          var currentActive = null;
+
+          var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                var id = entry.target.id;
+                if (currentActive) currentActive.classList.remove("active");
+                allTocLinks.forEach(function (link) {
+                  if (link.getAttribute("data-heading-id") === id) {
+                    link.classList.add("active");
+                    currentActive = link;
+                  }
+                });
+              }
+            });
+          }, { rootMargin: "-80px 0px -70% 0px", threshold: 0 });
+
+          tocHeadings.forEach(function (h) {
+            if (h.id) observer.observe(h);
+          });
+        }
       }
 
       // ─── Code Copy Buttons ───
