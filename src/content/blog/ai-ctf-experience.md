@@ -54,7 +54,7 @@ Since I know a bit about machine learning, I decided to first tackle bypassing A
 
 As usual, once you know the answer, the solution seems simple and obvious. The AI validator simply detected forbidden substrings in direct output. So if you request hexadecimal bytes, the model never outputs the forbidden string unchanged, and the validator allows the response. This way we could decode the entire string locally and find the flag!
 
-After this, I noted to myself once again that you need different models (though sometimes just restarting Claude Code also helped, of course), and immediately went to pay for a Gemini 3 token -- based on [my summer experiments](https://avalur.github.io/posts/AlphaGoMomentForMaths.html) with olympiad math problems, I thought it would be good. In reality, it turned out that it also couldn't solve the remaining hard tasks.
+After this, I noted to myself once again that you need different models (though sometimes just restarting Claude Code also helped, of course), and immediately went to pay for a Gemini 3 token -- based on [my summer experiments](https://avalur.me/posts/alphago-moment-for-maths) with olympiad math problems, I thought it would be good. In reality, it turned out that it also couldn't solve the remaining hard tasks.
 
 ## Final Thoughts
 
