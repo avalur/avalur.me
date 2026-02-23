@@ -1,4 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  type LeaderboardEntry,
+  saveToLeaderboard,
+  subscribeToLeaderboard,
+  parseAmount,
+} from "../lib/firebase";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -8,13 +14,6 @@ interface Question {
   options: [string, string, string, string];
   correct: number;
   hint?: string;
-}
-
-interface LeaderboardEntry {
-  name: string;
-  amount: string;
-  questionIndex: number;
-  date: string;
 }
 
 type Screen = "welcome" | "game" | "result";
@@ -144,7 +143,6 @@ const QUESTIONS: Question[] = [
 ];
 
 const LETTER_LABELS = ["A", "B", "C", "D"];
-const LEADERBOARD_KEY = "quiz-leaderboard";
 
 // ─── Sound via Web Audio API ─────────────────────────────────────────────────
 
@@ -223,39 +221,7 @@ function stopBgMusic() {
   bgAudio.currentTime = 0;
 }
 
-// ─── Leaderboard helpers ─────────────────────────────────────────────────────
-
-function loadLeaderboard(): LeaderboardEntry[] {
-  try {
-    return JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function parseAmount(amount: string): number {
-  return parseInt(amount.replace(/[,\s]/g, "")) || 0;
-}
-
-function deduplicateBoard(board: LeaderboardEntry[]): LeaderboardEntry[] {
-  const best = new Map<string, LeaderboardEntry>();
-  for (const entry of board) {
-    const key = entry.name.toLowerCase();
-    const existing = best.get(key);
-    if (!existing || parseAmount(entry.amount) > parseAmount(existing.amount)) {
-      best.set(key, entry);
-    }
-  }
-  return Array.from(best.values());
-}
-
-function saveToLeaderboard(entry: LeaderboardEntry) {
-  const board = loadLeaderboard();
-  board.push(entry);
-  const deduped = deduplicateBoard(board);
-  deduped.sort((a, b) => parseAmount(b.amount) - parseAmount(a.amount));
-  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(deduped.slice(0, 20)));
-}
+// ─── Leaderboard: see src/lib/firebase.ts ────────────────────────────────────
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -282,15 +248,13 @@ export default function Quiz() {
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
 
+  // Real-time leaderboard subscription from Firebase
   useEffect(() => {
-    const board = loadLeaderboard();
-    const deduped = deduplicateBoard(board);
-    if (deduped.length !== board.length) {
-      deduped.sort((a, b) => parseAmount(b.amount) - parseAmount(a.amount));
-      localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(deduped.slice(0, 20)));
-    }
-    setLeaderboard(deduped);
-  }, [screen]);
+    const unsubscribe = subscribeToLeaderboard((entries) => {
+      setLeaderboard(entries);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Start/stop bg music based on screen and mute state
   useEffect(() => {
