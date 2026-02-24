@@ -176,7 +176,7 @@ function playTone(ctx: AudioContext, freq: number, duration: number, type: Oscil
   osc.stop(ctx.currentTime + duration);
 }
 
-function playSoundEffect(name: "select" | "correct" | "wrong" | "win") {
+function playSoundEffect(name: "select" | "correct" | "correct-safe" | "wrong" | "win") {
   const ctx = getAudioCtx();
   if (!ctx) return;
 
@@ -189,6 +189,15 @@ function playSoundEffect(name: "select" | "correct" | "wrong" | "win") {
       playTone(ctx, 523, 0.15, "sine", 0.2);
       setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 659, 0.15, "sine", 0.2); }, 100);
       setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 784, 0.3, "sine", 0.2); }, 200);
+      break;
+    case "correct-safe":
+      // Celebratory fanfare for reaching a safe haven
+      playTone(ctx, 523, 0.2, "sine", 0.2);
+      setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 659, 0.2, "sine", 0.2); }, 120);
+      setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 784, 0.2, "sine", 0.2); }, 240);
+      setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 1047, 0.4, "sine", 0.25); }, 360);
+      setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 784, 0.15, "sine", 0.15); }, 520);
+      setTimeout(() => { const c = getAudioCtx(); if (c) playTone(c, 1047, 0.5, "sine", 0.25); }, 640);
       break;
     case "wrong":
       playTone(ctx, 300, 0.4, "sawtooth", 0.12);
@@ -266,7 +275,7 @@ export default function Quiz() {
     return () => { stopBgMusic(); };
   }, [screen, muted]);
 
-  const playSound = useCallback((name: "select" | "correct" | "wrong" | "win") => {
+  const playSound = useCallback((name: "select" | "correct" | "correct-safe" | "wrong" | "win") => {
     if (mutedRef.current) return;
     playSoundEffect(name);
   }, []);
@@ -316,7 +325,7 @@ export default function Quiz() {
       setAnswerState("revealed");
 
       if (isCorrect) {
-        playSound("correct");
+        playSound(SAFE_HAVENS.includes(currentQ) ? "correct-safe" : "correct");
 
         setTimeout(() => {
           if (currentQ === QUESTIONS.length - 1) {
@@ -567,8 +576,12 @@ export default function Quiz() {
                     className={`flex justify-between items-center px-3 py-1 rounded text-sm font-mono transition-all ${
                       isCurrent
                         ? "bg-indigo-600/60 text-white font-bold scale-105"
+                        : isPassed && isSafe
+                        ? "bg-yellow-500/15 text-yellow-400/80"
                         : isPassed
                         ? "text-green-400/70"
+                        : isSafe
+                        ? "bg-yellow-500/15 text-yellow-400/80"
                         : "text-indigo-400/50"
                     } ${isSafe ? "border-l-2 border-yellow-400" : ""}`}
                   >
