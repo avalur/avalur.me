@@ -8,12 +8,27 @@ import {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-interface Question {
+export interface BlurRegion {
+  top: number;    // % from top
+  left: number;   // % from left
+  width: number;  // % width
+  height: number; // % height
+}
+
+export interface Question {
   question: string;
   image: string;
   options: [string, string, string, string];
   correct: number;
   hint?: string;
+  blurRegions?: BlurRegion[];
+}
+
+interface QuizProps {
+  questions?: Question[];
+  title?: string;
+  subtitle?: string;
+  leaderboardPath?: string;
 }
 
 type Screen = "welcome" | "game" | "result";
@@ -29,7 +44,7 @@ const AMOUNTS = [
 
 const SAFE_HAVENS = [4, 9];
 
-const QUESTIONS: Question[] = [
+const CS_QUESTIONS: Question[] = [
   {
     question: "Which programming language was created by Guido van Rossum in 1991?",
     image: "/quiz/q1.webp",
@@ -234,7 +249,12 @@ function stopBgMusic() {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function Quiz() {
+export default function Quiz({
+  questions: QUESTIONS = CS_QUESTIONS,
+  title = "a Millionaire?",
+  subtitle = "15 questions about computer science & programming",
+  leaderboardPath = "leaderboard",
+}: QuizProps = {}) {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [playerName, setPlayerName] = useState("");
   const [currentQ, setCurrentQ] = useState(0);
@@ -261,9 +281,9 @@ export default function Quiz() {
   useEffect(() => {
     const unsubscribe = subscribeToLeaderboard((entries) => {
       setLeaderboard(entries);
-    });
+    }, leaderboardPath);
     return () => unsubscribe();
-  }, []);
+  }, [leaderboardPath]);
 
   // Start/stop bg music based on screen and mute state
   useEffect(() => {
@@ -326,28 +346,6 @@ export default function Quiz() {
 
       if (isCorrect) {
         playSound(SAFE_HAVENS.includes(currentQ) ? "correct-safe" : "correct");
-
-        setTimeout(() => {
-          if (currentQ === QUESTIONS.length - 1) {
-            playSound("win");
-            const amount = AMOUNTS[currentQ];
-            setFinalAmount(amount);
-            saveToLeaderboard({
-              name: getDisplayName(),
-              amount,
-              questionIndex: currentQ,
-              date: new Date().toLocaleDateString("en-US"),
-            });
-            setScreen("result");
-          } else {
-            setCurrentQ((q) => q + 1);
-            setSelectedAnswer(null);
-            setAnswerState("idle");
-            setRemovedOptions([]);
-            setShowAudience(false);
-            setShowPhone(false);
-          }
-        }, 1500);
       } else {
         playSound("wrong");
 
@@ -359,11 +357,34 @@ export default function Quiz() {
             amount,
             questionIndex: currentQ,
             date: new Date().toLocaleDateString("en-US"),
-          });
+          }, leaderboardPath);
           setScreen("result");
         }, 2000);
       }
     }, 1500);
+  };
+
+  const goToNext = () => {
+    if (answerState !== "revealed" || selectedAnswer !== QUESTIONS[currentQ].correct) return;
+    if (currentQ === QUESTIONS.length - 1) {
+      playSound("win");
+      const amount = AMOUNTS[currentQ];
+      setFinalAmount(amount);
+      saveToLeaderboard({
+        name: getDisplayName(),
+        amount,
+        questionIndex: currentQ,
+        date: new Date().toLocaleDateString("en-US"),
+      }, leaderboardPath);
+      setScreen("result");
+    } else {
+      setCurrentQ((q) => q + 1);
+      setSelectedAnswer(null);
+      setAnswerState("idle");
+      setRemovedOptions([]);
+      setShowAudience(false);
+      setShowPhone(false);
+    }
   };
 
   // ─── Lifelines ─────────────────────────────────────────────────────────────
@@ -446,10 +467,10 @@ export default function Quiz() {
               Who Wants to Be
             </h1>
             <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
-              a Millionaire?
+              {title}
             </h1>
             <p className="text-indigo-300 text-sm mt-2">
-              15 questions about computer science &amp; programming
+              {subtitle}
             </p>
           </div>
 
@@ -615,7 +636,7 @@ export default function Quiz() {
       </div>
 
       {/* Main game area */}
-      <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-4xl mx-auto w-full">
+      <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
         {/* Top bar: question number + amount (mobile) + lifelines */}
         <div className="flex items-center justify-between mb-4">
           <div className="text-indigo-300 font-bold">
@@ -651,83 +672,116 @@ export default function Quiz() {
           </div>
         </div>
 
-        {/* Question image */}
-        <div className="flex justify-center mb-4">
-          <div className="w-full max-w-lg aspect-video rounded-xl overflow-hidden bg-indigo-950/40 border border-indigo-500/20 flex items-center justify-center">
-            <img
-              src={q.image}
-              alt={`Question ${currentQ + 1}`}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-                (e.target as HTMLImageElement).parentElement!.innerHTML =
-                  `<div class="text-indigo-400/40 text-6xl">?</div>`;
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Question text */}
-        <div className="text-center mb-6">
-          <div className="inline-block bg-indigo-950/60 border border-indigo-500/30 rounded-xl px-6 py-4 max-w-2xl">
-            <p className="text-white text-lg md:text-xl font-medium leading-relaxed">
-              {q.question}
-            </p>
-          </div>
-        </div>
-
-        {/* Options */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          {q.options.map((opt, i) => (
-            <button
-              key={i}
-              onClick={() => handleAnswer(i)}
-              disabled={answerState !== "idle" || removedOptions.includes(i)}
-              className={getOptionClass(i)}
-            >
-              <span className="text-indigo-400 font-bold text-sm shrink-0 w-6">
-                {LETTER_LABELS[i]}:
-              </span>
-              <span className="text-sm md:text-base">{opt}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Audience chart */}
-        {showAudience && (
-          <div className="bg-indigo-950/80 border border-indigo-500/30 rounded-xl p-4 mb-4">
-            <p className="text-indigo-300 text-sm mb-3 text-center font-bold">
-              Audience Poll Results:
-            </p>
-            <div className="flex items-end justify-center gap-4 h-32">
-              {audienceData.map((pct, i) => (
-                <div key={i} className="flex flex-col items-center gap-1">
-                  <span className="text-xs text-indigo-300">{Math.round(pct)}%</span>
-                  <div
-                    className="w-10 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-t transition-all duration-500"
-                    style={{
-                      height: `${Math.max(pct, 2)}%`,
-                      opacity: removedOptions.includes(i) ? 0.2 : 1,
-                    }}
-                  />
-                  <span className="text-xs text-indigo-400 font-bold">{LETTER_LABELS[i]}</span>
-                </div>
+        {/* Desktop: image left, question+options right. Mobile: stacked */}
+        <div className="flex flex-col xl:flex-row xl:gap-6">
+          {/* Question image */}
+          <div className="flex justify-center mb-4 xl:mb-0 xl:w-1/2 xl:shrink-0">
+            <div className="w-full rounded-xl overflow-hidden bg-indigo-950/40 border border-indigo-500/20 relative">
+              <img
+                src={q.image}
+                alt={`Question ${currentQ + 1}`}
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                  (e.target as HTMLImageElement).parentElement!.innerHTML =
+                    `<div class="flex items-center justify-center h-64 text-indigo-400/40 text-6xl">?</div>`;
+                }}
+              />
+              {q.blurRegions?.map((region, i) => (
+                <div
+                  key={i}
+                  className="absolute transition-all duration-700 pointer-events-none"
+                  style={{
+                    top: `${region.top}%`,
+                    left: `${region.left}%`,
+                    width: `${region.width}%`,
+                    height: `${region.height}%`,
+                    backdropFilter: answerState === "revealed" ? "blur(0px)" : "blur(12px)",
+                    WebkitBackdropFilter: answerState === "revealed" ? "blur(0px)" : "blur(12px)",
+                    backgroundColor: answerState === "revealed" ? "transparent" : "rgba(10, 14, 39, 0.3)",
+                  }}
+                />
               ))}
             </div>
           </div>
-        )}
 
-        {/* Phone a friend */}
-        {showPhone && q.hint && (
-          <div className="bg-indigo-950/80 border border-indigo-500/30 rounded-xl p-4 mb-4">
-            <p className="text-indigo-300 text-sm mb-2 font-bold">
-              &#x1F4DE; Phone a Friend:
-            </p>
-            <p className="text-white text-sm italic leading-relaxed">
-              &ldquo;{q.hint}&rdquo;
+          {/* Question text + options */}
+          <div className="xl:w-1/2 xl:flex xl:flex-col xl:justify-center">
+            {/* Question text */}
+            <div className="text-center xl:text-left mb-4">
+              <div className="inline-block bg-indigo-950/60 border border-indigo-500/30 rounded-xl px-6 py-4">
+                <p className="text-white text-lg md:text-xl font-medium leading-relaxed">
+                  {q.question}
+                </p>
+              </div>
+            </div>
+
+            {/* Options */}
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              {q.options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleAnswer(i)}
+                  disabled={answerState !== "idle" || removedOptions.includes(i)}
+                  className={getOptionClass(i)}
+                >
+                  <span className="text-indigo-400 font-bold text-sm shrink-0 w-6">
+                    {LETTER_LABELS[i]}:
+                  </span>
+                  <span className="text-sm md:text-base">{opt}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Next question button */}
+            {answerState === "revealed" && selectedAnswer === q.correct && (
+              <div className="mb-4">
+                <button
+                  onClick={goToNext}
+                  className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg hover:from-green-500 hover:to-emerald-500 transition-all shadow-lg hover:shadow-green-500/25"
+                >
+                  {currentQ === QUESTIONS.length - 1 ? "Finish Game" : "Next Question →"}
+                </button>
+              </div>
+            )}
+
+            {/* Audience chart */}
+            {showAudience && (
+              <div className="bg-indigo-950/80 border border-indigo-500/30 rounded-xl p-4 mb-4">
+                <p className="text-indigo-300 text-sm mb-3 text-center font-bold">
+                  Audience Poll Results:
+                </p>
+                <div className="flex items-end justify-center gap-4 h-32">
+                  {audienceData.map((pct, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <span className="text-xs text-indigo-300">{Math.round(pct)}%</span>
+                      <div
+                        className="w-10 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-t transition-all duration-500"
+                        style={{
+                          height: `${Math.max(pct, 2)}%`,
+                          opacity: removedOptions.includes(i) ? 0.2 : 1,
+                        }}
+                      />
+                      <span className="text-xs text-indigo-400 font-bold">{LETTER_LABELS[i]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Phone a friend */}
+            {showPhone && q.hint && (
+              <div className="bg-indigo-950/80 border border-indigo-500/30 rounded-xl p-4 mb-4">
+                <p className="text-indigo-300 text-sm mb-2 font-bold">
+                  &#x1F4DE; Phone a Friend:
+                </p>
+                <p className="text-white text-sm italic leading-relaxed">
+                  &ldquo;{q.hint}&rdquo;
             </p>
           </div>
         )}
+          </div>
+        </div>
       </div>
 
       <MuteButton muted={muted} setMuted={setMuted} />

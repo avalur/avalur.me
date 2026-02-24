@@ -35,7 +35,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const leaderboardRef = ref(db, "leaderboard");
+
+function getRef(path: string) {
+  return ref(db, path);
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -63,9 +66,9 @@ function sortAndCap(board: LeaderboardEntry[]): LeaderboardEntry[] {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export async function loadLeaderboard(): Promise<LeaderboardEntry[]> {
+export async function loadLeaderboard(path = "leaderboard"): Promise<LeaderboardEntry[]> {
   try {
-    const snapshot = await get(leaderboardRef);
+    const snapshot = await get(getRef(path));
     if (!snapshot.exists()) return [];
     const data = snapshot.val() as LeaderboardEntry[];
     return sortAndCap(deduplicateBoard(data));
@@ -74,25 +77,27 @@ export async function loadLeaderboard(): Promise<LeaderboardEntry[]> {
   }
 }
 
-export async function saveToLeaderboard(entry: LeaderboardEntry): Promise<void> {
+export async function saveToLeaderboard(entry: LeaderboardEntry, path = "leaderboard"): Promise<void> {
   try {
-    const snapshot = await get(leaderboardRef);
+    const dbRef = getRef(path);
+    const snapshot = await get(dbRef);
     const board: LeaderboardEntry[] = snapshot.exists()
       ? (snapshot.val() as LeaderboardEntry[])
       : [];
     board.push(entry);
     const deduped = sortAndCap(deduplicateBoard(board));
-    await set(leaderboardRef, deduped);
+    await set(dbRef, deduped);
   } catch (e) {
     console.error("Failed to save to leaderboard:", e);
   }
 }
 
 export function subscribeToLeaderboard(
-  callback: (entries: LeaderboardEntry[]) => void
+  callback: (entries: LeaderboardEntry[]) => void,
+  path = "leaderboard"
 ): Unsubscribe {
   return onValue(
-    leaderboardRef,
+    getRef(path),
     (snapshot) => {
       if (!snapshot.exists()) {
         callback([]);
@@ -102,7 +107,6 @@ export function subscribeToLeaderboard(
       callback(sortAndCap(deduplicateBoard(data)));
     },
     () => {
-      // On error, return empty
       callback([]);
     }
   );
