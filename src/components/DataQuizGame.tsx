@@ -16,6 +16,7 @@ export interface Question {
   correct: number;
   hint?: string;
   blurRegions?: BlurRegion[];
+  imageScale?: number; // 0-1, e.g. 0.8 = 80% width
 }
 
 export interface DataQuestion extends Question {
@@ -377,7 +378,10 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
         <div className="flex flex-col xl:flex-row xl:items-center xl:gap-6 flex-1">
           {/* Question image */}
           <div className="flex justify-center mb-4 xl:mb-0 xl:w-1/2 xl:shrink-0">
-            <div className="w-full rounded-xl overflow-hidden bg-indigo-950/40 border border-indigo-500/20 relative self-start">
+            <div
+              className="rounded-xl overflow-hidden bg-indigo-950/40 border border-indigo-500/20 relative self-start"
+              style={{ width: q.imageScale ? `${q.imageScale * 100}%` : "100%" }}
+            >
               <img
                 src={q.image}
                 alt={`Question ${currentQ + 1}`}
