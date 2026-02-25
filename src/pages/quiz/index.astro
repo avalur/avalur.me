@@ -1,5 +1,5 @@
 ---
-import Quiz from "../../components/Quiz";
+import DataQuiz from "../../components/DataQuiz";
 ---
 
 <!doctype html>
@@ -7,10 +7,10 @@ import Quiz from "../../components/Quiz";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Who Wants to Be a Millionaire? | CS Quiz</title>
+    <title>Data Viz Quiz | Who Wants to Be a Data Viz Expert?</title>
     <meta
       name="description"
-      content="Interactive quiz in the style of 'Who Wants to Be a Millionaire' — 15 questions about computer science and programming"
+      content="Interactive quiz — guess what's shown on charts, maps, and data visualizations. Two games of 15 questions each!"
     />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -38,12 +38,10 @@ import Quiz from "../../components/Quiz";
         overflow-x: hidden;
       }
 
-      /* Radial gradient background */
       body {
         background: radial-gradient(ellipse at 50% 0%, #1a1f4e 0%, #0a0e27 60%);
       }
 
-      /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 6px;
       }
@@ -55,7 +53,6 @@ import Quiz from "../../components/Quiz";
         border-radius: 3px;
       }
 
-      /* Animations */
       @keyframes pulse {
         0%,
         100% {
@@ -71,6 +68,6 @@ import Quiz from "../../components/Quiz";
     </style>
   </head>
   <body>
-    <Quiz client:load />
+    <DataQuiz client:load />
   </body>
 </html>

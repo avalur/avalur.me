@@ -1,7 +1,22 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { Question } from "./Quiz";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
+
+export interface BlurRegion {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+export interface Question {
+  question: string;
+  image: string;
+  options: [string, string, string, string];
+  correct: number;
+  hint?: string;
+  blurRegions?: BlurRegion[];
+}
 
 export interface DataQuestion extends Question {
   title: string;
