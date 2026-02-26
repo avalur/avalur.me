@@ -352,7 +352,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
               <img
                 src={hero.image}
                 alt={hero.name}
-                className="w-72 h-72 md:w-96 md:h-96 rounded-xl object-cover shadow-lg"
+                className="max-w-72 md:max-w-96 rounded-xl object-contain shadow-lg"
                 style={{ border: "2px solid var(--quiz-border-medium)" }}
               />
             </div>
