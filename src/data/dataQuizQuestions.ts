@@ -5,24 +5,24 @@ import type { DataQuestion } from "../components/DataQuizGame";
 export const GAME1_QUESTIONS: DataQuestion[] = [
   {
     title: "Red line",
-    question: "What is depicted on this map?",
     image: "/quiz/data/g1-10.png",
+    imageScale: 0.75,
     options: ["Bird migration routes", "The longest railway route in the world (without ferry transfers)", "Transatlantic internet cables", "Maritime trade routes of the 15th–17th centuries"],
     correct: 1,
     hint: "The line goes across all of Eurasia — that's the Trans-Siberian Railway and beyond! 75% sure.",
   },
   {
     title: "Research paper",
-    question: "What is depicted in this illustration from a research paper?",
     image: "/quiz/data/g1-12.png",
+    imageScale: 0.9,
     options: ["Eye-tracking heatmap of a user's gaze on a web page", "Mouse click density map on an interface", "Temperature distribution on a screen surface", "Visualization of neural connections in the brain"],
     correct: 0,
     hint: "A heatmap on a web page — that's classic eye-tracking, the famous F-shaped reading pattern. 85% sure.",
   },
   {
     title: "Blue zones",
-    question: "What is shown on this world map?",
     image: "/quiz/data/g1-02.jpg",
+    imageScale: 0.8,
     options: ["World oil reserves", "Tsunami zones",
       "Map of the world's lakes", "Fresh water reserves by country"],
     correct: 2,
@@ -33,8 +33,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Map of Russia",
-    question: "What is shown on this map of Russia?",
     image: "/quiz/data/g1-03.jpg",
+    imageScale: 0.8,
     options: ["Distribution of forests across Russia",
       "Number of days with snow cover",
       "Permafrost zones", "Road network density"],
@@ -42,13 +42,13 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
     hint: "The lines looks like snow amount. 90% sure.",
     blurRegions: [
         { top: 3, left: 5, width: 35, height: 5 },
-        { top: 78.2, left: 5, width: 28, height: 7 },
+        { top: 79, left: 6, width: 28.3, height: 7 },
     ],
   },
   {
     title: "Time affects",
-    question: "What does this map show (red = historical, blue = modern)?",
     image: "/quiz/data/g1-04.png",
+    imageScale: 0.55,
     options: ["Tiger habitat: historical and modern",
       "Malaria spread: past and present",
       "Distribution of lions: historical and modern",
@@ -58,8 +58,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Polar map",
-    question: "What is shown on this map?",
     image: "/quiz/data/g1-01.jpg",
+    orientation: "portrait",
     options: ["Polar expedition routes",
       "Distribution of penguins", "Permafrost zones", "Antarctic glaciers"],
     correct: 1,
@@ -71,8 +71,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "World map 1",
-    question: "What is shown on this world map?",
     image: "/quiz/data/g1-05.png",
+    imageScale: 0.75,
     options: ["Average number of children per woman by country", "Population literacy rates", "Average life expectancy", "GDP per capita"],
     correct: 0,
     hint: "Africa really stands out — most likely it's children per woman (fertility rate). 80% sure.",
@@ -85,8 +85,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "World map 2",
-    question: "What does this world map with circles of varying sizes show?",
     image: "/quiz/data/g1-06.png",
+    imageScale: 0.85,
     options: ["Major earthquakes over the last 100 years",
       "Meteorite landings around the world",
       "Largest volcanic eruptions in history", "Sites of ancient civilizations"],
@@ -95,8 +95,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Moscow buildings",
-    question: "What is depicted on this map?",
     image: "/quiz/data/g1-07.png",
+    imageScale: 0.9,
     options: ["Air pollution map of Moscow",
       "Real estate prices by district in Moscow",
       "Age of buildings in Moscow",
@@ -109,8 +109,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Europe map",
-    question: "What is shown on this map of Europe?",
     image: "/quiz/data/g1-08.png",
+    imageScale: 0.5,
     options: ["Average salary by country in thousands of euros per month",
       "Average price for 0.5 liter of beer in restaurants, in €",
       "Average price for a cup of coffee, in €",
@@ -124,8 +124,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Irish map",
-    question: "What is shown on this map of Ireland?",
     image: "/quiz/data/g1-09.jpg",
+    orientation: "portrait",
     options: ["Distribution of sheep farms", "Rainfall by region",
       "Tourist attractions", "People who speak the Irish language"],
     correct: 3,
@@ -137,35 +137,37 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Tarantino films",
-    question: "What do these histograms show?",
     image: "/quiz/data/g1-11.png",
+    imageScale: 0.9,
+    orientation: "portrait",
     options: ["Frequency of color usage in films by different directors",
       "Number of swear word mentions and deaths",
       "Critic ratings for different movie genres", "Screen time of actors in various films"],
     correct: 1,
     hint: "A heatmap with words — those are definitely swear words in Tarantino movies! 80% sure.",
     blurRegions: [
-        { top: 2, left: 2, width: 95, height: 13 },
+        { top: 1.5, left: 2, width: 95, height: 13 },
     ],
   },
   {
     title: "Lon & Lat charts",
-    question: "What do these charts by longitude and latitude show?",
     image: "/quiz/data/g1-13.png",
+    imageScale: 0.9,
+    orientation: "portrait",
     options: ["Distribution of volcanic activity on Earth", "Average annual temperature by coordinates", "World population density by longitude and latitude", "Rainfall by geographic coordinates"],
     correct: 2,
     hint: "Charts by latitude and longitude — the peaks match India and China. It's population! 70% sure.",
     blurRegions: [
         { top: 0.4, left: 7, width: 85, height: 3 },
         { top: 41, left: 12, width: 75, height: 3 },
-        { top: 51.5, left: 7, width: 85, height: 3 },
+        { top: 51, left: 7, width: 85, height: 3.5 },
         { top: 96, left: 12, width: 75, height: 3 },
     ],
   },
   {
     title: "Color curves",
-    question: "What do these curves show?",
     image: "/quiz/data/g1-14.png",
+    imageScale: 0.65,
     options: ["Mortality distribution by age in Great Britain across different years", "Government bond yield curves", "Exam score distributions by decade", "Population growth curves for different countries"],
     correct: 0,
     hint: "Curves by age across different years — that's mortality distribution. You can see the peak shifting to the right over time. 65% sure.",
@@ -177,8 +179,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Ridgeline",
-    question: "What does this chart with 12 peaks show?",
     image: "/quiz/data/g1-15.png",
+    imageScale: 0.7,
     options: ["Monthly rainfall in the tropics", "Temperature distribution in Fahrenheit by month over 66 years in the US", "Amusement park attendance by month", "Number of births by month in Europe"],
     correct: 1,
     hint: "12 peaks = 12 months, data spanning 66 years. It's temperature in Fahrenheit in the US. This type of chart is called a ridgeline plot. 60% sure.",
@@ -194,8 +196,8 @@ export const GAME1_QUESTIONS: DataQuestion[] = [
 export const GAME2_QUESTIONS: DataQuestion[] = [
   {
     title: "Highlighted countries",
-    question: "What is shown on this map with highlighted countries?",
     image: "/quiz/data/g2-01.jpeg",
+    imageScale: 0.5,
     options: ["Countries that participated in World War II",
       "Countries mentioned in the Bible",
       "Countries with a monarchical form of government",
@@ -209,8 +211,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Map of Africa",
-    question: "What does this map of Africa show (red and grey)?",
     image: "/quiz/data/g2-02.png",
+    imageScale: 0.5,
     options: ["50% of the population lives in the red area, the other 50% in the grey",
       "Average temperatures: hot zones in red, cold in grey",
       "Distribution of religions: Islam (red) and Christianity (grey)",
@@ -220,8 +222,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Images by country",
-    question: "What do these drawings show?",
     image: "/quiz/data/g2-03.png",
+    orientation: "portrait",
     imageScale: 0.75,
     options: ["How a neural network recognizes different objects",
       "How people from different countries draw the same objects (chairs, power outlets)",
@@ -232,8 +234,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Daily schedules",
-    question: "What data is shown in this visualization?",
     image: "/quiz/data/g2-04.png",
+    orientation: "portrait",
     imageScale: 0.8,
     options: ["TV broadcast schedules for different channels",
       "Daily routines of famous people (writers, scientists, composers)",
@@ -253,20 +255,20 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "USA dot map",
-    question: "What is depicted on this map?",
     image: "/quiz/data/g2-05.jpg",
+    imageScale: 0.9,
     options: ["Political preferences by US district (Republicans/Democrats)", "Soil types across the United States", "Distribution of races and ethnicities in the US by area", "Crime levels by US district"],
     correct: 2,
     hint: "Multicolored dots across the US — that's the racial composition by area. Each color represents a race. 80% sure.",
     blurRegions: [
-        { top: 1, left: 0.5, width: 12, height: 4 },
-        { top: 78, left: 82, width: 18, height: 18 },
+        { top: 1, left: 0.3, width: 12, height: 4 },
+        { top: 78, left: 80, width: 19.5, height: 20 },
     ],
   },
   {
     title: "Species",
-    question: "What does this visualization show?",
     image: "/quiz/data/g2-06.png",
+    imageScale: 0.65,
     options: ["Some examples of evolution",
       "Living organisms which are named after famous people",
       "Related biological species",
@@ -280,8 +282,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Olympics",
-    question: "What is shown on this chart?",
     image: "/quiz/data/g2-07.png",
+    orientation: "portrait",
     options: ["Average age of Olympic medalists (men and women)",
       "Number of countries' medals in the Olympics by year",
       "Average athletic performance at the Olympics",
@@ -295,8 +297,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Musical genres",
-    question: "What does this visualization show?",
     image: "/quiz/data/g2-08.webp",
+    imageScale: 0.5,
     options: ["Frequency spectrum of various musical genres",
       "Loudness of music by genre over time",
       "Average music album sales by decade",
@@ -310,26 +312,26 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Figurative Minard's map",
-    question: "What is depicted in the image?",
     image: "/quiz/data/g2-09.png",
+    imageScale: 0.9,
     options: [
       "The elevation profile along the route",
-      "The speed of the army’s march",
-      "The number of soldiers remaining in Napoleon’s army",
+      "The speed of the army's march",
+      "The number of soldiers remaining in Napoleon's army",
       "The population of the cities on the map"
     ],
     correct: 2,
     hint: "Density plots with character names — those are personality types from Game of Thrones! 75% sure.",
     blurRegions: [
-        { top: 2, left: 1, width: 80, height: 20 },
+        { top: 2, left: 1, width: 80, height: 20.5 },
         { top: 23, left: 1, width: 72, height: 10 },
         { top: 77, left: 2, width: 96, height: 20 },
     ],
   },
   {
     title: "Tournament",
-    question: "What is shown in this visualization?",
     image: "/quiz/data/g2-10.jpg",
+    imageScale: 0.65,
     options: ["A royal family tree",
       "A tournament of names (people vote for their favorite name)",
       "Results of a chess tournament",
@@ -339,8 +341,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Europe map",
-    question: "What is shown on this map of Europe?",
     image: "/quiz/data/g2-11.webp",
+    imageScale: 0.65,
     options: ["Railway network of Europe",
       "Highway networks of European countries",
       "Bicycle lanes in Europe",
@@ -350,8 +352,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Arrows",
-    question: "What is depicted in this image?",
     image: "/quiz/data/g2-12.png",
+    imageScale: 0.75,
     options: ["Tactical formation of a basketball team",
       "Passing network in the 2014 World Cup Football Final",
       "Subway map of two cities",
@@ -361,8 +363,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Square with lines",
-    question: "What does this image show?",
     image: "/quiz/data/g2-13.png",
+    orientation: "portrait",
     options: [
         "Best opening moves according to a computer",
         "Heatmap of beginner chess players' mistakes",
@@ -376,8 +378,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "Binary distribution",
-    question: "What does this figure show?",
     image: "/quiz/data/g2-14.webp",
+    imageScale: 0.5,
     options: [
         "Working age / Retired",
         "Marital status",
@@ -392,8 +394,8 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
   },
   {
     title: "USA and other countries",
-    question: "What does this map show?",
     image: "/quiz/data/g2-15.webp",
+    imageScale: 0.7,
     options: [
           "US arms exports by destination country",
           "US trade volume by partner country",
@@ -401,11 +403,11 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
           "Number of people at US military bases by country"
         ],
     correct: 2,
-    hint: "A world map with countries sized/weighted differently — it’s about origins of international students in the US. Look for big contributors like China and India.",
+    hint: "A world map with countries sized/weighted differently — it's about origins of international students in the US. Look for big contributors like China and India.",
     blurRegions: [
         { top: 2, left: 22, width: 58, height: 10 },
         { top: 14, left: 70, width: 24, height: 8 },
-        { top: 92, left: 2, width: 52, height: 3 },
+        { top: 92, left: 2, width: 52, height: 4 },
     ],
   },
 ];

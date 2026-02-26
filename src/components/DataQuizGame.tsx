@@ -9,18 +9,15 @@ export interface BlurRegion {
   height: number;
 }
 
-export interface Question {
-  question: string;
+export interface DataQuestion {
+  title: string;
   image: string;
   options: [string, string, string, string];
   correct: number;
   hint?: string;
   blurRegions?: BlurRegion[];
   imageScale?: number; // 0-1, e.g. 0.8 = 80% width
-}
-
-export interface DataQuestion extends Question {
-  title: string;
+  orientation?: "landscape" | "portrait"; // default: landscape
 }
 
 interface DataQuizGameProps {
@@ -287,6 +284,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   };
 
   const canNavigate = answerState === "idle";
+  const isPortrait = q.orientation === "portrait";
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
@@ -374,10 +372,10 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
           </div>
         </div>
 
-        {/* Desktop: image left, question+options right. Mobile: stacked */}
-        <div className="flex flex-col xl:flex-row xl:items-center xl:gap-6 flex-1">
+        {/* Portrait: image left + options right on desktop. Landscape: stacked */}
+        <div className={`flex flex-col flex-1 ${isPortrait ? "xl:flex-row xl:items-center xl:gap-6" : ""}`}>
           {/* Question image */}
-          <div className="flex justify-center mb-4 xl:mb-0 xl:w-1/2 xl:shrink-0">
+          <div className={`flex justify-center mb-4 ${isPortrait ? "xl:mb-0 xl:w-1/2 xl:shrink-0" : ""}`}>
             <div
               className="rounded-xl overflow-hidden bg-indigo-950/40 border border-indigo-500/20 relative self-start"
               style={{ width: q.imageScale ? `${q.imageScale * 100}%` : "100%" }}
@@ -410,19 +408,10 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
             </div>
           </div>
 
-          {/* Question text + options */}
-          <div className="xl:w-1/2 xl:flex xl:flex-col xl:justify-center">
-            {/* Question text */}
-            <div className="text-center xl:text-left mb-4">
-              <div className="inline-block bg-indigo-950/60 border border-indigo-500/30 rounded-xl px-6 py-4">
-                <p className="text-white text-lg md:text-xl font-medium leading-relaxed">
-                  {q.question}
-                </p>
-              </div>
-            </div>
-
+          {/* Options */}
+          <div className={isPortrait ? "xl:w-1/2 xl:flex xl:flex-col xl:justify-center" : ""}>
             {/* Options */}
-            <div className="grid grid-cols-1 gap-3 mb-4">
+            <div className={`grid gap-3 mb-4 ${isPortrait ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
               {q.options.map((opt, i) => (
                 <button
                   key={i}
