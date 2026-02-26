@@ -716,7 +716,7 @@ function BottomButtons({ muted, setMuted, theme, toggleTheme }: {
   );
 }
 
-const QUIZ_URL = "https://avalur.me/quiz/";
+const QUIZ_URL = "https://avalur.me/data-viz-quiz/";
 
 const SHARE_ICONS = {
   x: (
