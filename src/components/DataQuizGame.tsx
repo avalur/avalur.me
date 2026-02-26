@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import NetworkCanvas from "./NetworkCanvas";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -280,7 +281,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
       return `${base} border-orange-400 bg-orange-500/20 text-orange-300 animate-pulse`;
     }
 
-    return `${base} border-indigo-500/40 bg-indigo-950/40 text-gray-200 hover:border-indigo-400 hover:bg-indigo-900/40 cursor-pointer`;
+    return `${base} border-indigo-500/40 text-gray-200 hover:border-indigo-400 cursor-pointer`;
   };
 
   const canNavigate = answerState === "idle";
@@ -417,12 +418,13 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                   key={i}
                   onClick={() => handleAnswer(i)}
                   disabled={isRevealed || answerState !== "idle" || currentRemoved.includes(i)}
-                  className={getOptionClass(i)}
+                  className={`relative overflow-hidden ${getOptionClass(i)}`}
                 >
-                  <span className="text-indigo-400 font-bold text-sm shrink-0 w-6">
+                  <NetworkCanvas nodeCount={15} className="rounded-lg" />
+                  <span className="relative z-10 text-indigo-400 font-bold text-sm shrink-0 w-6">
                     {LETTER_LABELS[i]}:
                   </span>
-                  <span className="text-sm md:text-base">{opt}</span>
+                  <span className="relative z-10 text-sm md:text-base">{opt}</span>
                 </button>
               ))}
             </div>
