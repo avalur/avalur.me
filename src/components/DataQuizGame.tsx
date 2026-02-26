@@ -289,7 +289,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   const canNavigate = answerState === "idle";
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
       {/* Left sidebar — question list with titles */}
       <div className="hidden lg:flex flex-col w-64 shrink-0 bg-indigo-950/30 border-r border-indigo-500/20 overflow-y-auto">
         <div className="p-3 border-b border-indigo-500/20">
@@ -337,7 +337,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
       </div>
 
       {/* Main game area */}
-      <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+      <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 text-indigo-300 font-bold">
