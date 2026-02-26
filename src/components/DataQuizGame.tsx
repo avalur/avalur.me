@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import NetworkCanvas from "./NetworkCanvas";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -219,10 +219,8 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   const [showAudience, setShowAudience] = useState(false);
   const [audienceData, setAudienceData] = useState<number[]>([]);
 
-  // Sound
+  // Sound (muted controls background music only; SFX always play)
   const [muted, setMuted] = useState(false);
-  const mutedRef = useRef(muted);
-  mutedRef.current = muted;
 
   // Theme
   const { theme, toggle: toggleTheme } = useTheme();
@@ -238,7 +236,6 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   }, [showResult, muted]);
 
   const playSound = useCallback((name: "select" | "correct" | "wrong") => {
-    if (mutedRef.current) return;
     playSoundEffect(name);
   }, []);
 
