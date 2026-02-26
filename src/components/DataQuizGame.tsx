@@ -129,6 +129,80 @@ function useTheme() {
   return { theme, toggle };
 }
 
+// ─── Heroes ──────────────────────────────────────────────────────────────────
+
+interface Hero {
+  title: string;
+  name: string;
+  image: string;
+  description: string;
+}
+
+const HEROES: { min: number; hero: Hero }[] = [
+  {
+    min: 0,
+    hero: {
+      title: "Data Viz Apprentice",
+      name: "Florence Nightingale",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Florence_Nightingale_%28H_Hering_NPG_x82368%29.jpg/400px-Florence_Nightingale_%28H_Hering_NPG_x82368%29.jpg",
+      description: "Pioneer of data visualization — her famous polar area diagram (1858) convinced the British government to improve sanitary conditions in military hospitals. Every journey starts with a first chart!",
+    },
+  },
+  {
+    min: 4,
+    hero: {
+      title: "Data Detective",
+      name: "John Snow",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/John_Snow.jpg/400px-John_Snow.jpg",
+      description: "Plotted cholera cases on a map of London (1854) and traced the epidemic to a water pump on Broad Street. Proof that data saves lives!",
+    },
+  },
+  {
+    min: 7,
+    hero: {
+      title: "Chart Architect",
+      name: "William Playfair",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Playfair_Barchart.gif/500px-Playfair_Barchart.gif",
+      description: "Inventor of the bar chart and pie chart (1786). Without him, half of our graphs simply wouldn't exist. You're building a solid foundation!",
+    },
+  },
+  {
+    min: 10,
+    hero: {
+      title: "Visualization Master",
+      name: "Charles Joseph Minard",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Minard.png/500px-Minard.png",
+      description: "His map of Napoleon's 1812 Russian campaign (1869) is called \"the best statistical graphic ever drawn\" by Edward Tufte. You see stories in data!",
+    },
+  },
+  {
+    min: 12,
+    hero: {
+      title: "Statistical Visionary",
+      name: "John Tukey",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Boxplot_vs_PDF.svg/500px-Boxplot_vs_PDF.svg.png",
+      description: "Invented the box plot, coined the word \"software\", and co-created the FFT algorithm. His motto: \"An approximate answer to the right question is worth more than an exact answer to the wrong one.\"",
+    },
+  },
+  {
+    min: 14,
+    hero: {
+      title: "The Gauss of Data Analysis",
+      name: "Carl Friedrich Gauss",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Carl_Friedrich_Gauss_1840_by_Jensen.jpg/400px-Carl_Friedrich_Gauss_1840_by_Jensen.jpg",
+      description: "At age 24, he predicted the exact position of the dwarf planet Ceres from minimal observations using the method of least squares. Legendary precision — just like yours!",
+    },
+  },
+];
+
+function getHero(correctCount: number): Hero {
+  let result = HEROES[0].hero;
+  for (const entry of HEROES) {
+    if (correctCount >= entry.min) result = entry.hero;
+  }
+  return result;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGameProps) {
@@ -251,19 +325,49 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   // ─── Result screen ──────────────────────────────────────────────────────────
 
   if (showResult) {
+    const hero = getHero(correctCount);
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
-        <div className="max-w-md w-full space-y-8">
-          <div className="space-y-3">
-            <div className="text-5xl">
-              {correctCount === questions.length ? "\uD83C\uDFC6" : correctCount >= 10 ? "\uD83C\uDF89" : correctCount >= 5 ? "\uD83D\uDC4D" : "\uD83D\uDCDA"}
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold" style={{ color: "var(--quiz-text)" }}>{gameName}</h1>
+        <div className="max-w-lg w-full space-y-6">
+          {/* Score */}
+          <div className="space-y-2">
+            <h1 className="text-xl md:text-2xl font-bold" style={{ color: "var(--quiz-text-dim)" }}>{gameName}</h1>
             <div className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
               {correctCount}/{questions.length}
             </div>
-            <p className="text-lg" style={{ color: "var(--quiz-text-secondary)" }}>correct answers</p>
           </div>
+
+          {/* Hero card */}
+          <div
+            className="rounded-2xl p-6 space-y-4"
+            style={{
+              backgroundColor: "var(--quiz-panel)",
+              border: "1px solid var(--quiz-border-medium)",
+            }}
+          >
+            <p className="text-sm font-bold uppercase tracking-wider" style={{ color: "var(--quiz-accent)" }}>
+              {hero.title}
+            </p>
+            <div className="flex justify-center">
+              <img
+                src={hero.image}
+                alt={hero.name}
+                className="w-32 h-32 md:w-40 md:h-40 rounded-xl object-cover shadow-lg"
+                style={{ border: "2px solid var(--quiz-border-medium)" }}
+              />
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold" style={{ color: "var(--quiz-text)" }}>
+              {hero.name}
+            </h2>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--quiz-text-secondary)" }}>
+              {hero.description}
+            </p>
+          </div>
+
+          {/* Share */}
+          <ShareButtons correctCount={correctCount} total={questions.length} heroTitle={hero.title} />
+
+          {/* Buttons */}
           <div className="space-y-3">
             <button
               onClick={() => { setShowResult(false); setCurrentQ(0); }}
@@ -608,6 +712,76 @@ function BottomButtons({ muted, setMuted, theme, toggleTheme }: {
       >
         {muted ? "\u{1F507}" : "\u{1F509}"}
       </button>
+    </div>
+  );
+}
+
+const QUIZ_URL = "https://avalur.me/quiz/";
+
+const SHARE_ICONS = {
+  x: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  ),
+  linkedin: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  ),
+  telegram: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+    </svg>
+  ),
+  facebook: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  ),
+  email: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  ),
+};
+
+function ShareButtons({ correctCount, total, heroTitle }: { correctCount: number; total: number; heroTitle: string }) {
+  const text = `I scored ${correctCount}/${total} on the Data Viz Quiz and earned the "${heroTitle}" title! Can you beat me?`;
+  const encodedText = encodeURIComponent(text);
+  const encodedUrl = encodeURIComponent(QUIZ_URL);
+
+  const links = [
+    { name: "X", icon: SHARE_ICONS.x, href: `https://x.com/intent/post?text=${encodedText}&url=${encodedUrl}` },
+    { name: "LinkedIn", icon: SHARE_ICONS.linkedin, href: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedText}` },
+    { name: "Telegram", icon: SHARE_ICONS.telegram, href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}` },
+    { name: "Facebook", icon: SHARE_ICONS.facebook, href: `https://www.facebook.com/sharer.php?u=${encodedUrl}&quote=${encodedText}` },
+    { name: "Email", icon: SHARE_ICONS.email, href: `mailto:?subject=${encodeURIComponent("Data Viz Quiz Result")}&body=${encodedText}%0A${encodedUrl}` },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm" style={{ color: "var(--quiz-text-dim)" }}>Share your result:</p>
+      <div className="flex justify-center gap-2">
+        {links.map((link) => (
+          <a
+            key={link.name}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Share on ${link.name}`}
+            className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+            style={{
+              color: "var(--quiz-text-secondary)",
+              border: "1px solid var(--quiz-border-medium)",
+              backgroundColor: "var(--quiz-panel)",
+            }}
+          >
+            {link.icon}
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
