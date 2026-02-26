@@ -61,6 +61,20 @@ export default function DataQuiz() {
             </div>
           </button>
         </div>
+
+        <p className="text-xs leading-relaxed" style={{ color: "var(--quiz-text-dim)" }}>
+          Inspired by a game from the excellent{" "}
+          <a
+            href="https://www.youtube.com/watch?v=VEs6xbkaH7A&list=PLaRUeIuewv8CMFox0oEjlyePUhUmo-x0h"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:no-underline"
+            style={{ color: "var(--quiz-text-secondary)" }}
+          >
+            Data Analysis course
+          </a>{" "}
+          by Alexander Dyakonov (in Russian)
+        </p>
       </div>
       <ThemeToggleButton />
     </div>
