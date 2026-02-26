@@ -100,6 +100,35 @@ function stopBgMusic() {
   bgAudio.currentTime = 0;
 }
 
+// ─── Theme helper ────────────────────────────────────────────────────────────
+
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof document !== "undefined") {
+      return document.documentElement.getAttribute("data-theme") || "dark";
+    }
+    return "dark";
+  });
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const t = document.documentElement.getAttribute("data-theme") || "dark";
+      setTheme(t);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const toggle = useCallback(() => {
+    const next = theme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+    setTheme(next);
+  }, [theme]);
+
+  return { theme, toggle };
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGameProps) {
@@ -120,6 +149,9 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
+
+  // Theme
+  const { theme, toggle: toggleTheme } = useTheme();
 
   // Background music
   useEffect(() => {
@@ -226,11 +258,11 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
             <div className="text-5xl">
               {correctCount === questions.length ? "\uD83C\uDFC6" : correctCount >= 10 ? "\uD83C\uDF89" : correctCount >= 5 ? "\uD83D\uDC4D" : "\uD83D\uDCDA"}
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">{gameName}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold" style={{ color: "var(--quiz-text)" }}>{gameName}</h1>
             <div className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
               {correctCount}/{questions.length}
             </div>
-            <p className="text-indigo-300 text-lg">correct answers</p>
+            <p className="text-lg" style={{ color: "var(--quiz-text-secondary)" }}>correct answers</p>
           </div>
           <div className="space-y-3">
             <button
@@ -250,38 +282,45 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                 setCurrentQ(0);
                 setShowResult(false);
               }}
-              className="w-full px-6 py-3 rounded-lg border-2 border-indigo-500/40 text-indigo-300 font-bold hover:border-indigo-400 hover:bg-indigo-950/40 transition-all"
+              className="w-full px-6 py-3 rounded-lg border-2 font-bold transition-all"
+              style={{
+                borderColor: "var(--quiz-border-strong)",
+                color: "var(--quiz-text-secondary)",
+              }}
             >
               Try Again
             </button>
           </div>
         </div>
-        <MuteButton muted={muted} setMuted={setMuted} />
+        <BottomButtons muted={muted} setMuted={setMuted} theme={theme} toggleTheme={toggleTheme} />
       </div>
     );
   }
 
   // ─── Game screen ────────────────────────────────────────────────────────────
 
-  const getOptionClass = (index: number) => {
-    const base =
-      "option-btn flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left transition-all duration-300 w-full";
-
+  const getOptionStyle = (index: number): React.CSSProperties => {
     if (currentRemoved.includes(index)) {
-      return `${base} border-gray-700 bg-gray-800/30 text-gray-600 cursor-not-allowed opacity-30`;
+      return {
+        borderColor: "var(--quiz-disabled-border)",
+        backgroundColor: "var(--quiz-disabled-bg)",
+        color: "var(--quiz-disabled-text)",
+        cursor: "not-allowed",
+        opacity: 0.3,
+      };
     }
-
     if (isRevealed) {
-      if (index === q.correct) return `${base} border-green-400 bg-green-500/20 text-green-300 shadow-[0_0_20px_rgba(74,222,128,0.3)]`;
-      if (index === selectedAnswer) return `${base} border-red-400 bg-red-500/20 text-red-300 shadow-[0_0_20px_rgba(248,113,113,0.3)]`;
-      return `${base} border-gray-700 bg-gray-800/20 text-gray-500`;
+      if (index === q.correct) return { borderColor: "#4ade80", backgroundColor: "rgba(34,197,94,0.2)", color: "#86efac", boxShadow: "0 0 20px rgba(74,222,128,0.3)" };
+      if (index === selectedAnswer) return { borderColor: "#f87171", backgroundColor: "rgba(239,68,68,0.2)", color: "#fca5a5", boxShadow: "0 0 20px rgba(248,113,113,0.3)" };
+      return { borderColor: "var(--quiz-disabled-border)", backgroundColor: "var(--quiz-disabled-bg)", color: "var(--quiz-disabled-text)" };
     }
-
     if (answerState === "selected" && index === selectedAnswer) {
-      return `${base} border-orange-400 bg-orange-500/20 text-orange-300 animate-pulse`;
+      return { borderColor: "#fb923c", backgroundColor: "rgba(249,115,22,0.2)", color: "#fdba74" };
     }
-
-    return `${base} border-indigo-500/40 text-gray-200 hover:border-indigo-400 cursor-pointer`;
+    return {
+      borderColor: "var(--quiz-border-strong)",
+      color: "var(--quiz-option-text)",
+    };
   };
 
   const canNavigate = answerState === "idle";
@@ -290,18 +329,25 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
       {/* Left sidebar — question list with titles */}
-      <div className="hidden lg:flex flex-col w-64 shrink-0 bg-indigo-950/30 border-r border-indigo-500/20 overflow-y-auto">
-        <div className="p-3 border-b border-indigo-500/20">
+      <div
+        className="hidden lg:flex flex-col w-64 shrink-0 overflow-y-auto"
+        style={{
+          backgroundColor: "var(--quiz-sidebar-bg)",
+          borderRight: "1px solid var(--quiz-border)",
+        }}
+      >
+        <div className="p-3" style={{ borderBottom: "1px solid var(--quiz-border)" }}>
           {onBack && (
             <button
               onClick={onBack}
-              className="text-xs text-indigo-400/60 hover:text-indigo-300 transition-colors mb-2"
+              className="text-xs transition-colors mb-2"
+              style={{ color: "var(--quiz-text-dim)" }}
             >
               &larr; Back
             </button>
           )}
-          <h3 className="text-xs text-indigo-400 uppercase tracking-wide font-bold">{gameName}</h3>
-          <p className="text-xs text-indigo-400/50 mt-1">{correctCount}/{answeredCount} correct</p>
+          <h3 className="text-xs uppercase tracking-wide font-bold" style={{ color: "var(--quiz-accent)" }}>{gameName}</h3>
+          <p className="text-xs mt-1" style={{ color: "var(--quiz-text-dimmer)" }}>{correctCount}/{answeredCount} correct</p>
         </div>
         <div className="flex-1 p-2 space-y-0.5">
           {questions.map((question, idx) => {
@@ -309,20 +355,23 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
             const isAnswered = revealed[idx];
             const isCorrect = answers[idx] === question.correct;
 
+            const itemStyle: React.CSSProperties = isCurrent
+              ? { backgroundColor: "var(--quiz-sidebar-active)", color: "var(--quiz-text)", fontWeight: "bold" }
+              : isAnswered && isCorrect
+              ? { color: "#4ade80" }
+              : isAnswered
+              ? { color: "#f87171" }
+              : { color: "var(--quiz-text-dim)" };
+
             return (
               <button
                 key={idx}
                 onClick={() => goTo(idx)}
                 disabled={!canNavigate}
                 className={`w-full flex items-center gap-2 px-3 py-1.5 rounded text-sm transition-all text-left ${
-                  isCurrent
-                    ? "bg-indigo-600/60 text-white font-bold"
-                    : isAnswered && isCorrect
-                    ? "text-green-400/80 hover:bg-indigo-900/30"
-                    : isAnswered
-                    ? "text-red-400/80 hover:bg-indigo-900/30"
-                    : "text-indigo-400/60 hover:bg-indigo-900/30"
-                } ${!canNavigate && !isCurrent ? "opacity-50 cursor-not-allowed" : ""}`}
+                  !canNavigate && !isCurrent ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                style={itemStyle}
               >
                 <span className="shrink-0 w-5 text-xs text-right opacity-60">{idx + 1}.</span>
                 <span className="truncate flex-1">{question.title}</span>
@@ -339,18 +388,19 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
       <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 text-indigo-300 font-bold">
+          <div className="flex items-center gap-3 font-bold" style={{ color: "var(--quiz-text-secondary)" }}>
             {onBack && (
               <button
                 onClick={onBack}
-                className="lg:hidden text-sm text-indigo-400/60 hover:text-indigo-300 transition-colors"
+                className="lg:hidden text-sm transition-colors"
+                style={{ color: "var(--quiz-text-dim)" }}
               >
                 &larr;
               </button>
             )}
-            <span className="text-white text-lg">{currentQ + 1}</span>
-            <span className="text-indigo-400/60">/{questions.length}</span>
-            <span className="lg:hidden ml-3 text-indigo-400/60 text-sm">
+            <span className="text-lg" style={{ color: "var(--quiz-text)" }}>{currentQ + 1}</span>
+            <span style={{ color: "var(--quiz-text-dim)" }}>/{questions.length}</span>
+            <span className="lg:hidden ml-3 text-sm" style={{ color: "var(--quiz-text-dim)" }}>
               {correctCount}/{answeredCount} correct
             </span>
           </div>
@@ -378,8 +428,12 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
           {/* Question image */}
           <div className={`flex justify-center mb-4 ${isPortrait ? "xl:mb-0 xl:w-1/2 xl:shrink-0" : ""}`}>
             <div
-              className="rounded-xl overflow-hidden bg-indigo-950/40 border border-indigo-500/20 relative self-start"
-              style={{ width: q.imageScale ? `${q.imageScale * 100}%` : "100%" }}
+              className="rounded-xl overflow-hidden relative self-start"
+              style={{
+                width: q.imageScale ? `${q.imageScale * 100}%` : "100%",
+                backgroundColor: "var(--quiz-image-bg)",
+                border: "1px solid var(--quiz-border)",
+              }}
             >
               <img
                 src={q.image}
@@ -388,7 +442,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                   (e.target as HTMLImageElement).parentElement!.innerHTML =
-                    `<div class="flex items-center justify-center h-64 text-indigo-400/40 text-6xl">?</div>`;
+                    `<div class="flex items-center justify-center h-64 text-6xl" style="color: var(--quiz-text-dim)">?</div>`;
                 }}
               />
               {q.blurRegions?.map((region, i) => (
@@ -402,7 +456,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                     height: `${region.height}%`,
                     backdropFilter: isRevealed ? "blur(0px)" : "blur(12px)",
                     WebkitBackdropFilter: isRevealed ? "blur(0px)" : "blur(12px)",
-                    backgroundColor: isRevealed ? "transparent" : "rgba(10, 14, 39, 0.3)",
+                    backgroundColor: isRevealed ? "transparent" : "var(--quiz-blur-bg)",
                   }}
                 />
               ))}
@@ -418,10 +472,13 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                   key={i}
                   onClick={() => handleAnswer(i)}
                   disabled={isRevealed || answerState !== "idle" || currentRemoved.includes(i)}
-                  className={`relative overflow-hidden ${getOptionClass(i)}`}
+                  className={`option-btn relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left transition-all duration-300 w-full ${
+                    answerState === "selected" && i === selectedAnswer && !isRevealed ? "animate-pulse" : ""
+                  } ${!isRevealed && answerState === "idle" && !currentRemoved.includes(i) ? "hover:brightness-110 cursor-pointer" : ""}`}
+                  style={getOptionStyle(i)}
                 >
                   <NetworkCanvas nodeCount={15} className="rounded-lg" />
-                  <span className="relative z-10 text-indigo-400 font-bold text-sm shrink-0 w-6">
+                  <span className="relative z-10 font-bold text-sm shrink-0 w-6" style={{ color: "var(--quiz-option-label)" }}>
                     {LETTER_LABELS[i]}:
                   </span>
                   <span className="relative z-10 text-sm md:text-base">{opt}</span>
@@ -431,12 +488,18 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
 
             {/* Audience chart */}
             {showAudience && !isRevealed && (
-              <div className="bg-indigo-950/80 border border-indigo-500/30 rounded-xl p-4 mb-4">
-                <p className="text-indigo-300 text-sm mb-3 text-center font-bold">Audience Poll Results:</p>
+              <div
+                className="rounded-xl p-4 mb-4"
+                style={{
+                  backgroundColor: "var(--quiz-panel-solid)",
+                  border: "1px solid var(--quiz-border-medium)",
+                }}
+              >
+                <p className="text-sm mb-3 text-center font-bold" style={{ color: "var(--quiz-text-secondary)" }}>Audience Poll Results:</p>
                 <div className="flex items-end justify-center gap-4 h-32">
                   {audienceData.map((pct, i) => (
                     <div key={i} className="flex flex-col items-center gap-1">
-                      <span className="text-xs text-indigo-300">{Math.round(pct)}%</span>
+                      <span className="text-xs" style={{ color: "var(--quiz-text-secondary)" }}>{Math.round(pct)}%</span>
                       <div
                         className="w-10 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-t transition-all duration-500"
                         style={{
@@ -444,25 +507,24 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                           opacity: currentRemoved.includes(i) ? 0.2 : 1,
                         }}
                       />
-                      <span className="text-xs text-indigo-400 font-bold">{LETTER_LABELS[i]}</span>
+                      <span className="text-xs font-bold" style={{ color: "var(--quiz-accent)" }}>{LETTER_LABELS[i]}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Hint removed — no longer shown after answer */}
-
             {/* Navigation buttons */}
             <div className="flex gap-3">
               <button
                 onClick={() => goTo(currentQ - 1)}
                 disabled={currentQ === 0 || !canNavigate}
-                className={`flex-1 px-4 py-3 rounded-lg font-bold text-base transition-all ${
+                className="flex-1 px-4 py-3 rounded-lg font-bold text-base transition-all border-2"
+                style={
                   currentQ === 0 || !canNavigate
-                    ? "border-2 border-gray-700 bg-gray-800/20 text-gray-600 cursor-not-allowed"
-                    : "border-2 border-indigo-500/40 text-indigo-300 hover:border-indigo-400 hover:bg-indigo-950/40"
-                }`}
+                    ? { borderColor: "var(--quiz-disabled-border)", backgroundColor: "var(--quiz-disabled-bg)", color: "var(--quiz-disabled-text)", cursor: "not-allowed" }
+                    : { borderColor: "var(--quiz-border-strong)", color: "var(--quiz-text-secondary)" }
+                }
               >
                 ← Previous
               </button>
@@ -478,11 +540,12 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
                 <button
                   onClick={() => goTo(currentQ + 1)}
                   disabled={currentQ === questions.length - 1 || !canNavigate}
-                  className={`flex-1 px-4 py-3 rounded-lg font-bold text-base transition-all ${
+                  className="flex-1 px-4 py-3 rounded-lg font-bold text-base transition-all border-2"
+                  style={
                     currentQ === questions.length - 1 || !canNavigate
-                      ? "border-2 border-gray-700 bg-gray-800/20 text-gray-600 cursor-not-allowed"
-                      : "border-2 border-indigo-500/40 text-indigo-300 hover:border-indigo-400 hover:bg-indigo-950/40"
-                  }`}
+                      ? { borderColor: "var(--quiz-disabled-border)", backgroundColor: "var(--quiz-disabled-bg)", color: "var(--quiz-disabled-text)", cursor: "not-allowed" }
+                      : { borderColor: "var(--quiz-border-strong)", color: "var(--quiz-text-secondary)" }
+                  }
                 >
                   Next →
                 </button>
@@ -492,22 +555,60 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
         </div>
       </div>
 
-      <MuteButton muted={muted} setMuted={setMuted} />
+      <BottomButtons muted={muted} setMuted={setMuted} theme={theme} toggleTheme={toggleTheme} />
     </div>
   );
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function MuteButton({ muted, setMuted }: { muted: boolean; setMuted: (v: boolean) => void }) {
+function BottomButtons({ muted, setMuted, theme, toggleTheme }: {
+  muted: boolean; setMuted: (v: boolean) => void;
+  theme: string; toggleTheme: () => void;
+}) {
   return (
-    <button
-      onClick={() => { getAudioCtx(); setMuted(!muted); }}
-      className="fixed bottom-4 right-4 w-10 h-10 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 hover:text-white hover:border-indigo-400 transition-all flex items-center justify-center text-lg z-50"
-      title={muted ? "Unmute" : "Mute"}
-    >
-      {muted ? "\u{1F507}" : "\u{1F509}"}
-    </button>
+    <div className="fixed bottom-4 right-4 flex gap-2 z-50">
+      <button
+        onClick={toggleTheme}
+        className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+        style={{
+          background: "var(--quiz-panel-solid)",
+          border: "1px solid var(--quiz-border-medium)",
+          color: "var(--quiz-text-secondary)",
+        }}
+        title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {theme === "dark" ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        )}
+      </button>
+      <button
+        onClick={() => { getAudioCtx(); setMuted(!muted); }}
+        className="w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all"
+        style={{
+          background: "var(--quiz-panel-solid)",
+          border: "1px solid var(--quiz-border-medium)",
+          color: "var(--quiz-text-secondary)",
+        }}
+        title={muted ? "Unmute" : "Mute"}
+      >
+        {muted ? "\u{1F507}" : "\u{1F509}"}
+      </button>
+    </div>
   );
 }
 
@@ -516,18 +617,19 @@ function LifelineButton({
 }: {
   label: string; title?: string; used: boolean; onClick: () => void; disabled: boolean;
 }) {
+  const style: React.CSSProperties = used
+    ? { borderColor: "var(--quiz-disabled-border)", backgroundColor: "var(--quiz-disabled-bg)", color: "var(--quiz-disabled-text)", cursor: "not-allowed", textDecoration: "line-through" }
+    : disabled
+    ? { borderColor: "var(--quiz-border-medium)", backgroundColor: "var(--quiz-panel)", color: "var(--quiz-text-dimmer)", cursor: "not-allowed" }
+    : { borderColor: "var(--quiz-border-strong)", backgroundColor: "var(--quiz-panel)", color: "var(--quiz-text-secondary)", cursor: "pointer" };
+
   return (
     <button
       onClick={onClick}
       disabled={used || disabled}
       title={title || label}
-      className={`w-12 h-12 rounded-full border-2 text-sm font-bold transition-all flex items-center justify-center ${
-        used
-          ? "border-gray-700 bg-gray-800/30 text-gray-600 cursor-not-allowed line-through"
-          : disabled
-          ? "border-indigo-500/30 bg-indigo-950/40 text-indigo-400/50 cursor-not-allowed"
-          : "border-indigo-500/50 bg-indigo-950/60 text-indigo-300 hover:border-indigo-400 hover:text-white cursor-pointer"
-      }`}
+      className="w-12 h-12 rounded-full border-2 text-sm font-bold transition-all flex items-center justify-center"
+      style={style}
       dangerouslySetInnerHTML={{ __html: label }}
     />
   );

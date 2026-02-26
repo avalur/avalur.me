@@ -3,7 +3,7 @@ import DataQuiz from "../../components/DataQuiz";
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,8 +18,72 @@ import DataQuiz from "../../components/DataQuiz";
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      (function() {
+        var t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") {
+          document.documentElement.setAttribute("data-theme", t);
+        }
+      })();
+    </script>
     <style>
       @import "tailwindcss";
+
+      [data-theme="dark"] {
+        --quiz-bg: #0a0e27;
+        --quiz-bg-grad-from: #1a1f4e;
+        --quiz-panel: rgba(30, 27, 75, 0.3);
+        --quiz-panel-solid: rgba(30, 27, 75, 0.8);
+        --quiz-border: rgba(99, 102, 241, 0.2);
+        --quiz-border-medium: rgba(99, 102, 241, 0.3);
+        --quiz-border-strong: rgba(99, 102, 241, 0.5);
+        --quiz-text: #e2e8f0;
+        --quiz-text-secondary: #818cf8;
+        --quiz-text-dim: rgba(99, 102, 241, 0.6);
+        --quiz-text-dimmer: rgba(99, 102, 241, 0.5);
+        --quiz-accent: #818cf8;
+        --quiz-accent-hover: #a5b4fc;
+        --quiz-sidebar-bg: rgba(30, 27, 75, 0.3);
+        --quiz-sidebar-hover: rgba(49, 46, 129, 0.3);
+        --quiz-sidebar-active: rgba(79, 70, 229, 0.6);
+        --quiz-disabled-border: #374151;
+        --quiz-disabled-bg: rgba(31, 41, 55, 0.3);
+        --quiz-disabled-text: #4b5563;
+        --quiz-option-text: #e5e7eb;
+        --quiz-option-label: #818cf8;
+        --quiz-scrollbar-track: #0a0e27;
+        --quiz-scrollbar-thumb: #4338ca40;
+        --quiz-image-bg: rgba(30, 27, 75, 0.4);
+        --quiz-blur-bg: rgba(10, 14, 39, 0.3);
+      }
+
+      [data-theme="light"] {
+        --quiz-bg: #f0f4ff;
+        --quiz-bg-grad-from: #dbeafe;
+        --quiz-panel: rgba(255, 255, 255, 0.8);
+        --quiz-panel-solid: rgba(255, 255, 255, 0.95);
+        --quiz-border: rgba(99, 102, 241, 0.2);
+        --quiz-border-medium: rgba(99, 102, 241, 0.25);
+        --quiz-border-strong: rgba(99, 102, 241, 0.4);
+        --quiz-text: #1e293b;
+        --quiz-text-secondary: #4f46e5;
+        --quiz-text-dim: rgba(71, 85, 105, 0.6);
+        --quiz-text-dimmer: rgba(71, 85, 105, 0.5);
+        --quiz-accent: #4f46e5;
+        --quiz-accent-hover: #4338ca;
+        --quiz-sidebar-bg: rgba(224, 231, 255, 0.5);
+        --quiz-sidebar-hover: rgba(199, 210, 254, 0.4);
+        --quiz-sidebar-active: rgba(99, 102, 241, 0.3);
+        --quiz-disabled-border: #d1d5db;
+        --quiz-disabled-bg: rgba(229, 231, 235, 0.3);
+        --quiz-disabled-text: #9ca3af;
+        --quiz-option-text: #1e293b;
+        --quiz-option-label: #4f46e5;
+        --quiz-scrollbar-track: #f0f4ff;
+        --quiz-scrollbar-thumb: rgba(99, 102, 241, 0.25);
+        --quiz-image-bg: rgba(224, 231, 255, 0.5);
+        --quiz-blur-bg: rgba(240, 244, 255, 0.4);
+      }
 
       *,
       *::before,
@@ -33,23 +97,23 @@ import DataQuiz from "../../components/DataQuiz";
       body {
         height: 100%;
         font-family: "Inter", system-ui, sans-serif;
-        background: #0a0e27;
-        color: #e2e8f0;
+        background: var(--quiz-bg);
+        color: var(--quiz-text);
         overflow-x: hidden;
       }
 
       body {
-        background: radial-gradient(ellipse at 50% 0%, #1a1f4e 0%, #0a0e27 60%);
+        background: radial-gradient(ellipse at 50% 0%, var(--quiz-bg-grad-from) 0%, var(--quiz-bg) 60%);
       }
 
       ::-webkit-scrollbar {
         width: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #0a0e27;
+        background: var(--quiz-scrollbar-track);
       }
       ::-webkit-scrollbar-thumb {
-        background: #4338ca40;
+        background: var(--quiz-scrollbar-thumb);
         border-radius: 3px;
       }
 

@@ -15,6 +15,24 @@ interface Node {
   baseR: number;
 }
 
+interface Palette {
+  bg: [string, string, string];
+  line: string;
+  node: string;
+}
+
+const DARK_PALETTE: Palette = {
+  bg: ["rgb(26, 16, 64)", "rgb(45, 27, 105)", "rgb(74, 32, 128)"],
+  line: "140,120,220",
+  node: "200,190,255",
+};
+
+const LIGHT_PALETTE: Palette = {
+  bg: ["rgb(22, 58, 110)", "rgb(35, 90, 155)", "rgb(55, 125, 195)"],
+  line: "90,155,215",
+  node: "175,210,248",
+};
+
 export default function NetworkCanvas({ nodeCount = 15, className = "" }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -28,6 +46,18 @@ export default function NetworkCanvas({ nodeCount = 15, className = "" }: Props)
     let width = 0;
     let height = 0;
     const nodes: Node[] = [];
+
+    function getTheme(): string {
+      return document.documentElement.getAttribute("data-theme") || "dark";
+    }
+
+    let palette = getTheme() === "light" ? LIGHT_PALETTE : DARK_PALETTE;
+
+    // Watch for theme changes
+    const observer = new MutationObserver(() => {
+      palette = getTheme() === "light" ? LIGHT_PALETTE : DARK_PALETTE;
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     function resize() {
       const rect = canvas!.parentElement!.getBoundingClientRect();
@@ -60,11 +90,11 @@ export default function NetworkCanvas({ nodeCount = 15, className = "" }: Props)
     }
 
     function draw() {
-      // Gradient background (like NetworkBg night palette)
+      const p = palette;
       const grad = ctx!.createLinearGradient(0, 0, width, height);
-      grad.addColorStop(0, "rgb(26, 16, 64)");
-      grad.addColorStop(0.5, "rgb(45, 27, 105)");
-      grad.addColorStop(1, "rgb(74, 32, 128)");
+      grad.addColorStop(0, p.bg[0]);
+      grad.addColorStop(0.5, p.bg[1]);
+      grad.addColorStop(1, p.bg[2]);
       ctx!.fillStyle = grad;
       ctx!.fillRect(0, 0, width, height);
 
@@ -88,7 +118,7 @@ export default function NetworkCanvas({ nodeCount = 15, className = "" }: Props)
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < CONNECT_DIST) {
             const opacity = (1 - dist / CONNECT_DIST) * 0.5 * Math.min(a.scale, b.scale);
-            ctx!.strokeStyle = `rgba(140,120,220,${opacity})`;
+            ctx!.strokeStyle = `rgba(${p.line},${opacity})`;
             ctx!.lineWidth = 0.8;
             ctx!.beginPath();
             ctx!.moveTo(a.sx, a.sy);
@@ -104,7 +134,7 @@ export default function NetworkCanvas({ nodeCount = 15, className = "" }: Props)
         const alpha = 0.6 * pt.scale;
         ctx!.beginPath();
         ctx!.arc(pt.sx, pt.sy, r, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(200,190,255,${alpha})`;
+        ctx!.fillStyle = `rgba(${p.node},${alpha})`;
         ctx!.fill();
       }
 
@@ -121,6 +151,7 @@ export default function NetworkCanvas({ nodeCount = 15, className = "" }: Props)
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", handleResize);
+      observer.disconnect();
     };
   }, [nodeCount]);
 
