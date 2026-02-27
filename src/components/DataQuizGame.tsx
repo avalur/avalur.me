@@ -428,7 +428,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
   const isPortrait = q.orientation === "portrait";
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden max-w-[100vw]">
+    <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden w-full">
       {/* Left sidebar — question list with titles */}
       <div
         className="hidden lg:flex flex-col w-64 shrink-0 overflow-y-auto"
@@ -486,7 +486,7 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
       </div>
 
       {/* Main game area */}
-      <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0">
+      <div className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0 overflow-hidden">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 font-bold" style={{ color: "var(--quiz-text-secondary)" }}>
