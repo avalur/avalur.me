@@ -93,16 +93,9 @@ import DataQuiz from "../../components/DataQuiz";
         padding: 0;
       }
 
-      html {
-        height: 100%;
-        overflow-x: hidden;
-        width: 100%;
-      }
-
+      html,
       body {
         height: 100%;
-        width: 100%;
-        max-width: 100%;
         font-family: "Inter", system-ui, sans-serif;
         background: var(--quiz-bg);
         color: var(--quiz-text);
@@ -136,9 +129,17 @@ import DataQuiz from "../../components/DataQuiz";
       .animate-pulse {
         animation: pulse 1s ease-in-out infinite;
       }
+
+    </style>
+    <style is:global>
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
     </style>
   </head>
   <body>
-    <DataQuiz client:load />
+    <div id="quiz-root">
+      <DataQuiz client:load />
+    </div>
   </body>
 </html>
