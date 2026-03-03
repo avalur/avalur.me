@@ -300,7 +300,7 @@ export const GAME2_QUESTIONS: DataQuestion[] = [
     image: "/quiz/data/g2-08.webp",
     imageScale: 0.5,
     options: ["Frequency spectrum of various musical genres",
-      "Loudness of music by genre over time",
+      "Loudness of music by genre",
       "Average music album sales by decade",
       "Tempo (BPM) of popular genres over 50 years"],
     correct: 1,
