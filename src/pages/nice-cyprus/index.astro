@@ -1,0 +1,55 @@
+---
+import CyprusCards from "../../components/CyprusCards";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nice Cyprus | Two Sides of Every Story</title>
+    <meta
+      name="description"
+      content="Flip cards revealing two sides of life in Cyprus — the frustrating and the wonderful. All facts are true."
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @import "tailwindcss";
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+        font-family: "Inter", system-ui, sans-serif;
+        overflow-x: hidden;
+        background: #163a6e;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0e1a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.25);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <CyprusCards client:load />
+  </body>
+</html>
