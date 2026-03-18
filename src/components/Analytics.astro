@@ -1,0 +1,67 @@
+---
+// Vercel Analytics + custom events for post reading and quiz interactions
+---
+
+<script>
+  import { inject } from "@vercel/analytics";
+  import { track } from "@vercel/analytics";
+
+  // Initialize Vercel Analytics
+  inject();
+
+  // ─── Post read tracking: fire when user scrolls to 90% of article ───
+  const article = document.getElementById("article");
+  if (article) {
+    let tracked = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !tracked) {
+          tracked = true;
+          const slug = window.location.pathname;
+          const title = document.querySelector("h1")?.textContent || "";
+          track("post_read_complete", { slug, title });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    // Observe the last element in the article
+    const children = article.children;
+    if (children.length > 0) {
+      observer.observe(children[children.length - 1]);
+    }
+  }
+
+  // ─── Tag click tracking ───
+  document.querySelectorAll(".post-tag").forEach((tag) => {
+    tag.addEventListener("click", () => {
+      track("tag_click", { tag: tag.textContent?.trim() || "" });
+    });
+  });
+
+  // ─── Share link click tracking ───
+  document.querySelectorAll('a[href*="twitter.com/intent"], a[href*="linkedin.com/sharing"], a[href*="t.me/share"]').forEach((link) => {
+    link.addEventListener("click", () => {
+      const platform = link.getAttribute("href")?.includes("twitter") ? "twitter"
+        : link.getAttribute("href")?.includes("linkedin") ? "linkedin"
+        : "telegram";
+      track("share_click", { platform, slug: window.location.pathname });
+    });
+  });
+
+  // ─── Code copy tracking ───
+  document.querySelectorAll(".copy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      track("code_copy", { slug: window.location.pathname });
+    });
+  });
+
+  // ─── Post navigation tracking ───
+  document.querySelectorAll('#post-nav a').forEach((link) => {
+    link.addEventListener("click", () => {
+      const href = link.getAttribute("href") || "";
+      track("post_navigate", { to: href, from: window.location.pathname });
+    });
+  });
+</script>

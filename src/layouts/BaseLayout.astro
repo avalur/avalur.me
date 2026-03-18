@@ -3,6 +3,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import "../styles/global.css";
 import { SITE } from "../config";
+import Analytics from "../components/Analytics.astro";
 
 interface Props {
   title?: string;
@@ -57,5 +58,6 @@ const ogImage = new URL("/images/avalur.jpg", SITE.url).href;
       <slot />
     </main>
     <Footer />
+    <Analytics />
   </body>
 </html>

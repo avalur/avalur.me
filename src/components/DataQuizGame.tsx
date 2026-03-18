@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { track } from "@vercel/analytics";
 import NetworkCanvas from "./NetworkCanvas";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -631,7 +632,16 @@ export default function DataQuizGame({ questions, gameName, onBack }: DataQuizGa
               </button>
               {currentQ === questions.length - 1 && allAnswered ? (
                 <button
-                  onClick={() => setShowResult(true)}
+                  onClick={() => {
+                    const correct = answers.filter((a, i) => a === questions[i].correct).length;
+                    track("quiz_complete", {
+                      game: gameName,
+                      score: correct,
+                      total: questions.length,
+                      hero: getHero(correct).title,
+                    });
+                    setShowResult(true);
+                  }}
                   disabled={!canNavigate}
                   className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-base hover:from-green-500 hover:to-emerald-500 transition-all shadow-lg"
                 >
