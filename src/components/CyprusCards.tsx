@@ -3,8 +3,11 @@ import { cyprusCards } from "../data/cyprusCardsData";
 import type { CyprusCard } from "../data/cyprusCardsData";
 import CyprusNetworkBg from "./CyprusNetworkBg";
 
+export type Lang = "en" | "ru";
+
 export default function CyprusCards() {
   const [flipped, setFlipped] = useState<Set<number>>(new Set());
+  const [lang, setLang] = useState<Lang>("en");
   const [nodeCount, setNodeCount] = useState(400);
   const darkRatio = flipped.size / cyprusCards.length;
 
@@ -36,12 +39,22 @@ export default function CyprusCards() {
 
       <div className="cyprus-content-layer">
       <div className="cyprus-header">
-        <h1 className="cyprus-title">Nice Cyprus</h1>
-        <button className="cyprus-flip-all" onClick={flipAll}>
-          {flipped.size === cyprusCards.length
-            ? "Show bright side ☀️"
-            : "Show dark side 🌑"}
-        </button>
+        <h1 className="cyprus-title">
+          {lang === "en" ? "Nice Cyprus" : "Прекрасный Кипр"}
+        </h1>
+        <div className="cyprus-controls">
+          <button className="cyprus-flip-all" onClick={flipAll}>
+            {flipped.size === cyprusCards.length
+              ? lang === "en" ? "Show bright side ☀️" : "Покажи плюсы ☀️"
+              : lang === "en" ? "Show dark side 🌑" : "Покажи минусы 🌑"}
+          </button>
+          <button
+            className="cyprus-lang-toggle"
+            onClick={() => setLang(lang === "en" ? "ru" : "en")}
+          >
+            {lang === "en" ? "🇷🇺 RU" : "🇬🇧 EN"}
+          </button>
+        </div>
       </div>
 
       <div className="cyprus-grid">
@@ -54,23 +67,24 @@ export default function CyprusCards() {
             <div
               className={`cyprus-card-inner ${flipped.has(card.id) ? "is-flipped" : ""}`}
             >
-              <CardFaceLight card={card} />
-              <CardFaceDark card={card} />
+              <CardFaceLight card={card} lang={lang} />
+              <CardFaceDark card={card} lang={lang} />
             </div>
           </div>
         ))}
       </div>
 
       <p className="cyprus-footer">
-        Based on real experiences. All facts are true. Humor is a coping
-        mechanism.
+        {lang === "en"
+          ? "Based on real experiences. All facts are true. Humor is a coping mechanism."
+          : "Основано на реальном опыте. Только правда. Юмор — это защитный механизм."}
       </p>
       </div>
     </div>
   );
 }
 
-function CardFaceDark({ card }: { card: CyprusCard }) {
+function CardFaceDark({ card, lang }: { card: CyprusCard; lang: Lang }) {
   return (
     <div className="cyprus-face cyprus-face-dark">
       <img
@@ -82,15 +96,21 @@ function CardFaceDark({ card }: { card: CyprusCard }) {
       <div className="cyprus-overlay-dark" />
       <div className="cyprus-content">
         <span className="cyprus-emoji">{card.darkEmoji}</span>
-        <h3 className="cyprus-card-title dark-title">{card.title}</h3>
-        <p className="cyprus-card-text dark-text">{card.dark}</p>
+        <h3 className="cyprus-card-title dark-title">
+          {lang === "en" ? card.title : card.titleRu}
+        </h3>
+        <p className="cyprus-card-text dark-text">
+          {lang === "en" ? card.dark : card.darkRu}
+        </p>
       </div>
-      <span className="cyprus-hint">tap to flip</span>
+      <span className="cyprus-hint">
+        {lang === "en" ? "tap to flip" : "нажми, чтобы перевернуть"}
+      </span>
     </div>
   );
 }
 
-function CardFaceLight({ card }: { card: CyprusCard }) {
+function CardFaceLight({ card, lang }: { card: CyprusCard; lang: Lang }) {
   return (
     <div className="cyprus-face cyprus-face-light">
       <img
@@ -102,8 +122,12 @@ function CardFaceLight({ card }: { card: CyprusCard }) {
       <div className="cyprus-overlay-light" />
       <div className="cyprus-content">
         <span className="cyprus-emoji">{card.emoji}</span>
-        <h3 className="cyprus-card-title light-title">{card.title}</h3>
-        <p className="cyprus-card-text light-text">{card.light}</p>
+        <h3 className="cyprus-card-title light-title">
+          {lang === "en" ? card.title : card.titleRu}
+        </h3>
+        <p className="cyprus-card-text light-text">
+          {lang === "en" ? card.light : card.lightRu}
+        </p>
       </div>
     </div>
   );
@@ -144,7 +168,15 @@ const cssText = `
     margin-bottom: 1.5rem;
   }
 
-  .cyprus-flip-all {
+  .cyprus-controls {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cyprus-flip-all,
+  .cyprus-lang-toggle {
     padding: 0.6rem 1.8rem;
     border-radius: 9999px;
     border: 1px solid rgba(255,255,255,0.35);
@@ -157,7 +189,8 @@ const cssText = `
     transition: all 0.2s;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
-  .cyprus-flip-all:hover {
+  .cyprus-flip-all:hover,
+  .cyprus-lang-toggle:hover {
     background: rgba(255,255,255,0.2);
     border-color: rgba(255,255,255,0.5);
   }
