@@ -4,10 +4,13 @@ export interface CyprusCard {
   darkEmoji: string;
   title: string;
   titleRu: string;
+  titleEl: string;
   dark: string;
   darkRu: string;
+  darkEl: string;
   light: string;
   lightRu: string;
+  lightEl: string;
   photo: string;
 }
 
@@ -18,10 +21,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "🥵",
     title: "Weather",
     titleRu: "Погода",
+    titleEl: "Καιρός",
     dark: "Summer hits 45°C. Even lizards look for shade. Your car steering wheel becomes a weapon of mass destruction.",
     darkRu: "Летом до +45°C. Даже ящерицы в поисках тенька. Руль машины превращается в оружие массового поражения.",
+    darkEl: "Το καλοκαίρι φτάνει τους 45°C. Ακόμα και οι σαύρες ψάχνουν σκιά. Το τιμόνι του αυτοκινήτου γίνεται όπλο μαζικής καταστροφής.",
     light: "340 sunny days a year. Vitamin D levels are only rising! Depression? No, never heard of it.",
     lightRu: "340 солнечных дней в году. Уровень витамина D только растет! Тоска? Не, не слышали.",
+    lightEl: "340 ηλιόλουστες μέρες τον χρόνο. Τα επίπεδα βιταμίνης D ανεβαίνουν συνεχώς! Κατάθλιψη; Όχι, δεν την ξέρουμε.",
     photo: "/nice-cyprus/weather.jpg",
   },
   {
@@ -30,10 +36,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "🫠",
     title: "Driving",
     titleRu: "Вождение",
+    titleEl: "Οδήγηση",
     dark: "Here they drive on the LEFT side. Oh yeah, and the steering wheel is on the right! And also no one uses turn signals.",
     darkRu: "Тут ездят по ЛЕВОЙ стороне. Ага, и руль справа! А ещё никто не использует поворотники.",
+    darkEl: "Εδώ οδηγούν από την ΑΡΙΣΤΕΡΗ πλευρά. Α ναι, και το τιμόνι είναι δεξιά! Και κανείς δεν χρησιμοποιεί φλας.",
     light: "Here are no traffic jams. Everyone is calm and letting you through. You don't have to use your turn signals.",
     lightRu: "Пробок нет. Все спокойные и пропускают. Можно не включать поворотники.",
+    lightEl: "Δεν υπάρχει κίνηση. Όλοι είναι ήρεμοι και σε αφήνουν να περάσεις. Δεν χρειάζεται να βάλεις φλας.",
     photo: "/nice-cyprus/driving.jpg",
   },
   {
@@ -42,10 +51,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "📋",
     title: "Passport",
     titleRu: "Паспорт",
+    titleEl: "Διαβατήριο",
     dark: "Only Aristotle knew true Greek, and you're the one taking the exam. You could wait years for a passport, and fast-track costs 5,000 euros per person.",
     darkRu: "По-настоящему греческий знал только Аристотель, а экзамен сдавать вам. Ждать паспорта можно годами, а фаст-трек стоит 5000 евро за человека.",
+    darkEl: "Μόνο ο Αριστοτέλης ήξερε αληθινά ελληνικά, κι εσύ δίνεις τις εξετάσεις. Μπορεί να περιμένεις χρόνια για διαβατήριο, και η γρήγορη διαδικασία κοστίζει 5.000 ευρώ ανά άτομο.",
     light: "It's quite simple to naturalize under the program for Tech-professionals and their families: live here for 4 or 5 years, pass the Greek B1 or A2 exam, make Cypriot friends, pass the interview, and voila!",
     lightRu: "Довольно просто натурализоваться по программе для айтишников и их семей: прожить 4 или 5 лет, сдать греческий на В1 или А2, завести друзей-киприотов, пройти собеседование и вуаля!",
+    lightEl: "Είναι αρκετά απλό να πολιτογραφηθείς μέσω του προγράμματος για επαγγελματίες τεχνολογίας και τις οικογένειές τους: ζήσε εδώ 4 ή 5 χρόνια, πέρασε τα ελληνικά B1 ή A2, κάνε Κύπριους φίλους, πέρασε τη συνέντευξη και voilà!",
     photo: "/nice-cyprus/bureaucracy.jpg",
   },
   {
@@ -54,10 +66,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "🤯",
     title: "English",
     titleRu: "Английский",
+    titleEl: "Αγγλικά",
     dark: "It is easy and peaceful to live without knowing Greek and thus not integrate at all.",
     darkRu: "Можно легко и спокойно жить без знания греческого и тем самым не интегрироваться совсем.",
+    darkEl: "Είναι εύκολο και ήσυχο να ζεις χωρίς να ξέρεις ελληνικά και έτσι να μην ενταχθείς καθόλου.",
     light: "Everyone knows English, there are many accessible international schools, many expats.",
     lightRu: "Все знают английский, многие русский, много доступных международных школ, много экспатов.",
+    lightEl: "Όλοι ξέρουν αγγλικά, υπάρχουν πολλά προσιτά διεθνή σχολεία, πολλοί εκπατρισμένοι.",
     photo: "/nice-cyprus/language.jpg",
   },
   {
@@ -66,10 +81,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "🏝️",
     title: "Location",
     titleRu: "География",
+    titleEl: "Τοποθεσία",
     dark: "There are no trains, ferries are rare, and many joke that it is cheaper to fly from Paphos to Larnaca than to take a taxi.",
     darkRu: "Поездов нет, паромы редкие, и многие шутят, что из Пафоса до Ларнаки дешевле на самолете, чем на такси.",
+    darkEl: "Δεν υπάρχουν τρένα, τα πλοία είναι σπάνια, και πολλοί αστειεύονται ότι είναι φθηνότερο να πετάξεις από την Πάφο στη Λάρνακα παρά να πάρεις ταξί.",
     light: "Europe, Asia, or Africa are 2–4 hours away by plane. It's easy to plan a weekend trip.",
     lightRu: "На самолете до Европы, Азии или Африки 2–4 часа. Легко планировать трип выходного дня.",
+    lightEl: "Ευρώπη, Ασία ή Αφρική σε 2–4 ώρες με αεροπλάνο. Είναι εύκολο να σχεδιάσεις ένα ταξίδι Σαββατοκύριακου.",
     photo: "/nice-cyprus/island.jpg",
   },
   {
@@ -78,10 +96,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "😩",
     title: "Island's Life",
     titleRu: "Жизнь на острове",
+    titleEl: "Νησιώτικη ζωή",
     dark: "No man is an island, but you have to. You can accidentally drive across island during a lunch break. A Cyprus residence permit does not grant Schengen visas.",
     darkRu: "Никто не может жить сам по себе, но тут нужно научиться - весь остров можно проехать за пару часов. ВНЖ Кипра на даёт визы в Шенген.",
+    darkEl: "Κανείς δεν είναι νησί, αλλά εδώ πρέπει. Μπορείς κατά λάθος να διασχίσεις το νησί στο μεσημεριανό διάλειμμα. Η άδεια παραμονής Κύπρου δεν δίνει βίζα Σένγκεν.",
     light: "The clean, warm sea, forests with trails, and mountains are at your disposal all year round.",
     lightRu: "И чистое тёплое море, и леса с трейлами, и горы в вашем распоряжении круглый год.",
+    lightEl: "Η καθαρή, ζεστή θάλασσα, τα δάση με μονοπάτια και τα βουνά είναι στη διάθεσή σου όλο τον χρόνο.",
     photo: "/nice-cyprus/beach.jpg",
   },
   {
@@ -90,10 +111,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "😱",
     title: "Food",
     titleRu: "Еда",
+    titleEl: "Φαγητό",
     dark: "Every lunch at the tavern is 17 courses when you order just one meze. Diet and finess? Left the Cyprus chat and never came back.",
     darkRu: "Каждый обед в таверне это 17 блюд, когда вы заказали одно мезе. Диета и спорт? Вышли из кипрского чата и не вернулись.",
+    darkEl: "Κάθε γεύμα στην ταβέρνα είναι 17 πιάτα όταν παραγγέλνεις μόνο ένα μεζέ. Δίαιτα και γυμναστική; Έφυγαν από το κυπριακό chat και δεν γύρισαν ποτέ.",
     light: "Have you heard of the Mediterranean diet? The food is incredible, and delivery works — you might never cook again.",
     lightRu: "Слышали про средиземноморскую диету? Еда невероятная, доставка работает — возможно, вы больше никогда не будете готовить.",
+    lightEl: "Έχεις ακούσει για τη μεσογειακή διατροφή; Το φαγητό είναι απίστευτο, και η παράδοση λειτουργεί — μπορεί να μη μαγειρέψεις ποτέ ξανά.",
     photo: "/nice-cyprus/food.jpg",
   },
   {
@@ -102,10 +126,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "👀",
     title: "Community",
     titleRu: "Сообщество",
+    titleEl: "Κοινότητα",
     dark: "The expat community is so tight-knit, everyone already knows what you had for breakfast. Privacy? What's that?",
     darkRu: "Сообщество экспатов настолько тесное, что все уже знают, что вы ели на завтрак. Приватность? Что это?",
+    darkEl: "Η κοινότητα των εκπατρισμένων είναι τόσο δεμένη, που όλοι ξέρουν ήδη τι έφαγες για πρωινό. Ιδιωτικότητα; Τι είναι αυτό;",
     light: "Weekly pub quizzes, a lot of clubs for kids, amazing colleagues, and friends everywhere. You'll never feel alone.",
     lightRu: "Еженедельные квиз.плизы, куча кружков для детей, потрясающие коллеги и друзья повсюду. Вы никогда не будете одиноки.",
+    lightEl: "Εβδομαδιαία pub quiz, πολλά clubs για παιδιά, φανταστικοί συνάδελφοι και φίλοι παντού. Δεν θα νιώσεις ποτέ μόνος.",
     photo: "/nice-cyprus/community.jpg",
   },
   {
@@ -114,10 +141,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "😤",
     title: "Sunsets",
     titleRu: "Закаты",
+    titleEl: "Ηλιοβασιλέματα",
     dark: "Do you know what time sunset is in December? It's usually between 4:45 and 5:10 PM, when everyone's still in the office =)",
     darkRu: "Знаете, во сколько закат в декабре? Обычно между 16:45 и 17:10, когда вы ещё в офисе =)",
+    darkEl: "Ξέρεις τι ώρα δύει ο ήλιος τον Δεκέμβριο; Συνήθως μεταξύ 4:45 και 5:10 μ.μ., όταν είσαι ακόμα στο γραφείο =)",
     light: "Magical golden light every evening. Student graduation on a pirate ship at sunset? That actually happened.",
     lightRu: "Мягкий розоватый свет каждый вечер. Выпускной студентов на пиратском корабле на закате? Так и сделали.",
+    lightEl: "Μαγικό χρυσό φως κάθε βράδυ. Αποφοίτηση φοιτητών σε πειρατικό πλοίο στο ηλιοβασίλεμα; Αυτό πραγματικά έγινε.",
     photo: "/nice-cyprus/sunset.jpg",
   },
   {
@@ -126,10 +156,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "💸",
     title: "Housing",
     titleRu: "Жильё",
+    titleEl: "Στέγαση",
     dark: "Rent prices keep climbing. Finding a decent place feels like competitive sport. May the odds be ever in your favor.",
     darkRu: "Цены на аренду растут и растут. Искать приличное жильё можно долго. Пусть удача будет на вашей стороне.",
+    darkEl: "Τα ενοίκια ανεβαίνουν συνεχώς. Η εύρεση αξιοπρεπούς σπιτιού μοιάζει με ανταγωνιστικό άθλημα. Καλή τύχη!",
     light: "Two-bedroom apartment with a fireplace for €1000/month. Try getting that in London,  Munich or Amsterdam.",
     lightRu: "Двухкомнатная квартира с камином за €1000/мес. Попробуйте найти такое в Лондоне, Мюнхене или Амстердаме.",
+    lightEl: "Διαμέρισμα δύο υπνοδωματίων με τζάκι για €1000/μήνα. Δοκίμασε να βρεις αυτό στο Λονδίνο, το Μόναχο ή το Άμστερνταμ.",
     photo: "/nice-cyprus/housing.jpg",
   },
   {
@@ -138,10 +171,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "⏰",
     title: "Family Time",
     titleRu: "Семья",
+    titleEl: "Οικογένεια",
     dark: "Work-life balance means your family will actually expect you to show up for dinner. Every. Single. Day.",
     darkRu: "Баланс работы и жизни означает, что семья реально будет ждать вас к ужину. Каждый. Божий. День.",
+    darkEl: "Η ισορροπία εργασίας-ζωής σημαίνει ότι η οικογένειά σου θα περιμένει να εμφανιστείς για δείπνο. Κάθε. Μέρα.",
     light: "Way more time with family, walking and swimming every day, year-round. Life as it should be.",
     lightRu: "Гораздо больше времени с семьёй, прогулки и плавание хоть каждый день, круглый год. Вот это жизнь!",
+    lightEl: "Πολύ περισσότερο χρόνο με την οικογένεια, περπάτημα και κολύμπι κάθε μέρα, όλο τον χρόνο. Η ζωή όπως πρέπει να είναι.",
     photo: "/nice-cyprus/family.jpg",
   },
   {
@@ -150,10 +186,13 @@ export const cyprusCards: CyprusCard[] = [
     darkEmoji: "💰",
     title: "Schools",
     titleRu: "Школы",
+    titleEl: "Σχολεία",
     dark: "Good schools are private and pricey. Your wallet learns the meaning of 'tuition fees' in three languages.",
     darkRu: "Хорошие школы обычно частные и дорогие. Ваш кошелёк выучит значение слова 'tuition fees' на трёх языках.",
+    darkEl: "Τα καλά σχολεία είναι ιδιωτικά και ακριβά. Το πορτοφόλι σου μαθαίνει τη σημασία των «διδάκτρων» σε τρεις γλώσσες.",
     light: "International schools with a British curriculum and Russian mathematics, children develop, learn languages, and truly enjoy learning.",
     lightRu: "Международные школы с британской программой и русской математикой, дети развиваются, учат языки и реально любят учебу.",
+    lightEl: "Διεθνή σχολεία με βρετανικό πρόγραμμα σπουδών και ρωσικά μαθηματικά, τα παιδιά αναπτύσσονται, μαθαίνουν γλώσσες και πραγματικά απολαμβάνουν τη μάθηση.",
     photo: "/nice-cyprus/school.jpg",
   },
 ];

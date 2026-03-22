@@ -3,7 +3,19 @@ import { cyprusCards } from "../data/cyprusCardsData";
 import type { CyprusCard } from "../data/cyprusCardsData";
 import CyprusNetworkBg from "./CyprusNetworkBg";
 
-export type Lang = "en" | "ru";
+export type Lang = "en" | "ru" | "el";
+
+const LANGS: { code: Lang; flag: string; label: string }[] = [
+  { code: "en", flag: "🇬🇧", label: "EN" },
+  { code: "ru", flag: "🇷🇺", label: "RU" },
+  { code: "el", flag: "🇬🇷", label: "EL" },
+];
+
+function t(card: CyprusCard, field: "title" | "dark" | "light", lang: Lang) {
+  if (lang === "ru") return card[`${field}Ru`];
+  if (lang === "el") return card[`${field}El`];
+  return card[field];
+}
 
 export default function CyprusCards() {
   const [flipped, setFlipped] = useState<Set<number>>(new Set());
@@ -37,24 +49,29 @@ export default function CyprusCards() {
       <style>{cssText}</style>
       <CyprusNetworkBg darkRatio={darkRatio} nodeCount={nodeCount} />
 
+      <div className="cyprus-lang-switcher">
+        {LANGS.map((l) => (
+          <button
+            key={l.code}
+            className={`cyprus-lang-btn ${lang === l.code ? "active" : ""}`}
+            onClick={() => setLang(l.code)}
+          >
+            <span className="cyprus-lang-flag">{l.flag}</span>
+            <span className="cyprus-lang-label">{l.label}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="cyprus-content-layer">
       <div className="cyprus-header">
         <h1 className="cyprus-title">
-          {lang === "en" ? "Nice Cyprus" : "Прекрасный Кипр"}
+          {lang === "en" ? "Nice Cyprus" : lang === "ru" ? "Прекрасный Кипр" : "Ωραία Κύπρος"}
         </h1>
-        <div className="cyprus-controls">
-          <button className="cyprus-flip-all" onClick={flipAll}>
-            {flipped.size === cyprusCards.length
-              ? lang === "en" ? "Show bright side ☀️" : "Покажи плюсы ☀️"
-              : lang === "en" ? "Show dark side 🌑" : "Покажи минусы 🌑"}
-          </button>
-          <button
-            className="cyprus-lang-toggle"
-            onClick={() => setLang(lang === "en" ? "ru" : "en")}
-          >
-            {lang === "en" ? "🇷🇺 RU" : "🇬🇧 EN"}
-          </button>
-        </div>
+        <button className="cyprus-flip-all" onClick={flipAll}>
+          {flipped.size === cyprusCards.length
+            ? lang === "en" ? "Show bright side ☀️" : lang === "ru" ? "Покажи плюсы ☀️" : "Δείξε τη φωτεινή πλευρά ☀️"
+            : lang === "en" ? "Show dark side 🌑" : lang === "ru" ? "Покажи минусы 🌑" : "Δείξε τη σκοτεινή πλευρά 🌑"}
+        </button>
       </div>
 
       <div className="cyprus-grid">
@@ -77,7 +94,9 @@ export default function CyprusCards() {
       <p className="cyprus-footer">
         {lang === "en"
           ? "Based on real experiences. All facts are true. Humor is a coping mechanism."
-          : "Основано на реальном опыте. Только правда. Юмор — это защитный механизм."}
+          : lang === "ru"
+          ? "Основано на реальном опыте. Только правда. Юмор — это защитный механизм."
+          : "Βασισμένο σε πραγματικές εμπειρίες. Όλα τα γεγονότα είναι αληθινά. Το χιούμορ είναι μηχανισμός αντιμετώπισης."}
       </p>
       </div>
     </div>
@@ -96,15 +115,11 @@ function CardFaceDark({ card, lang }: { card: CyprusCard; lang: Lang }) {
       <div className="cyprus-overlay-dark" />
       <div className="cyprus-content">
         <span className="cyprus-emoji">{card.darkEmoji}</span>
-        <h3 className="cyprus-card-title dark-title">
-          {lang === "en" ? card.title : card.titleRu}
-        </h3>
-        <p className="cyprus-card-text dark-text">
-          {lang === "en" ? card.dark : card.darkRu}
-        </p>
+        <h3 className="cyprus-card-title dark-title">{t(card, "title", lang)}</h3>
+        <p className="cyprus-card-text dark-text">{t(card, "dark", lang)}</p>
       </div>
       <span className="cyprus-hint">
-        {lang === "en" ? "tap to flip" : "нажми, чтобы перевернуть"}
+        {lang === "en" ? "tap to flip" : lang === "ru" ? "нажми, чтобы перевернуть" : "πάτα για αναστροφή"}
       </span>
     </div>
   );
@@ -122,12 +137,8 @@ function CardFaceLight({ card, lang }: { card: CyprusCard; lang: Lang }) {
       <div className="cyprus-overlay-light" />
       <div className="cyprus-content">
         <span className="cyprus-emoji">{card.emoji}</span>
-        <h3 className="cyprus-card-title light-title">
-          {lang === "en" ? card.title : card.titleRu}
-        </h3>
-        <p className="cyprus-card-text light-text">
-          {lang === "en" ? card.light : card.lightRu}
-        </p>
+        <h3 className="cyprus-card-title light-title">{t(card, "title", lang)}</h3>
+        <p className="cyprus-card-text light-text">{t(card, "light", lang)}</p>
       </div>
     </div>
   );
@@ -168,15 +179,59 @@ const cssText = `
     margin-bottom: 1.5rem;
   }
 
-  .cyprus-controls {
+  .cyprus-lang-switcher {
+    position: fixed;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
     display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(12px);
+    border-radius: 1.5rem;
+    padding: 0.35rem;
+    border: 1px solid rgba(255,255,255,0.15);
   }
 
-  .cyprus-flip-all,
-  .cyprus-lang-toggle {
+  .cyprus-lang-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.5rem 0.4rem;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    border-radius: 1.2rem;
+    transition: all 0.2s;
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .cyprus-lang-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+
+  .cyprus-lang-btn.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  .cyprus-lang-flag {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .cyprus-lang-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .cyprus-flip-all {
     padding: 0.6rem 1.8rem;
     border-radius: 9999px;
     border: 1px solid rgba(255,255,255,0.35);
@@ -189,10 +244,22 @@ const cssText = `
     transition: all 0.2s;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
-  .cyprus-flip-all:hover,
-  .cyprus-lang-toggle:hover {
+  .cyprus-flip-all:hover {
     background: rgba(255,255,255,0.2);
     border-color: rgba(255,255,255,0.5);
+  }
+
+  @media (max-width: 768px) {
+    .cyprus-lang-switcher {
+      right: 0.5rem;
+      padding: 0.25rem;
+    }
+    .cyprus-lang-btn {
+      padding: 0.4rem 0.3rem;
+    }
+    .cyprus-lang-flag {
+      font-size: 1.1rem;
+    }
   }
 
   .cyprus-grid {
