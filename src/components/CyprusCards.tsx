@@ -353,7 +353,7 @@ const cssText = `
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    padding-top: 30%;
+    padding-top: 25%;
     height: 100%;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
