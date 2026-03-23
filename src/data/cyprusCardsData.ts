@@ -28,7 +28,7 @@ export const cyprusCards: CyprusCard[] = [
     light: "340 sunny days a year. Vitamin D levels are only rising! Depression? No, never heard of it.",
     lightRu: "340 солнечных дней в году. Уровень витамина D только растет! Тоска? Не, не слышали.",
     lightEl: "340 ηλιόλουστες μέρες τον χρόνο. Τα επίπεδα βιταμίνης D ανεβαίνουν συνεχώς! Κατάθλιψη; Όχι, δεν την ξέρουμε.",
-    photo: "/nice-cyprus/weather.jpg",
+    photo: "/nice-cyprus/weather-cyprus.jpg",
   },
   {
     id: 2,
@@ -98,7 +98,7 @@ export const cyprusCards: CyprusCard[] = [
     titleRu: "Жизнь на острове",
     titleEl: "Νησιώτικη ζωή",
     dark: "No man is an island, but here sometimes you have to be. You can accidentally drive across island during a lunch break. A Cyprus residence permit does not grant Schengen visas.",
-    darkRu: "Никто не может жить сам по себе, но тут нужно научиться - весь остров можно проехать за пару часов. ВНЖ Кипра на даёт визы в Шенген.",
+    darkRu: "Никто не может жить сам по себе, но тут нужно научиться - весь остров можно проехать за пару часов. ВНЖ Кипра не даёт визы в Шенген.",
     darkEl: "Κανείς δεν μπορεί να ζεί μόνος του, αλλά εδώ καμία φορά πρέπει. Μπορεί κατά λάθος να διασχίσεις την άλλη πλευρά του νησιού στο μεσημεριανό διάλειμμα. Η άδεια παραμονής Κύπρου δεν δίνει βίζα Σένγκεν.",
     light: "The clean, warm sea, forests with trails, and mountains are at your disposal all year round.",
     lightRu: "И чистое тёплое море, и леса с трейлами, и горы в вашем распоряжении круглый год.",
