@@ -17,6 +17,8 @@ function t(card: CyprusCard, field: "title" | "dark" | "light", lang: Lang) {
   return card[field];
 }
 
+const PAGE_URL = "https://avalur.me/nice-cyprus/";
+
 export default function CyprusCards() {
   const [flipped, setFlipped] = useState<Set<number>>(new Set());
   const [lang, setLang] = useState<Lang>("en");
@@ -63,6 +65,7 @@ export default function CyprusCards() {
       </div>
 
       <div className="cyprus-content-layer">
+      <a href="/posts" className="cyprus-back-link">&larr; Back to posts</a>
       <div className="cyprus-header">
         <h1 className="cyprus-title">
           {lang === "en" ? "Nice Cyprus" : lang === "ru" ? "Прекрасный Кипр" : "Ωραία Κύπρος"}
@@ -98,6 +101,36 @@ export default function CyprusCards() {
           ? "Основано на реальном опыте. Только правда. Юмор — это защитный механизм."
           : "Βασισμένο σε πραγματικές εμπειρίες. Όλα τα γεγονότα είναι αληθινά. Το χιούμορ είναι μηχανισμός αντιμετώπισης."}
       </p>
+
+      <div className="cyprus-share-section">
+        <p className="cyprus-share-label">
+          {lang === "en" ? "Share:" : lang === "ru" ? "Поделиться:" : "Κοινοποίηση:"}
+        </p>
+        <div className="cyprus-share-row">
+          <a href={`https://x.com/intent/post?url=${encodeURIComponent(PAGE_URL)}`} target="_blank" rel="noopener noreferrer" title="Share on X" className="cyprus-share-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+          </a>
+          <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(PAGE_URL)}`} target="_blank" rel="noopener noreferrer" title="Share on LinkedIn" className="cyprus-share-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+          </a>
+          <a href={`https://t.me/share/url?url=${encodeURIComponent(PAGE_URL)}`} target="_blank" rel="noopener noreferrer" title="Share on Telegram" className="cyprus-share-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" /></svg>
+          </a>
+          <a href={`https://www.facebook.com/sharer.php?u=${encodeURIComponent(PAGE_URL)}`} target="_blank" rel="noopener noreferrer" title="Share on Facebook" className="cyprus-share-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+          </a>
+          <a href={`mailto:?subject=${encodeURIComponent("Nice Cyprus")}&body=${encodeURIComponent(PAGE_URL)}`} title="Share via Email" className="cyprus-share-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+          </a>
+        </div>
+        <p className="cyprus-tg-link">
+          {lang === "en"
+            ? <>Join <a href="https://t.me/TechneNotes" target="_blank" rel="noopener noreferrer">Telegram channel</a> and share your thoughts!</>
+            : lang === "ru"
+            ? <>Присоединяйтесь к <a href="https://t.me/TechneNotes" target="_blank" rel="noopener noreferrer">Telegram-каналу</a> и делитесь впечатлениями!</>
+            : <>Μπείτε στο <a href="https://t.me/TechneNotes" target="_blank" rel="noopener noreferrer">κανάλι Telegram</a> και μοιραστείτε τις σκέψεις σας!</>}
+        </p>
+      </div>
       </div>
     </div>
   );
@@ -421,5 +454,74 @@ const cssText = `
 
   .cyprus-card-wrapper:hover .cyprus-photo-light {
     filter: saturate(1.5) brightness(1.08) contrast(1.05);
+  }
+
+  /* --- Back link --- */
+  .cyprus-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: color 0.2s;
+  }
+  .cyprus-back-link:hover {
+    color: #fff;
+  }
+
+  /* --- Share section --- */
+  .cyprus-share-section {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    text-align: center;
+  }
+
+  .cyprus-share-label {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 0.75rem;
+  }
+
+  .cyprus-share-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cyprus-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: transform 0.2s, color 0.2s;
+  }
+  .cyprus-share-btn:hover {
+    transform: rotate(6deg);
+    color: #fff;
+  }
+
+  .cyprus-tg-link {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .cyprus-tg-link a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+  }
+  .cyprus-tg-link a:hover {
+    color: #fff;
   }
 `;
