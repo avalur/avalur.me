@@ -319,6 +319,7 @@ const cssText = `
     width: 100%;
     height: 100%;
     transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-transform-style: preserve-3d;
     transform-style: preserve-3d;
   }
 
@@ -330,9 +331,14 @@ const cssText = `
   .cyprus-face {
     position: absolute;
     inset: 0;
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 1rem;
     overflow: hidden;
+  }
+
+  .cyprus-face-light {
+    transform: rotateY(0deg);
   }
 
   .cyprus-face-dark {
