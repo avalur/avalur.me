@@ -21,6 +21,32 @@ const posts = (await getCollection("blog")).sort(
 
   <div class="max-w-5xl mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #5B8731;border-top:5px solid #5B8731;">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <time class="text-sm text-gray-500">April 14, 2026</time>
+            <span class="text-sm text-gray-400">&middot; 15 min</span>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            <a href="/posts/minecraft-learning" class="hover:text-green-600 transition-colors">
+              Minecraft and the People Who Play It
+            </a>
+          </h2>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">How a game written in one week became the best-selling video game ever&nbsp;&mdash; and why lion cubs, bear cubs, and your child at the computer have more in common than you think.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-md font-medium">Minecraft</span>
+            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">Education</span>
+            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">Programming</span>
+            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">Game Design</span>
+          </div>
+          <a
+            href="/posts/minecraft-learning"
+            class="text-green-600 font-semibold text-sm hover:text-green-800 transition-colors"
+          >
+            Read More &rarr;
+          </a>
+        </div>
+      </article>
       {
         posts.map((post, index) => (
           <Fragment>
@@ -78,7 +104,7 @@ const posts = (await getCollection("blog")).sort(
               </div>
             </article>
           )}
-          {(
+          {post.id !== 'minecraft-learning' && (
           <article class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
             <div class="p-6">
               <div class="flex items-center gap-3 mb-3">
