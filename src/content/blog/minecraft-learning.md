@@ -1,9 +1,9 @@
 ---
-title: "Minecraft и люди, играющие в него"
-description: "От блочной Cave Game до 350 миллионов загрузок: история, технологии и образовательная сила Minecraft. Почему львята играют, дети строят, а Redstone — это компьютер."
+title: "Minecraft and the People Who Play It"
+description: "From the blocky Cave Game to 350 million downloads: the history, technology, and educational power of Minecraft. Why lion cubs play, children build, and Redstone is a computer."
 date: 2026-04-14
 tags: ["Minecraft", "Education", "Programming", "Game Design"]
-readingTime: "15 мин"
+readingTime: "15 min"
 ---
 
 <style>
@@ -116,6 +116,35 @@ readingTime: "15 мин"
 }
 .mc-craft tr:hover td { background: #9B8365 !important; }
 
+/* Language switcher */
+.mc-lang-switcher {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 0 0 0.5rem;
+}
+.mc-lang-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 3px solid #555;
+  background: #3C3C3C;
+  color: #AAA;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: 2px;
+  line-height: 1.4;
+}
+.mc-lang-btn:hover { background: #4C4C4C; color: #FFF; }
+.mc-lang-active {
+  background: #5B8731 !important;
+  border-color: #3d5c1e !important;
+  color: #FFF !important;
+}
+
+/* Hide inactive language */
+.lang-hidden { display: none !important; }
+
 /* Dark mode */
 [data-theme="dark"] .mc-book {
   background: #3C2F20;
@@ -125,9 +154,7 @@ readingTime: "15 мин"
 [data-theme="dark"] .mc-book p { color: #E8D5B5 !important; }
 [data-theme="dark"] .mc-book strong { color: #FF8A80 !important; }
 
-[data-theme="dark"] .mc-redstone {
-  background: rgba(183, 28, 28, 0.1);
-}
+[data-theme="dark"] .mc-redstone { background: rgba(183, 28, 28, 0.1); }
 
 [data-theme="dark"] .mc-craft th {
   background: #3d5c1e !important;
@@ -145,16 +172,310 @@ readingTime: "15 мин"
   background: linear-gradient(180deg, #3d5270 0%, #3d5270 50%, #3d5c1e 50%, #3d5c1e 64%, #5a4a2a 64%);
   border-bottom-color: #3C3020;
 }
+
+[data-theme="dark"] .mc-lang-btn { background: #2C2C2C; border-color: #444; }
+[data-theme="dark"] .mc-lang-btn:hover { background: #3C3C3C; }
 </style>
 
-<div class="mc-banner not-prose">
+<div class="mc-lang-switcher not-prose">
+<button class="mc-lang-btn mc-lang-active" data-switch-lang="en">English</button>
+<button class="mc-lang-btn" data-switch-lang="ru">Русский</button>
+</div>
+
+<div class="mc-banner not-prose" data-lang="en">
+  <p class="mc-title">MINECRAFT</p>
+  <p class="mc-subtitle">WHEN A GAME BECOMES EDUCATION</p>
+  <p class="mc-tagline">Blocks, code, and the evolution of children's play</p>
+</div>
+
+<div class="mc-banner not-prose lang-hidden" data-lang="ru">
   <p class="mc-title">MINECRAFT</p>
   <p class="mc-subtitle">КОГДА ИГРА СТАНОВИТСЯ ОБУЧЕНИЕМ</p>
   <p class="mc-tagline">Блоки, код и эволюция детской игры</p>
 </div>
 
-У нас произошло то, что рано или поздно случается в каждой семье: дочка открыла для себя Minecraft. Ей 10 лет, и за последние месяцы она прошла путь от «А как и что тут делать?» до строительства сложных ферм, разведения животных и эпических битв с монстрами.
+<div data-lang="en">
 
+Something happened in our family that sooner or later happens in every home with kids: our daughter discovered Minecraft. She's 10, and over the past few months she's gone from "What do I even do here?" to building complex farms, breeding animals, and epic battles with monsters.
+
+But the most surprising thing is not the game itself -- it's what happens *around* it. At the library she found Stephan Pilet's "Minecraft: The Big Book of Tips" and now reads it on weekdays, planning her strategy for the weekend.
+
+![StephanPileBook](/posts/minecraft-learning/StephanPileBook.webp)
+
+Nearly all our friends aged 5 to 25 know the game too, so there's always someone to discuss tactics with, exchange secrets, and brainstorm together. This is not simply "staring at a screen" -- it's a full-fledged environment for learning, planning, socialization, and creativity.
+
+The book doesn't create static stories in her head -- it's a true immersion into a beautiful virtual world with feedback, consequences for every decision, and a practically infinite space for experiments.
+
+And that got me thinking: how did a game written by a single programmer in Java in under a week become **the best-selling video game in history**? And a tool used by schools in 115 countries?
+
+## From Cave Game to $2.5 Billion
+
+### One Programmer and One Week
+
+Markus "Notch" Persson was born in Stockholm in 1979. His father -- a "real geek," as Markus recalls -- built his own modem and taught his son to use a Commodore 128. **At 7, Markus started programming**, and at 8 he created his first text adventure game.
+
+<div class="mc-book">
+<p>"I'm not an entrepreneur. I'm not a CEO. I'm a nerdy programmer who likes having an opinion on Twitter."<br>--<br>Markus Persson</p>
+</div>
+
+By 15 he knew for certain he wanted to make games. But he never finished high school -- he went on to study graphic design, then worked at Midasplayer (the future creators of Candy Crush), developing browser-based Flash games.
+
+In 2009, Markus discovered **Infiniminer** -- a blocky resource-mining game -- and was struck by an idea: "A fantasy game in this style should work even better!" He took code from his previous prototypes and **in under a week** built a basic first-person engine.
+
+The first name? **Cave Game**. Then Minecraft: Order of the Stone. And finally, just Minecraft.
+
+<div class="mc-achievement not-prose">
+<span class="mc-ach-title">ACHIEVEMENT UNLOCKED!</span>
+<span class="mc-ach-desc">May 17, 2009: Markus publishes the first version on the TIGSource forums. The era of blocks begins.</span>
+</div>
+
+### Key Milestones
+
+<div class="mc-craft not-prose">
+<table>
+<tr><th>Date</th><th>Event</th></tr>
+<tr><td>May 2009</td><td>First publication of Cave Game on forums</td></tr>
+<tr><td>January 2011</td><td>1 million paying users</td></tr>
+<tr><td>November 2011</td><td>Official release 1.0 - already 4M copies sold</td></tr>
+<tr><td>December 2011</td><td>Notch hands leadership to Jens "Jeb" Bergensten</td></tr>
+<tr><td>September 2014</td><td>Microsoft acquires Mojang for $2.5B</td></tr>
+<tr><td>2016</td><td>Launch of Minecraft Education Edition</td></tr>
+<tr><td>2023</td><td>300M+ copies sold, ~212M monthly active players now</td></tr>
+</table>
+</div>
+
+### The Creeper -- Born from a Bug!
+
+One of the most recognizable enemies in video game history was born by accident: Notch was trying to model a pig but **mixed up the length and height**. Instead of a pig, he got a tall thin creature on four legs. Rather than fix the bug, Markus painted it green -- and the Creeper was born :)
+
+<div class="mc-book">
+<p>In September 2010, Notch visited Valve's headquarters and received a job offer. <strong>He declined</strong>, to keep working on Minecraft. Four years later, his studio was bought for $2.5 billion.</p>
+</div>
+
+## Why the Whole World Plays
+
+### Mind-Boggling Numbers
+
+Minecraft is **the best-selling video game in history**: over **350 million copies** worldwide. Monthly active audience -- about **212 million** players. For context: that's more than the population of Brazil, the seventh most populous country in the world.
+
+In China, the localized version "My World" has amassed **700M+** registered accounts. And the Minecraft Marketplace has earned content creators over $350 million as early as 2021.
+
+### Who Plays?
+
+<div class="mc-craft not-prose">
+<table>
+<tr><th>Age Group</th><th>Share of Players</th></tr>
+<tr><td>Under 15</td><td>21%</td></tr>
+<tr><td>15-21 (largest group)</td><td>43%</td></tr>
+<tr><td>22-30</td><td>21%</td></tr>
+<tr><td>30-65</td><td>15%</td></tr>
+</table>
+</div>
+
+According to various statistical surveys, about 39% of the audience plays on mobile, 30% on PC, 31% on consoles. Geography: USA (21%), Brazil (6%), Russia (6%).
+
+### The Secret of Universality
+
+Why does Minecraft equally captivate a five-year-old child and a twenty-five-year-old engineer? The answer lies in the **absence of imposed goals**:
+
+- **Young children** (5-7) enjoy combinations of colors and shapes -- it's like an infinite LEGO set
+- **School-age kids** (8-12) express imagination through building, cave exploration, and animal breeding
+- **Teenagers** (13-17) dive into Redstone mechanics (electrical circuits), create servers, and modify the game
+- **Adults** apply architectural design, programming, and collaborative projects on the scale of small cities
+
+There's no "right" way to play. Everyone decides for themselves what to do -- and this very freedom creates a **flow state**, when a person is fully immersed and maximally receptive to learning.
+
+### 250,000 Mods and a Living Community
+
+The modding community is a critically important engine of Minecraft's longevity. Major platforms host **over 250,000 mods** with a combined **100 billion downloads**. The most popular mods (OptiFine, JEI, Sodium) reach hundreds of millions of downloads each.
+
+YouTube and Twitch are overflowing with content creators with millions of subscribers. Server communities are born on Reddit and Discord and become spaces for collective creativity. Minecraft has become **a cultural symbol of an entire generation**.
+
+## When a Game Is Education
+
+### Lion Cubs, Bear Cubs, and Your Child at the Computer
+
+What do a lion cub pinning its sibling in a play-fight and a child building a farm in Minecraft have in common? Far more than meets the eye.
+
+German philosopher and psychologist **Karl Groos** formulated an evolutionary theory of play back in the late 19th century:
+
+<div class="mc-book">
+<p>"We cannot say that animals play because they are young and playful. Rather, they have a period of youth <strong>precisely in order to play</strong>."</p>
+<p><br>--<br> Karl Groos</p>
+</div>
+
+Play is not a side effect of childhood -- it's its *cause*. Evolution "invented" a long childhood in mammals precisely so that young individuals could safely practice survival skills:
+
+- **Lion cubs** play-fight and play-hunt -- developing coordination and tactical thinking for future real hunts
+- **Young monkeys** learn agility by swinging between branches
+- **Bear cubs** that played more in mock fights show **better hunting abilities** in adulthood (University of Tennessee study)
+- **Zebra foals and gazelle calves** practice fleeing and evading predators
+
+Why mammals specifically? Because unlike insects and reptiles, their instincts are **more flexible** and require learning. The more complex the brain, the more "rehearsals" are needed before real life.
+
+### Piaget, Vygotsky, and Berne: Three Views on Children's Play
+
+**Jean Piaget** viewed play as a vital component of cognitive development. Children acquire understanding of the world through **active interaction with their environment** -- they build their own knowledge base through exploration. In Minecraft, this manifests literally: a child experiments with crafting, discovers recipes, studies mob behavior -- and does so voluntarily, for hours on end.
+
+**Lev Vygotsky** added a social dimension: children learn not in isolation but **through interaction with others** -- especially those who know more. He considered play "the leading source of development" in childhood. When a child discusses strategies with friends of different ages -- from five-year-olds to twenty-five-year-olds -- that's exactly what Vygotsky described: learning in the zone of proximal development through social interaction.
+
+<div class="mc-book">
+<p><strong>Eric Berne</strong>, the creator of transactional analysis, described three ego states in his book "Games People Play": <strong>Parent</strong>, <strong>Adult</strong>, and <strong>Child</strong>. All three live within each of us -- and play helps us switch between them.</p>
+</div>
+
+The parallel with Minecraft is strikingly precise. In the game, children freely switch between all three roles:
+
+- **"Parent"**: organizes a collaborative project on a server, sets rules, takes care of younger players
+- **"Adult"**: rationally solves engineering problems with Redstone, calculates resources, plans construction
+- **"Child"**: creatively explores the world, experiments, takes risks, enjoys the process
+
+Minecraft essentially serves as a **safe sandbox for practicing the social patterns** described by Berne, but in a constructive rather than manipulative way. Unlike Berne's "games", where participants unconsciously follow destructive scripts, in Minecraft the "scripts" are literally programs and plans that children create *consciously*.
+
+### Four Mechanisms of Learning Through Play
+
+Groos identified four key mechanisms explaining why play is so effective for learning -- and all four are present in Minecraft:
+
+1. **Freedom from consequences** -- the absence of real risks allows experimentation without fear. In Minecraft you can "die" and try again
+2. **Intrinsic motivation** -- children practice to play well, not for grades. Motivation comes from within, not from a teacher
+3. **Repetition without monotony** -- players voluntarily repeat actions, perfecting skills through creative variations. The tenth house is built quite differently from the first
+4. **Cultural adaptation** -- children incorporate into play what is valued around them. In a world that values technology, they build Redstone circuits
+
+<div class="mc-book">
+<p>"The educational power of play lies in its triviality" -- education occurs as a <strong>natural byproduct</strong>, not as deliberate instruction. That's precisely why it's so effective.</p>
+</div>
+
+### Minecraft in Schools: 35 Million Students
+
+This isn't just theory. **Minecraft Education Edition** is used by more than **35 million** students and teachers in **115 countries**. Since 2013, American and Swedish schools have systematically integrated Minecraft into the curriculum -- for teaching mathematics, history, urban planning, and natural sciences.
+
+<div class="mc-achievement not-prose">
+<span class="mc-ach-title">ACHIEVEMENT UNLOCKED!</span>
+<span class="mc-ach-desc">A study in Montreal: 118 students in grades 3-6 completed 40+ curriculum tasks through Minecraft -- building houses, stadiums, and historical landmarks. Result: increased motivation and improved problem-solving skills.</span>
+</div>
+
+## Under the Hood: Technical Magic of the Block World
+
+### Two Worlds, Two Languages
+
+Minecraft exists in two main editions:
+
+- **Java Edition** -- the original version, written in Java. Supports modding through the Forge and Fabric frameworks. This is where all key innovations first appear
+- **Bedrock Edition** -- written in **C++**. Unites cross-platform play between Windows, Xbox, PlayStation, Switch, and mobile devices
+
+### How an Infinite World Is Created
+
+Every Minecraft world starts with a single number -- a **seed**. This is a 64-bit value yielding **18.4 quintillion** unique combinations. The same seed **always** generates the same world -- determinism built into infinity.
+
+The world is divided into **chunks** -- 16 x 16-block sections horizontally, extending the full height (up to **384 blocks** after the Caves & Cliffs update). New chunks are generated dynamically as the player moves beyond loaded boundaries -- and this is what makes the world effectively infinite (60,000,000 x 60,000,000 blocks).
+
+<div class="mc-redstone">
+
+**How does generation work?** At its core is **Perlin noise**: a mathematical function that creates "smooth random" patterns. Minecraft uses several 3D noise maps to determine five "climate" parameters for each point in the world: **temperature**, **humidity**, **continentalness**, **erosion**, and **weirdness**. Their combination determines the biome -- from snow-capped mountains to tropical jungles.
+
+</div>
+
+The full generation pipeline: seed initialization --> noise map generation --> biome determination --> cellular automaton processing --> fractal density mapping --> terrain height calculation --> **population** (trees, ores, structures). This is a real course in procedural generation -- a topic studied in advanced computer graphics courses at universities.
+
+### Redstone: A Computer Inside a Computer
+
+Redstone in Minecraft is an analog of electrical wiring. From it you can build **logic gates** (AND, OR, NOR, XOR), **memory circuits** (latches, flip-flops), and **clock generators**.
+
+<div class="mc-achievement not-prose">
+<span class="mc-ach-title">ACHIEVEMENT UNLOCKED!</span>
+<span class="mc-ach-desc">Minecraft is a Turing-complete system. An 8-bit computer with a 4-core processor has been built in the game - entirely from Redstone blocks.</span>
+</div>
+
+The advantage for learning: Redstone is "ideal" -- it's always on or off. **No need to deal with voltages, capacitances, and inductances** -- just pure logic. Basic gates combine into adders, adders into arithmetic logic units. A child building an automatic door in Minecraft **follows the same path** as a first-year electrical engineering student, but without formulas and a soldering iron.
+
+## From Blocks to Code
+
+Minecraft isn't just about building. It's a natural ladder from a first encounter with logic to writing real programs.
+
+### Level 1: Command Blocks
+
+The most accessible path to programming -- right inside the game. **Command Blocks** allow you to automate commands and create complex systems without external tools. Here a child encounters basic concepts: conditions, loops, variables, events -- all in the context of "I want my house to open doors automatically".
+
+### Level 2: MakeCode -- Visual Programming
+
+Microsoft MakeCode is integrated into **Minecraft Education Edition** through Code Builder (pressing "C" opens the development environment). This is block programming -- like virtual LEGO where colored code blocks connect together.
+
+<div class="mc-redstone">
+
+In MakeCode, a child controls an **agent** -- a programmable helper in the Minecraft world. You write a program from blocks, and the agent performs actions in the world. Gradual transition: from visual blocks to JavaScript and then to Python.
+
+</div>
+
+### Level 3: Python and Minecraft
+
+The **mcpi** library (Minecraft Pi Edition API) lets you control the Minecraft world from Python scripts. Through a Spigot server and the RaspberryJuice plugin, a child writes code that builds structures, moves blocks, creates game logic -- and **sees the result in real time** in a familiar world.
+
+```python
+from mcpi.minecraft import Minecraft
+mc = Minecraft.create()
+
+# Build a stone wall
+for x in range(10):
+    for y in range(5):
+        mc.setBlock(x, y, 0, 1)  # 1 = stone
+
+# Teleport the player up
+mc.player.setPos(5, 10, 0)
+```
+
+**Minecraft Education Edition** includes a **Python 101** series -- 10 lessons where students help a fictional company CodingMine solve problems: from zero knowledge of syntax to writing functions and mini-games.
+
+### Level 4: Java Modding -- Real Development
+
+Most Minecraft mods are written in Java through the **Forge** and **Fabric** frameworks. This is real object-oriented development:
+
+```java
+@Mod("myawesomemod")
+public class MyMod {
+    public MyMod() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        event.getEntity().sendSystemMessage(
+            Component.literal("Hello from my mod!")
+        );
+    }
+}
+```
+
+The path from "I want to add a new mob" to "I'm writing a mod in Java" is a natural evolution. A child who started dragging blocks in MakeCode can, within a year or two, be learning a real industrial programming language -- and they'll already have the **motivation** and **context** that are so lacking in typical courses.
+
+### Roadmap
+
+<div class="mc-craft not-prose">
+<table>
+<tr><th>Level</th><th>Tool</th><th>Language</th><th>Skills</th></tr>
+<tr><td>Beginner</td><td>Command Blocks</td><td>In-game commands</td><td>Logic, conditions, sequences</td></tr>
+<tr><td>Intermediate</td><td>MakeCode</td><td>Blocks / JS / Python</td><td>Algorithms, loops, functions</td></tr>
+<tr><td>Advanced</td><td>mcpi / Python</td><td>Python</td><td>Scripting, APIs, automation</td></tr>
+<tr><td>Expert</td><td>Forge / Fabric</td><td>Java</td><td>OOP, frameworks, real development</td></tr>
+</table>
+</div>
+
+## Instead of a Conclusion
+
+When I watch my daughter reading a Minecraft book on weekdays, planning weekend adventures, and then discussing strategies with friends of all ages -- I don't see "a child at a computer". I see the very learning through play that Piaget, Vygotsky, and Groos wrote about.
+
+A lion cub playing at hunting becomes a lion. A bear cub wrestling with its sibling learns to survive. A child building a farm in Minecraft masters planning, resource management, and the fundamentals of computational thinking -- and one day, perhaps, will write their first Java mod.
+
+<div class="mc-achievement not-prose">
+<span class="mc-ach-title">ACHIEVEMENT UNLOCKED!</span>
+<span class="mc-ach-desc">350 million people have found a game that teaches without pretending to be a textbook. Perhaps the best education is education that doesn't look like education.</span>
+</div>
+
+Minecraft is an environment where principles of learning through play, flow state, social interaction, and real programming all converge -- in a format that naturally attracts children and keeps them engaged into adulthood. If somewhere deep within this blocky world my child discovers an interest in code -- well, I know who to thank. A Swedish programmer who started writing text games at 7 and never finished high school. And what do you or your children play?
+
+</div>
+
+<div data-lang="ru" class="lang-hidden">
+
+У нас произошло то, что рано или поздно случается в каждой семье: дочка открыла для себя Minecraft. Ей 10 лет, и за последние месяцы она прошла путь от «А как и что тут делать?» до строительства сложных ферм, разведения животных и эпических битв с монстрами.
 
 Но самое удивительное - это не сама игра, а то, что происходит *вокруг* неё. В библиотеке она нашла книгу Стефана Пиле «Minecraft. Большая книга подсказок» и теперь по будням читает, планируя стратегию на выходные.
 
@@ -184,7 +505,7 @@ readingTime: "15 мин"
 
 <div class="mc-achievement not-prose">
 <span class="mc-ach-title">ДОСТИЖЕНИЕ РАЗБЛОКИРОВАНО!</span>
-<span class="mc-ach-desc">17 мая 2009 - Маркус публикует первую версию на форуме TIGSource. Начинается эра кубиков.</span>
+<span class="mc-ach-desc">17 мая 2009: Маркус публикует первую версию на форуме TIGSource. Начинается эра кубиков.</span>
 </div>
 
 ### Знаковые события
@@ -230,8 +551,7 @@ Minecraft -- **самая продаваемая видеоигра в исто�
 </table>
 </div>
 
-По оценкам разных статистических обзоров около 39% аудитории играют на мобильных, 
-30% на ПК, 31% на консолях. География: США (21%), Бразилия (6%), Россия (6%).
+По оценкам разных статистических обзоров около 39% аудитории играют на мобильных, 30% на ПК, 31% на консолях. География: США (21%), Бразилия (6%), Россия (6%).
 
 ### Секрет универсальности
 
@@ -429,3 +749,68 @@ public class MyMod {
 </div>
 
 Minecraft -- это среда, в которой сходятся принципы обучения через игру, состояние потока, социальное взаимодействие и реальное программирование. Всё в формате, который естественно привлекает детей и удерживает их до взрослого возраста. Если где-то в глубине этого блочного мира мой ребёнок обнаружит интерес к коду -- что ж, я знаю, кого благодарить. Шведского программиста, который в 7 лет начал писать текстовые игры и не закончил среднюю школу. А во что играете вы или ваши дети?
+
+</div>
+
+<script>
+(function() {
+  var titles = {
+    en: 'Minecraft and the People Who Play It',
+    ru: 'Minecraft и люди, играющие в него'
+  };
+
+  function setLang(lang) {
+    localStorage.setItem('mc-post-lang', lang);
+    document.querySelectorAll('[data-lang]').forEach(function(el) {
+      if (el.dataset.lang === lang) {
+        el.classList.remove('lang-hidden');
+      } else {
+        el.classList.add('lang-hidden');
+      }
+    });
+    document.querySelectorAll('[data-switch-lang]').forEach(function(btn) {
+      btn.classList.toggle('mc-lang-active', btn.dataset.switchLang === lang);
+    });
+    var h1 = document.querySelector('article header h1');
+    if (h1) h1.textContent = titles[lang];
+    rebuildTOC();
+  }
+
+  function rebuildTOC() {
+    var sidebar = document.getElementById('toc-sidebar-nav');
+    if (!sidebar) return;
+    var tocList = sidebar.querySelector('ul');
+    if (!tocList) return;
+    var article = document.getElementById('article');
+    if (!article) return;
+
+    var headings = [];
+    article.querySelectorAll('h2, h3').forEach(function(h) {
+      var p = h.closest('[data-lang]');
+      if (!p || !p.classList.contains('lang-hidden')) headings.push(h);
+    });
+
+    tocList.innerHTML = '';
+    headings.forEach(function(h) {
+      var li = document.createElement('li');
+      li.className = 'toc-item' + (h.tagName === 'H3' ? ' toc-h3' : '');
+      var a = document.createElement('a');
+      a.className = 'toc-link';
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.replace(/^#\s*/, '');
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+
+    var sb = document.getElementById('toc-sidebar');
+    if (sb) sb.style.display = headings.length < 2 ? 'none' : '';
+  }
+
+  var saved = localStorage.getItem('mc-post-lang') || 'en';
+  setLang(saved);
+
+  document.querySelectorAll('[data-switch-lang]').forEach(function(btn) {
+    btn.addEventListener('click', function() { setLang(btn.dataset.switchLang); });
+  });
+})();
+</script>
