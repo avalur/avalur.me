@@ -1,0 +1,214 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Balls">
+  <section class="relative w-full overflow-hidden bg-black" style="height: calc(100vh - 4rem); min-height: 600px;">
+    <canvas id="balls-canvas" class="absolute inset-0 w-full h-full block"></canvas>
+
+
+  </section>
+</BaseLayout>
+
+<script>
+  const HEADING = "Work hard!";
+
+  // ROYGBIV
+  const RAINBOW_HEX = ["#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#0080ff", "#4b0082", "#9400d3"];
+  function hexToRgb(hex: string): [number, number, number] {
+    const h = hex.replace("#", "");
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  const RAINBOW = RAINBOW_HEX.map(hexToRgb);
+  const RAINBOW_STYLE = RAINBOW.map(([r, g, b]) => `rgb(${r},${g},${b})`);
+  const N = RAINBOW.length; // 7 fragments per anchor
+
+  type Fragment = { x: number; y: number; vx: number; vy: number };
+  type Anchor = {
+    ox: number;
+    oy: number;
+    frags: Fragment[]; // length N
+    active: boolean; // false → render single white dot; true → render N rainbow fragments
+  };
+
+  const canvas = document.getElementById("balls-canvas") as HTMLCanvasElement | null;
+  if (!canvas) throw new Error("canvas not found");
+  const ctx = canvas.getContext("2d", { alpha: true })!;
+
+  const mask = document.createElement("canvas");
+  const mctx = mask.getContext("2d", { willReadFrequently: true })!;
+
+  let W = 0;
+  let H = 0;
+  let dpr = 1;
+
+  let anchors: Anchor[] = [];
+
+  const STEP = 8;                 // grid spacing between anchors (px)
+  const DOT_RADIUS = 2.2;         // rendered circle radius (same for white & fragments)
+  const BASE_REPEL_RADIUS = 40;   // cursor influence radius (px)
+  const REPEL_FORCE = 4200;       // ongoing push strength while cursor stays in zone
+  const SPRING = 0.05;            // pull-back to origin
+  const FRICTION = 0.86;          // velocity damping
+  const SPLIT_SPEED_MIN = 280;    // initial burst speed range (px/s)
+  const SPLIT_SPEED_MAX = 720;
+  const REST_DISP = 0.6;          // px — fragment considered "home" within this distance
+  const REST_VEL = 1.2;           // px/s² roughly — and below this velocity
+
+  let radiusBoost = 1; // double-click toggles between 1 and 2
+  const mouse = { x: -9999, y: -9999, active: false };
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    mask.width = Math.floor(W);
+    mask.height = Math.floor(H);
+
+    buildAnchors();
+  }
+
+  function buildAnchors() {
+    mctx.clearRect(0, 0, mask.width, mask.height);
+    mctx.fillStyle = "#fff";
+    mctx.textAlign = "center";
+    mctx.textBaseline = "middle";
+
+    const headingSize = Math.min(W * 0.16, 240);
+    mctx.font = `900 ${headingSize}px Inter, system-ui, sans-serif`;
+    mctx.fillText(HEADING, W / 2, H * 0.5);
+
+    const data = mctx.getImageData(0, 0, mask.width, mask.height).data;
+
+    anchors = [];
+    for (let y = 0; y < mask.height; y += STEP) {
+      for (let x = 0; x < mask.width; x += STEP) {
+        const idx = (y * mask.width + x) * 4 + 3;
+        if (data[idx] > 128) {
+          const frags: Fragment[] = [];
+          for (let i = 0; i < N; i++) frags.push({ x, y, vx: 0, vy: 0 });
+          anchors.push({ ox: x, oy: y, frags, active: false });
+        }
+      }
+    }
+  }
+
+  function splitAnchor(a: Anchor) {
+    a.active = true;
+    // baseline direction = from cursor toward the anchor's home (so all fragments fly AWAY from cursor)
+    const bdx = a.ox - mouse.x;
+    const bdy = a.oy - mouse.y;
+    const baseAngle = Math.atan2(bdy, bdx);
+    for (let i = 0; i < N; i++) {
+      const angle = baseAngle + (Math.random() - 0.5) * Math.PI; // ±90° fan around the away-direction
+      const speed = SPLIT_SPEED_MIN + Math.random() * (SPLIT_SPEED_MAX - SPLIT_SPEED_MIN);
+      a.frags[i].vx = Math.cos(angle) * speed;
+      a.frags[i].vy = Math.sin(angle) * speed;
+    }
+  }
+
+  let last = performance.now();
+  function frame(now: number) {
+    const dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const repelR = BASE_REPEL_RADIUS * radiusBoost;
+    const repelR2 = repelR * repelR;
+
+    for (const a of anchors) {
+      // inactive: trigger if cursor stepped into our zone, else draw a single white dot
+      if (!a.active) {
+        if (mouse.active) {
+          const dx = a.ox - mouse.x;
+          const dy = a.oy - mouse.y;
+          if (dx * dx + dy * dy < repelR2) splitAnchor(a);
+        }
+        if (!a.active) {
+          ctx.beginPath();
+          ctx.fillStyle = "#ffffff";
+          ctx.arc(a.ox, a.oy, DOT_RADIUS, 0, Math.PI * 2);
+          ctx.fill();
+          continue;
+        }
+      }
+
+      // active: integrate N fragments, render each in its rainbow color
+      let allRest = true;
+      for (let i = 0; i < N; i++) {
+        const f = a.frags[i];
+
+        if (mouse.active) {
+          const dx = f.x - mouse.x;
+          const dy = f.y - mouse.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < repelR2 && d2 > 0.001) {
+            const d = Math.sqrt(d2);
+            const force = (REPEL_FORCE * (1 - d / repelR)) / d;
+            f.vx += dx * force * dt;
+            f.vy += dy * force * dt;
+          }
+        }
+
+        f.vx += (a.ox - f.x) * SPRING;
+        f.vy += (a.oy - f.y) * SPRING;
+        f.vx *= FRICTION;
+        f.vy *= FRICTION;
+        f.x += f.vx * dt * 8;
+        f.y += f.vy * dt * 8;
+
+        const ddx = f.x - a.ox;
+        const ddy = f.y - a.oy;
+        if (ddx * ddx + ddy * ddy > REST_DISP * REST_DISP || f.vx * f.vx + f.vy * f.vy > REST_VEL * REST_VEL) {
+          allRest = false;
+        }
+
+        ctx.beginPath();
+        ctx.fillStyle = RAINBOW_STYLE[i];
+        ctx.arc(f.x, f.y, DOT_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (allRest) {
+        a.active = false;
+        for (let i = 0; i < N; i++) {
+          a.frags[i].x = a.ox;
+          a.frags[i].y = a.oy;
+          a.frags[i].vx = 0;
+          a.frags[i].vy = 0;
+        }
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  function onPointerMove(ev: PointerEvent) {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ev.clientX - rect.left;
+    mouse.y = ev.clientY - rect.top;
+    mouse.active = true;
+  }
+  function onPointerLeave() {
+    mouse.active = false;
+    mouse.x = -9999;
+    mouse.y = -9999;
+  }
+
+  canvas.addEventListener("pointermove", onPointerMove);
+  canvas.addEventListener("pointerdown", onPointerMove);
+  canvas.addEventListener("pointerleave", onPointerLeave);
+  canvas.addEventListener("dblclick", () => {
+    radiusBoost = radiusBoost === 1 ? 2 : 1;
+  });
+  window.addEventListener("resize", resize);
+
+  resize();
+  requestAnimationFrame(frame);
+</script>
