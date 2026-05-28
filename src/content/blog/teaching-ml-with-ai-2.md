@@ -191,7 +191,7 @@ Homework assignments are designed in the same spirit, to push students into usin
 </div>
 
 <div class="tch-student not-prose">
-<p class="tch-student-head">// Student post &mdash; Mikhail Malyugin</p>
+<p class="tch-student-head">// Student post &mdash; Mikhail Maliugin</p>
 <p class="tch-student-title"><a href="https://hackmd.io/@miko089/rkHi_P1yfx" target="_blank" rel="noopener">Mixture-of-Recursions (MoR): Recursion That Beats Both Vanilla Transformers and Mixture-of-Experts</a></p>
 <p class="tch-student-source">HackMD</p>
 <p class="tch-student-body">A deep, well-structured walk-through of Bae et al.'s NeurIPS 2025 paper that fuses parameter sharing, per-token adaptive depth, and recursion-aware KV caching &mdash; with the nice framing that MoE adds horizontal sparsity while MoR adds vertical sparsity, so the two are complementary rather than competing.</p>
