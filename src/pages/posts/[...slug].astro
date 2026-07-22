@@ -24,9 +24,10 @@ const { Content } = await render(post);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <article class="post-content px-4 py-12">
-    <!-- Article Header -->
-    <header class="mb-8">
+  <div class="post-wrapper">
+    <article class="post-content px-4 py-12">
+      <!-- Article Header -->
+      <header class="mb-8">
       <a
         href="/posts"
         class="inline-flex items-center gap-1 text-sm font-medium mb-6 transition-colors duration-200"
@@ -70,13 +71,10 @@ const { Content } = await render(post);
         }
       </div>
 
-    </header>
+      </header>
 
-    <!-- Visual Table of Contents (populated by JS from h2 sections) -->
-    <nav class="visual-toc" id="visual-toc"></nav>
-
-    <!-- Article Content -->
-    <div
+      <!-- Article Content -->
+      <div
       id="article"
       class="prose prose-lg max-w-none
         prose-headings:font-bold
@@ -85,23 +83,23 @@ const { Content } = await render(post);
         hover:prose-a:underline
         prose-img:rounded-lg
         prose-pre:rounded-lg"
-    >
+      >
       <Content />
-    </div>
+      </div>
 
-    <!-- Newsletter -->
-    <NewsletterForm />
+      <!-- Newsletter -->
+      <NewsletterForm />
 
-    <!-- Divider -->
-    <hr class="my-8 border-dashed" style="border-color: var(--border);" />
+      <!-- Divider -->
+      <hr class="my-8 border-dashed" style="border-color: var(--border);" />
 
-    <!-- Edit on GitHub (mobile only) -->
-    <div class="sm:hidden mb-6">
+      <!-- Edit on GitHub (mobile only) -->
+      <div class="sm:hidden mb-6">
       <EditPost slug={post.id} />
-    </div>
+      </div>
 
-    <!-- Share Links + Back to Top -->
-    <div class="flex items-center justify-between">
+      <!-- Share Links + Back to Top -->
+      <div class="flex items-center justify-between">
       <ShareLinks />
       <button
         id="back-to-top"
@@ -124,18 +122,18 @@ const { Content } = await render(post);
         </svg>
         Back to top
       </button>
-    </div>
+      </div>
 
-    <!-- Divider -->
-    <hr class="my-8 border-dashed" style="border-color: var(--border);" />
+      <!-- Divider -->
+      <hr class="my-8 border-dashed" style="border-color: var(--border);" />
 
-    <!-- Previous / Next Navigation -->
-    <nav
+      <!-- Previous / Next Navigation -->
+      <nav
       class="flex justify-between gap-4"
       data-prev-url={prevPost ? `/posts/${prevPost.id}` : undefined}
       data-next-url={nextPost ? `/posts/${nextPost.id}` : undefined}
       id="post-nav"
-    >
+      >
       <div class="flex-1 min-w-0">
         {prevPost && (
           <a
@@ -172,8 +170,26 @@ const { Content } = await render(post);
           </a>
         )}
       </div>
-    </nav>
-  </article>
+      </nav>
+    </article>
+
+    <!-- Desktop TOC Sidebar (expanded list ↔ collapsed pill on scroll) -->
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <div class="toc-dock" id="toc-dock">
+        <!-- Collapsed pill: shows current section, click to open panel -->
+        <button class="toc-pill" id="toc-pill" type="button" aria-expanded="false">
+          <span class="toc-pill-label" id="toc-pill-label">On this page</span>
+          <svg class="toc-pill-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        <!-- Expanded list of sections -->
+        <nav class="toc-sidebar-nav" id="toc-sidebar-nav">
+          <p class="toc-sidebar-title">On this page</p>
+        </nav>
+      </div>
+    </aside>
+  </div>
 
   <!-- Inline Script: progress bar, heading anchors, copy buttons, keyboard nav, back to top -->
   <script is:inline>
@@ -220,19 +236,140 @@ const { Content } = await render(post);
         });
       }
 
-      // ─── Visual Table of Contents (grid of top-level section tiles) ───
+      // ─── Table of Contents (sidebar list ↔ collapsed pill) ───
       if (article) {
-        var sectionHeadings = article.querySelectorAll("h2");
-        var visualToc = document.getElementById("visual-toc");
+        var tocHeadings = article.querySelectorAll("h2, h3");
+        var sidebarNav = document.getElementById("toc-sidebar-nav");
+        var mobileToc = document.getElementById("mobile-toc");
+        var tocSidebar = document.getElementById("toc-sidebar");
+        var tocPill = document.getElementById("toc-pill");
+        var tocPillLabel = document.getElementById("toc-pill-label");
 
-        if (visualToc && sectionHeadings.length >= 2) {
-          sectionHeadings.forEach(function (h) {
+        if (tocHeadings.length < 2) {
+          // Hide TOC if fewer than 2 headings
+          if (tocSidebar) tocSidebar.style.display = "none";
+        } else {
+          // Build TOC links
+          var tocItems = [];
+          tocHeadings.forEach(function (h) {
             if (!h.id) return;
-            var a = document.createElement("a");
-            a.href = "#" + h.id;
-            a.className = "visual-toc-item";
-            a.textContent = h.textContent.replace(/#$/, "").trim();
-            visualToc.appendChild(a);
+            tocItems.push({ id: h.id, text: h.textContent.replace(/#$/, "").trim(), level: h.tagName });
+          });
+
+          function buildTocList(container, closeMobileMenu) {
+            var ul = document.createElement("ul");
+            ul.className = "toc-list";
+            tocItems.forEach(function (item) {
+              var li = document.createElement("li");
+              li.className = item.level === "H3" ? "toc-item toc-h3" : "toc-item";
+              var a = document.createElement("a");
+              a.href = "#" + item.id;
+              a.textContent = item.text;
+              a.className = "toc-link";
+              a.setAttribute("data-heading-id", item.id);
+              a.addEventListener("click", function (e) {
+                e.preventDefault();
+                var target = document.getElementById(item.id);
+                if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+                if (closeMobileMenu) closeMobileMenu();
+                // On desktop: after picking a section, collapse the panel back to the pill
+                collapsePanel();
+              });
+              li.appendChild(a);
+              ul.appendChild(li);
+            });
+            container.appendChild(ul);
+          }
+
+          if (sidebarNav) buildTocList(sidebarNav);
+
+          // Populate mobile TOC inside hamburger menu
+          if (mobileToc) {
+            var title = document.createElement("p");
+            title.className = "mobile-toc-title";
+            title.textContent = "On this page";
+            mobileToc.appendChild(title);
+
+            buildTocList(mobileToc, function () {
+              // Close hamburger menu after clicking a TOC link
+              var menu = document.getElementById("mobile-menu");
+              if (menu) menu.classList.add("hidden");
+            });
+
+            mobileToc.classList.remove("hidden");
+          }
+
+          // ── Pill open/close state ──
+          // The sidebar has two visual modes driven by classes on #toc-sidebar:
+          //   • default (near top): full list docked in the right column
+          //   • .collapsed (scrolled into the article): just a pill with the current section
+          //   • .panel-open (user clicked the pill while collapsed): list drops down again
+          function collapsePanel() {
+            if (tocSidebar) tocSidebar.classList.remove("panel-open");
+            if (tocPill) tocPill.setAttribute("aria-expanded", "false");
+          }
+          function openPanel() {
+            if (tocSidebar) tocSidebar.classList.add("panel-open");
+            if (tocPill) tocPill.setAttribute("aria-expanded", "true");
+          }
+          if (tocPill) {
+            tocPill.addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (tocSidebar && tocSidebar.classList.contains("panel-open")) {
+                collapsePanel();
+              } else {
+                openPanel();
+              }
+            });
+          }
+          // Click outside the sidebar closes an open panel
+          document.addEventListener("click", function (e) {
+            if (tocSidebar && tocSidebar.classList.contains("panel-open") && !tocSidebar.contains(e.target)) {
+              collapsePanel();
+            }
+          });
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") collapsePanel();
+          });
+
+          // ── Collapse to pill once the post header scrolls out of view ──
+          var postHeader = article.previousElementSibling; // the <header>
+          var collapseObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                // Header visible → show full docked list
+                if (tocSidebar) tocSidebar.classList.remove("collapsed");
+                collapsePanel();
+              } else {
+                // Scrolled past the header → collapse into the pill
+                if (tocSidebar) tocSidebar.classList.add("collapsed");
+              }
+            });
+          }, { rootMargin: "-80px 0px 0px 0px", threshold: 0 });
+          if (postHeader) collapseObserver.observe(postHeader);
+
+          // ── Active heading tracking (highlights list item + updates pill label) ──
+          var allTocLinks = document.querySelectorAll(".toc-link");
+          var currentActive = null;
+
+          var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                var id = entry.target.id;
+                if (currentActive) currentActive.classList.remove("active");
+                allTocLinks.forEach(function (link) {
+                  if (link.getAttribute("data-heading-id") === id) {
+                    link.classList.add("active");
+                    currentActive = link;
+                    if (tocPillLabel) tocPillLabel.textContent = link.textContent;
+                  }
+                });
+              }
+            });
+          }, { rootMargin: "-80px 0px -70% 0px", threshold: 0 });
+
+          tocHeadings.forEach(function (h) {
+            if (h.id) observer.observe(h);
           });
         }
       }
