@@ -21,6 +21,31 @@ const posts = (await getCollection("blog")).sort(
 
   <div class="max-w-5xl mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #7C3AED;border-top:5px solid #7C3AED;">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <time class="text-sm text-gray-500">July 29, 2026</time>
+            <span class="text-sm text-gray-400">&middot; 10 min</span>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            <a href="/posts/j-lens-global-workspace" class="hover:text-violet-600 transition-colors">
+              JLens: reproducing the Global Workspace on a MacBook
+            </a>
+          </h2>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">Rebuilding Anthropic's Global Workspace / JLens interpretability method from scratch on an M3 Max&nbsp;&mdash; across Qwen2.5 and Gemma-2. Four of five findings held up at home; one honest miss.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="bg-violet-100 text-violet-700 text-xs px-2 py-1 rounded-md font-medium">LLM</span>
+            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">Mechanistic Interpretability</span>
+            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">PyTorch</span>
+          </div>
+          <a
+            href="/posts/j-lens-global-workspace"
+            class="text-violet-600 font-semibold text-sm hover:text-violet-800 transition-colors"
+          >
+            Read More &rarr;
+          </a>
+        </div>
+      </article>
       <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #0F766E;border-top:5px solid #0F766E;">
         <div class="p-6">
           <div class="flex items-center gap-3 mb-3">
@@ -182,7 +207,7 @@ const posts = (await getCollection("blog")).sort(
               </div>
             </article>
           )}
-          {post.id !== 'minecraft-learning' && post.id !== 'teaching-ml-with-ai' && post.id !== 'teaching-ml-with-ai-2' && post.id !== 'aimo3-top-solutions' && (
+          {post.id !== 'minecraft-learning' && post.id !== 'teaching-ml-with-ai' && post.id !== 'teaching-ml-with-ai-2' && post.id !== 'aimo3-top-solutions' && post.id !== 'j-lens-global-workspace' && (
           <article class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
             <div class="p-6">
               <div class="flex items-center gap-3 mb-3">
