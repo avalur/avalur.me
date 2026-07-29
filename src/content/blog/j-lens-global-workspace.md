@@ -235,7 +235,7 @@ The method also turned out to be architecture-agnostic: the same three bit-exact
 
 ## Links
 
-- Anthropic (2026): *"Verbalizable Representations Form a Global Workspace in Language Models"* — transformer-circuits.pub/2026/workspace
+- Anthropic (2026): *"Verbalizable Representations Form a Global Workspace in Language Models"* — [transformer-circuits.pub/2026/workspace](https://transformer-circuits.pub/2026/workspace)
 - Sergey Nikolenko's post: [«Global workspace in the J-space»](https://www.sergeynikolenko.ru/en/blog/global-workspace-in-the-j-space)
 - JLens code: [https://github.com/avalur/JLens](https://github.com/avalur/JLens)
 
@@ -391,7 +391,7 @@ MacBook Pro, Apple M3 Max, 64 GB unified memory, macOS, arm64. PyTorch 2.5.1 н�
 
 ## Ссылки
 
-- Anthropic (2026): *«Verbalizable Representations Form a Global Workspace in Language Models»* — transformer-circuits.pub/2026/workspace
+- Anthropic (2026): *«Verbalizable Representations Form a Global Workspace in Language Models»* — [transformer-circuits.pub/2026/workspace](https://transformer-circuits.pub/2026/workspace)
 - Пост Сергея Николенко: [«Global workspace in the J-space»](https://www.sergeynikolenko.ru/blog/global-workspace-in-the-j-space)
 - Код JLens: [https://github.com/avalur/JLens](https://github.com/avalur/JLens)
 
