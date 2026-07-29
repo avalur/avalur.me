@@ -1,0 +1,291 @@
+<style>
+/* ── Jacobian diagram (edit numbers below to reshape it) ── */
+.jls-jd {
+  --jls-jd-arrow: #ef4444;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  padding: 2.1rem 2.25rem 2.4rem;
+  margin: 1.5rem 0 2rem;
+}
+[data-theme="dark"] .jls-jd { --jls-jd-arrow: #f87171; }
+
+/* Break out wider than the 48rem prose column. Below 900px there's no
+   slack to spare (content is already edge-to-edge), so no breakout.
+   900-1279px: no TOC sidebar yet, safe to bleed symmetrically. >=1280px:
+   the desktop TOC sidebar sits immediately to the right with ~0 gap, so
+   only bleed left (there's ~9rem of centered slack to use there). */
+.jls-jd-wide { width: 100%; }
+@media (min-width: 900px) {
+  .jls-jd-wide { width: calc(100% + 6rem); margin-left: -3rem; margin-right: -3rem; }
+}
+@media (min-width: 1280px) {
+  .jls-jd-wide { width: calc(100% + 8rem); margin-left: -8rem; margin-right: 0; }
+}
+
+.jls-jd-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    "a arrowAB b"
+    "c arrowCD d";
+  align-items: center;
+  column-gap: 1.75rem;
+  row-gap: 3rem;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+.jls-jd-cell-a { grid-area: a; }
+.jls-jd-cell-b { grid-area: b; }
+.jls-jd-cell-c { grid-area: c; }
+.jls-jd-cell-d { grid-area: d; }
+.jls-jd-arrow-ab { grid-area: arrowAB; }
+.jls-jd-arrow-cd { grid-area: arrowCD; }
+
+.jls-jd-col { position: relative; text-align: center; }
+.jls-jd-cap { margin: 0.75rem 0 0; font-size: 1.08rem; color: var(--fg-secondary); line-height: 1.45; }
+
+.jls-jd-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem; height: 1.9rem;
+  margin: 0 auto 0.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.jls-jd-arrow {
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  color: var(--fg-secondary);
+}
+.jls-jd-arrow span { font-size: 1.65rem; line-height: 1; color: var(--accent); }
+.jls-jd-arrow small { font-size: 0.93rem; white-space: nowrap; }
+
+/* mini residual-stream SVG (scales with its grid cell -- no numbers to edit here) */
+.jls-jd-svg { width: 100%; height: auto; }
+.jls-jd-guide { stroke: var(--border); stroke-width: 1; }
+.jls-jd-guide-thin { stroke: var(--fg-secondary); stroke-width: 0.75; opacity: 0.6; }
+.jls-jd-cap-shape { fill: var(--border); opacity: 0.8; }
+.jls-jd-input-shape { fill: none; stroke: var(--fg-secondary); stroke-width: 1.2; }
+.jls-jd-input-label { fill: var(--fg-secondary); font-size: 3.6px; font-family: monospace; text-anchor: middle; }
+.jls-jd-node { fill: var(--bg); stroke: var(--fg-secondary); stroke-width: 1.2; r: 3.5; }
+.jls-jd-node-hot { fill: var(--jls-jd-arrow); stroke: var(--jls-jd-arrow); r: 6; }
+.jls-jd-edge { fill: none; stroke: var(--jls-jd-arrow); stroke-width: 1.4; opacity: 0.9; }
+.jls-jd-label { font-size: 16px; fill: var(--fg-secondary); font-family: monospace; }
+.jls-jd-label-side { font-size: 16px; fill: var(--fg-secondary); font-family: monospace; }
+.jls-jd-hot-label { font-size: 16px; fill: var(--jls-jd-arrow); font-family: monospace; font-weight: 700; }
+
+/* formula fraction (content is a live-rendered KaTeX span, see .jls-tex) */
+.jls-jd-frac {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  color: var(--fg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 1.35rem 0.75rem;
+  background: var(--bg);
+  min-height: 5.5rem;
+}
+
+/* The site-wide KaTeX styles make display equations scrollable. This
+   formula is sized by its cell instead, so keeping it visible prevents an
+   unnecessary scrollbar inside the box. */
+.jls-jd-frac .katex-display { margin: 0; overflow: visible; }
+.jls-jd-frac .katex-html { overflow: visible; }
+
+/* Formulas are plain LaTeX source, rendered live in the browser by KaTeX
+   (see the <script> at the bottom of this file) -- edit data-tex and
+   reload, no build step needed. Falls back to showing the raw source
+   if the CDN script fails to load. */
+.jls-tex { display: inline-block; }
+
+/* stacked-matrices icon */
+.jls-jd-stack { position: relative; width: 108px; height: 108px; margin: 0.4rem auto 0.9rem; }
+.jls-jd-stack i {
+  position: absolute;
+  width: 75px; height: 75px;
+  top: calc(var(--i) * 10.5px); left: calc(var(--i) * 10.5px);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* result box */
+.jls-jd-result-box {
+  display: flex; align-items: center; justify-content: center;
+  width: 340px; height: 160px;
+  margin: 0.4rem auto 0.9rem;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 1.9rem;
+}
+
+@media (max-width: 560px) {
+  .jls-jd-flow {
+    grid-template-columns: 1fr;
+    grid-template-areas: "a" "b" "c" "d";
+    row-gap: 2rem;
+  }
+  .jls-jd-arrow-ab, .jls-jd-arrow-cd { display: none; }
+}
+</style>
+
+<div class="jls-jd jls-jd-wide not-prose">
+  <div class="jls-jd-flow">
+    <div class="jls-jd-col jls-jd-cell-a">
+      <div class="jls-jd-num">1</div>
+      <svg class="jls-jd-svg" viewBox="0 0 330 230" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="jlsArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--jls-jd-arrow)"></path>
+          </marker>
+        </defs>
+
+        <line x1="90" y1="45" x2="90" y2="198" class="jls-jd-guide"></line>
+        <line x1="150" y1="45" x2="150" y2="198" class="jls-jd-guide"></line>
+        <line x1="210" y1="45" x2="210" y2="198" class="jls-jd-guide"></line>
+        <line x1="270" y1="45" x2="270" y2="198" class="jls-jd-guide"></line>
+
+        <polygon points="75,15 105,15 98,35 82,35" class="jls-jd-cap-shape"></polygon>
+        <polygon points="135,15 165,15 158,35 142,35" class="jls-jd-cap-shape"></polygon>
+        <polygon points="195,15 225,15 218,35 202,35" class="jls-jd-cap-shape"></polygon>
+        <polygon points="255,15 285,15 278,35 262,35" class="jls-jd-cap-shape"></polygon>
+
+        <rect x="74" y="196" width="32" height="18" rx="2" class="jls-jd-input-shape"></rect>
+        <text x="90" y="210" class="jls-jd-label" text-anchor="middle">cat</text>
+
+        <rect x="134" y="196" width="32" height="18" rx="2" class="jls-jd-input-shape"></rect>
+        <text x="150" y="210" class="jls-jd-label" text-anchor="middle">sat</text>
+
+        <rect x="198" y="196" width="26" height="18" rx="2" class="jls-jd-input-shape"></rect>
+        <text x="210" y="210" class="jls-jd-label" text-anchor="middle">on</text>
+
+        <rect x="254" y="196" width="32" height="18" rx="2" class="jls-jd-input-shape"></rect>
+        <text x="270" y="210" class="jls-jd-label" text-anchor="middle">the</text>
+
+        <g>
+          <circle cx="90" cy="55" class="jls-jd-node"></circle>
+          <circle cx="90" cy="80" class="jls-jd-node"></circle>
+          <circle cx="90" cy="105" class="jls-jd-node-hot"></circle>
+          <circle cx="90" cy="130" class="jls-jd-node"></circle>
+          <circle cx="90" cy="155" class="jls-jd-node"></circle>
+          <circle cx="90" cy="180" class="jls-jd-node"></circle>
+
+          <circle cx="150" cy="55" class="jls-jd-node"></circle>
+          <circle cx="150" cy="80" class="jls-jd-node"></circle>
+          <circle cx="150" cy="105" class="jls-jd-node"></circle>
+          <circle cx="150" cy="130" class="jls-jd-node"></circle>
+          <circle cx="150" cy="155" class="jls-jd-node"></circle>
+          <circle cx="150" cy="180" class="jls-jd-node"></circle>
+
+          <circle cx="210" cy="55" class="jls-jd-node"></circle>
+          <circle cx="210" cy="80" class="jls-jd-node"></circle>
+          <circle cx="210" cy="105" class="jls-jd-node"></circle>
+          <circle cx="210" cy="130" class="jls-jd-node"></circle>
+          <circle cx="210" cy="155" class="jls-jd-node"></circle>
+          <circle cx="210" cy="180" class="jls-jd-node"></circle>
+
+          <circle cx="270" cy="55" class="jls-jd-node"></circle>
+          <circle cx="270" cy="80" class="jls-jd-node"></circle>
+          <circle cx="270" cy="105" class="jls-jd-node"></circle>
+          <circle cx="270" cy="130" class="jls-jd-node"></circle>
+          <circle cx="270" cy="155" class="jls-jd-node"></circle>
+          <circle cx="270" cy="180" class="jls-jd-node"></circle>
+        </g>
+
+        <path d="M90,99 C 87,80 88,55 90,37" class="jls-jd-edge" marker-end="url(#jlsArrow)"></path>
+        <path d="M94,101 C 125,85 135,52 148,37" class="jls-jd-edge" marker-end="url(#jlsArrow)"></path>
+        <path d="M96,103 C 160,95 195,55 208,37" class="jls-jd-edge" marker-end="url(#jlsArrow)"></path>
+        <path d="M97,104 C 190,115 255,60 268,37" class="jls-jd-edge" marker-end="url(#jlsArrow)"></path>
+
+<!--        <line x1="50" y1="105" x2="82" y2="105" class="jls-jd-guide-thin"></line>-->
+        <foreignObject x="48" y="90" width="40" height="32">
+          <span xmlns="http://www.w3.org/1999/xhtml" class="jls-tex jls-jd-hot-label" data-tex="h_{\ell,t}">h_{\ell,t}</span>
+        </foreignObject>
+        <foreignObject x="48" y="36" width="40" height="32">
+          <span xmlns="http://www.w3.org/1999/xhtml" class="jls-tex jls-jd-hot-label" data-tex="h_{L,t}">h_{L,t}</span>
+        </foreignObject>
+        <foreignObject x="4" y="164" width="80" height="32">
+          <span xmlns="http://www.w3.org/1999/xhtml" class="jls-tex jls-jd-hot-label" data-tex="h_{i,t} \in \mathbb{R}^d">h_{i,t} \in \mathrm{R}^d</span>
+        </foreignObject>
+
+        <text x="90" y="12" class="jls-jd-label" text-anchor="middle">t</text>
+        <text x="150" y="12" class="jls-jd-label" text-anchor="middle">t+1</text>
+        <text x="210" y="12" class="jls-jd-label" text-anchor="middle">t+2</text>
+        <text x="270" y="12" class="jls-jd-label" text-anchor="middle">t+3</text>
+        <text x="302" y="24" class="jls-jd-label" text-anchor="middle">⋯</text>
+
+        <text x="2" y="12" class="jls-jd-label-side">unembed</text>
+      </svg>
+    </div>
+
+    <div class="jls-jd-arrow jls-jd-arrow-ab"><span>&rarr;</span><small>compute</small></div>
+
+    <div class="jls-jd-col jls-jd-cell-b">
+      <div class="jls-jd-num">2</div>
+      <div class="jls-jd-frac">
+        <span class="jls-tex" data-tex="\left[\dfrac{\partial h_{L,t'}}{\partial h_{\ell,t}}\right]" data-display>
+          \left[\dfrac{\partial h_{L,t'}}{\partial h_{\ell,t}}\right]</span>
+      </div>
+      <p class="jls-jd-cap"><span class="jls-tex" data-tex="d \times d">d \times d</span> matrix</p>
+    </div>
+
+    <div class="jls-jd-col jls-jd-cell-c">
+      <div class="jls-jd-num">3</div>
+      <div class="jls-jd-stack"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i></div>
+      <p class="jls-jd-cap"><span class="jls-tex" data-tex="\times N_{\mathrm{ctx}(t'\geq t)} \times N_{\mathrm{corpus}}">\times N_{\mathrm{ctx}(t'\geq t)} \times N_{\mathrm{corpus}}</span></p>
+    </div>
+
+    <div class="jls-jd-arrow jls-jd-arrow-cd"><span>&rarr;</span><small>aggregate</small></div>
+
+    <div class="jls-jd-col jls-jd-cell-d">
+      <div class="jls-jd-num">4</div>
+      <div class="jls-jd-result-box"><span class="jls-tex" data-tex="J_\ell = \mathbb{E}_{corpus,\,t'\geq t} \left[\dfrac{\partial h_{L,t'}}{\partial h_{\ell,t}} \right]">J_\ell = \mathbb{E}_{corpus,\,t'\geq t} \left[\dfrac{\partial h_{L,t'}}{\partial h_{\ell,t}} \right]</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var KATEX_VERSION = "0.16.22";
+
+  function renderAll() {
+    document.querySelectorAll(".jls-tex").forEach(function (el) {
+      if (el.dataset.rendered) return;
+      try {
+        window.katex.render(el.getAttribute("data-tex"), el, {
+          throwOnError: false,
+          displayMode: el.hasAttribute("data-display"),
+        });
+        el.dataset.rendered = "true";
+      } catch (e) {
+        /* leave the raw TeX source visible as a fallback */
+      }
+    });
+  }
+
+  if (window.katex) {
+    renderAll();
+    return;
+  }
+
+  var existingLoader = document.querySelector("script[data-katex-loader]");
+  if (existingLoader) {
+    existingLoader.addEventListener("load", renderAll);
+    return;
+  }
+
+  var script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/katex@" + KATEX_VERSION + "/dist/katex.min.js";
+  script.setAttribute("data-katex-loader", "true");
+  script.addEventListener("load", renderAll);
+  document.head.appendChild(script);
+})();
+</script>

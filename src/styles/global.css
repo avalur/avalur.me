@@ -112,6 +112,27 @@ body {
   text-align: center;
 }
 
+/* ── Theme-aware images (light/dark variants) ── */
+.prose .theme-img-dark {
+  display: none;
+}
+[data-theme="dark"] .prose .theme-img-light {
+  display: none;
+}
+[data-theme="dark"] .prose .theme-img-dark {
+  display: inline-block;
+}
+.prose figure {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.prose figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--fg-secondary);
+  text-align: center;
+}
+
 /* ── Dark-mode overrides for Tailwind color utilities ── */
 [data-theme="dark"] .bg-white {
   background-color: var(--bg-secondary) !important;
@@ -213,6 +234,8 @@ body {
 }
 .prose .katex-html {
   overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.35rem 0;
 }
 [data-theme="dark"] .katex .mord,
 [data-theme="dark"] .katex .mrel,
