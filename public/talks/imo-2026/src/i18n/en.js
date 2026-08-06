@@ -89,11 +89,11 @@ export default {
 		},
 		'sovenok': {
 			title: 'Sovenok',
-			notes: 'The Sovenok circle, grade 9: a schedule of problem sheets and olympiads — this is what an IMO medalist grows out of.',
+			notes: 'The Sovenok club, grade 9: a schedule of problem sheets and olympiads — this is what an IMO medalist grows out of.',
 		},
 		'spb-book': {
 			title: 'Saint Petersburg',
-			notes: 'Back to the blackboard: “Leningrad Mathematical Circles” — the book the circle is actually taught from.',
+			notes: 'Back to the blackboard: “Leningrad Mathematical Circles” — the book the club is actually taught from.',
 		},
 		'team-origins': {
 			title: 'Where the team is from',
@@ -173,16 +173,16 @@ export default {
 				<img src="./images/spb_circles.png"
 					alt="S. Genkin, I. Itenberg, D. Fomin. Leningrad Mathematical Circles">
 				<p>The classic manual by Sergey Genkin, Ilya Itenberg and Dmitry Fomin,
-					prepared with Igor Rubanov. In English it came out as
+					prepared with Igor Rubanov (1994). In English it came out as
 					<i>Mathematical Circles (Russian Experience)</i>, AMS 1996.
-					<br>Effectively a ready-made programme for a school maths circle, grades 6–8.</p>
+					<br>Effectively a ready-made programme for a school maths club, grades 6–8.</p>
 			</div>`,
 
 		'team-chart': `<iframe src="./research/team_composition_chart.html?embed&amp;lang=en"
 			title="Where the USSR/Russia IMO team comes from"></iframe>`,
 
 		'famous': `
-			<h2>Famous IMO medalists</h2>
+			<h2>Famous IMO medalists from USSR/Russia</h2>
 			<ul>
 				<li>
 					<span class="who">Andrei Toom
@@ -225,7 +225,7 @@ export default {
 				<li>Be born into a family of scientists</li>
 				<li>Preferably in Saint Petersburg</li>
 				<li>Start early, do a lot of mathematics, and do it regularly</li>
-				<li>A maths circle and motivated classmates help enormously</li>
+				<li>A maths club and motivated classmates help enormously</li>
 				<li>Compete often, individually and in teams</li>
 			</ol>
 			<a class="tg" target="_blank" rel="noopener"
@@ -238,7 +238,7 @@ export default {
 
 		// Скриншот русской страницы — сам он не переводится, меняется только alt.
 		'panel-sovenok': `
-			<img src="./images/sovenok_2026.png" alt="The Sovenok maths circle, grade 9, 2025/2026">
+			<img src="./images/sovenok_2026.png" alt="The Sovenok maths club, grade 9, 2025/2026">
 			<a class="source" target="_blank" rel="noopener"
 				href="https://www.sovenok.academy/groups-academ/9-%D0%BA%D0%BB%D0%B0%D1%81%D1%81-2025-2026-%D1%83%D1%87%D0%B5%D0%B1%D0%BD%D1%8B%D0%B9-%D0%B3%D0%BE%D0%B4"
 				>sovenok.academy ↗</a>`,
