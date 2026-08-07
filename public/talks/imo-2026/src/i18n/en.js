@@ -8,8 +8,10 @@
 
 export default {
 	doc: {
-		title: 'FMSh — a 3D talk',
-		description: 'A 3D talk about FMSh: a flight from orbit down to Akademgorodok',
+		title: 'How to raise an IMO medalist — a 3D talk',
+		description: 'What actually raises a future IMO medalist: an early start, '
+			+ 'mathematics done regularly, a club with motivated classmates and frequent '
+			+ 'competitions, individual and team. A 3D talk on where the medalists come from.',
 	},
 
 	ui: {
