@@ -397,19 +397,38 @@ body.still .hud-caption.on { opacity: 1; transform: none; transition: none; }
 	pointer-events: none;
 }
 .slide.howto .head { height: 150px; flex: none; }
+/* Список слева, QR-код и ссылка на канал — колонкой справа. */
+.slide.howto .row {
+	display: flex;
+	align-items: flex-start;
+	gap: 48px;
+}
+/* Кегль подобран под ширину колонки рядом с кодом (842 px за вычетом отступа под
+   номер): при 25 px все пять пунктов в обоих языках держатся в одну строку, при
+   26 px переносится длинный русский пятый, при исходных 30 px — три из пяти. */
 .slide.howto ol {
 	margin: 0;
 	padding-left: 1.15em;
-	font-size: 30px;
+	font-size: 25px;
 	line-height: 1.4;
+	flex: 1 1 auto;
 }
+.slide.howto .side {
+	flex: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 18px;
+}
+/* Пустая коробка под QR: сам код рисует холст теми же точками, что и заголовок.
+   Размер — ровно под 37 модулей по 6 px (29 модулей кода плюс тихая зона),
+   иначе balls.js возьмёт кратно больший модуль и код вылезет из колонки. */
+.slide.howto .qr { width: 222px; height: 222px; flex: none; }
 .slide.howto li { margin-bottom: 14px; padding-left: 6px; }
 .slide.howto li::marker { color: #e8d59a; }
 /* Ссылка на канал — вторая кликабельная точка доклада: слой CSS3D закрыт для
    мыши, здесь она включена обратно (как у плашки источника на «Совёнке»). */
 .slide.howto .tg {
-	align-self: flex-start;
-	margin-top: 26px;
 	padding: 8px 18px;
 	border: 1px solid rgba(200, 164, 78, 0.55);
 	border-radius: 5px;

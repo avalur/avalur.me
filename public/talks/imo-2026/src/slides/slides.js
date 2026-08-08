@@ -14,6 +14,7 @@
 import { CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 import { t } from '../i18n/index.js';
 import { initBalls } from './balls.js';
+import { QR_MATRIX } from './qr_techne.js';
 
 export const SLIDE_DEFS = [
 	{ id: 'title', cls: 'dark' },
@@ -26,13 +27,14 @@ export const SLIDE_DEFS = [
 	{
 		id: 'howto',
 		cls: 'dark howto',
-		// Финальный слайд «живой»: заголовок набирается точками на холсте и
-		// рассыпается от курсора. init() возвращает функцию остановки — колода
-		// зовёт её, когда со слайда уходят или когда переключили язык.
+		// Финальный слайд «живой»: заголовок и QR-код на канал набираются точками
+		// на холсте и рассыпаются от курсора. init() возвращает функцию остановки —
+		// колода зовёт её, когда со слайда уходят или когда переключили язык.
 		init(el, dict) {
 			return initBalls(el.querySelector('.balls'), {
 				text: dict.balls,
 				box: el.querySelector('.head'),
+				qr: { matrix: QR_MATRIX, box: el.querySelector('.qr') },
 			});
 		},
 	},

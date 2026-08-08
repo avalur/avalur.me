@@ -223,15 +223,20 @@ export default {
 		'howto': `
 			<canvas class="balls"></canvas>
 			<div class="head"></div>
-			<ol>
-				<li>Be born into a family of scientists</li>
-				<li>Preferably in Saint Petersburg</li>
-				<li>Start early, do a lot of mathematics, and do it regularly</li>
-				<li>A maths club and motivated classmates help enormously</li>
-				<li>Compete often, individually and in teams</li>
-			</ol>
-			<a class="tg" target="_blank" rel="noopener"
-				href="https://t.me/TechneNotes">@TechneNotes</a>`,
+			<div class="row">
+				<ol>
+					<li>Be born into a family of scientists</li>
+					<li>Preferably in Saint Petersburg</li>
+					<li>Start early, do a lot of mathematics, and do it regularly</li>
+					<li>A maths club and motivated classmates help enormously</li>
+					<li>Compete often, individually and in teams</li>
+				</ol>
+				<div class="side">
+					<div class="qr"></div>
+					<a class="tg" target="_blank" rel="noopener"
+						href="https://t.me/TechneNotes">@TechneNotes</a>
+				</div>
+			</div>`,
 	},
 
 	panels: {

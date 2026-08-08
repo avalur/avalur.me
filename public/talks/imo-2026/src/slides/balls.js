@@ -1,6 +1,7 @@
 // Заголовок из точек: белые точки лежат по контуру букв, рядом с курсором
 // каждая рассыпается на семь радужных осколков, те разлетаются и пружиной
-// возвращаются на место.
+// возвращаются на место. Теми же точками набран и QR-код на канал — по одной
+// на модуль (см. buildQrAnchors).
 //
 // Портировано со страницы avalur.me/balls (src/pages/balls.astro): физика и
 // константы те же. Отличий два, и оба — из-за того, что слайд живёт в 3D-сцене:
@@ -27,12 +28,28 @@ const SPEED_MAX = 720;
 const REST_DISP = 0.6;   // «дома» — ближе этого к своему месту…
 const REST_VEL = 1.2;    // …и медленнее этого
 
+const DOT_C = '#ffffff'; // цвет спокойной точки заголовка
+
+// QR: код тоже набран точками, но по своим правилам, иначе он не сканируется.
+// Модуль — одна ячейка сетки (STEP), точка в нём — радиусом ровно в полклетки:
+// соседние тёмные модули касаются и читаются как сплошные, а светлые остаются
+// светлыми. Проверено детектором: при DOT_R (1.9) код не распознаётся вообще,
+// при радиусе крупнее полклетки точки залезают на светлые модули и распознавание
+// снова падает. Полярность обычная — тёмные точки на светлой подложке: инверсный
+// код (белым по чёрному) не прочитал ни один тестовый кадр.
+const QUIET = 4;              // «тихая зона» по стандарту, в модулях
+const QR_PLATE = '#f0e3bd';   // подложка, тон бумаги из палитры доклада
+const QR_DOT = '#12100c';
+
 /**
  * @param {HTMLCanvasElement} canvas холст во весь слайд (position: absolute)
  * @param {object} opts
  * @param {string} opts.text строка заголовка
  * @param {HTMLElement} opts.box пустой блок в потоке слайда — в него и вписываем
  *   заголовок, чтобы вёрстка жила в CSS, а не в двух местах сразу
+ * @param {object} [opts.qr] QR-код теми же точками
+ * @param {HTMLElement} opts.qr.box пустой блок в потоке слайда под код
+ * @param {string[]} opts.qr.matrix строки из '0'/'1' — модули кода без тихой зоны
  * @returns {() => void} остановить анимацию и отписаться от мыши
  */
 export function initBalls(canvas, opts) {
@@ -52,7 +69,7 @@ export function initBalls(canvas, opts) {
 	};
 }
 
-function start(canvas, { text, box }) {
+function start(canvas, { text, box, qr }) {
 	const W = canvas.clientWidth;
 	const H = canvas.clientHeight;
 
@@ -65,6 +82,8 @@ function start(canvas, { text, box }) {
 	ctx.setTransform(SS, 0, 0, SS, 0, 0);
 
 	const anchors = buildAnchors(text, box, W, H);
+	// Код кладём в общий список: та же физика, та же мышь, тот же кадр.
+	const plate = qr?.box ? buildQrAnchors(qr.matrix, qr.box, anchors) : null;
 	const mouse = { x: -9999, y: -9999, active: false };
 
 	function onMove(ev) {
@@ -88,6 +107,10 @@ function start(canvas, { text, box }) {
 		const dt = Math.min(0.033, (now - last) / 1000);
 		last = now;
 		ctx.clearRect(0, 0, W, H);
+		if (plate) {
+			ctx.fillStyle = QR_PLATE;
+			ctx.fillRect(plate.x, plate.y, plate.size, plate.size);
+		}
 		for (const a of anchors) step(ctx, a, mouse, dt);
 		raf = requestAnimationFrame(frame);
 	}
@@ -129,12 +152,51 @@ function buildAnchors(text, box, W, H) {
 	for (let y = 0; y < H; y += STEP) {
 		for (let x = 0; x < W; x += STEP) {
 			if (data[(y * W + x) * 4 + 3] <= 128) continue;
-			const frags = [];
-			for (let i = 0; i < N; i++) frags.push({ x, y, vx: 0, vy: 0 });
-			anchors.push({ ox: x, oy: y, frags, active: false });
+			anchors.push(makeAnchor(x, y, DOT_R, DOT_C));
 		}
 	}
 	return anchors;
+}
+
+function makeAnchor(x, y, r, color) {
+	const frags = [];
+	for (let i = 0; i < N; i++) frags.push({ x, y, vx: 0, vy: 0 });
+	return { ox: x, oy: y, r, color, frags, active: false };
+}
+
+/**
+ * Модули кода → точки, по одной на модуль, и прямоугольник подложки под них.
+ * Точки садятся на ту же сетку, что и заголовок (начало кода прижато к кратному
+ * STEP), поэтому код и буквы выглядят набранными одним шрифтом из точек.
+ * @param {string[]} matrix строки из '0'/'1' без тихой зоны
+ * @param {HTMLElement} box место под код в потоке слайда
+ * @param {Array} out список точек, куда дописать модули
+ * @returns {{x: number, y: number, size: number}} подложка вместе с тихой зоной
+ */
+function buildQrAnchors(matrix, box, out) {
+	const n = matrix.length;
+	const total = n + 2 * QUIET;
+	// Модуль — целое число клеток сетки: при коробке шире нужного код растёт
+	// кратно, точки остаются касающимися, и он по-прежнему сканируется.
+	const fit = Math.min(box.clientWidth, box.clientHeight) / total;
+	const mod = Math.max(STEP, Math.floor(fit / STEP) * STEP);
+	const size = total * mod;
+	// Прижимаем к сетке и центруем остаток коробки.
+	const x0 = Math.round((box.offsetLeft + (box.clientWidth - size) / 2) / STEP) * STEP;
+	const y0 = Math.round((box.offsetTop + (box.clientHeight - size) / 2) / STEP) * STEP;
+
+	for (let y = 0; y < n; y++) {
+		for (let x = 0; x < n; x++) {
+			if (matrix[y][x] !== '1') continue;
+			out.push(makeAnchor(
+				x0 + (x + QUIET) * mod + mod / 2,
+				y0 + (y + QUIET) * mod + mod / 2,
+				mod / 2,
+				QR_DOT,
+			));
+		}
+	}
+	return { x: x0, y: y0, size };
 }
 
 /** Осколки летят «от курсора»: веер ±90° вокруг направления прочь от него. */
@@ -160,8 +222,8 @@ function step(ctx, a, mouse, dt) {
 		}
 		if (!a.active) {
 			ctx.beginPath();
-			ctx.fillStyle = '#ffffff';
-			ctx.arc(a.ox, a.oy, DOT_R, 0, Math.PI * 2);
+			ctx.fillStyle = a.color;
+			ctx.arc(a.ox, a.oy, a.r, 0, Math.PI * 2);
 			ctx.fill();
 			return;
 		}
@@ -193,7 +255,7 @@ function step(ctx, a, mouse, dt) {
 
 		ctx.beginPath();
 		ctx.fillStyle = RAINBOW[i];
-		ctx.arc(f.x, f.y, DOT_R, 0, Math.PI * 2);
+		ctx.arc(f.x, f.y, a.r, 0, Math.PI * 2);
 		ctx.fill();
 	}
 
