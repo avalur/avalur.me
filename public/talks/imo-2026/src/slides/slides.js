@@ -82,6 +82,7 @@ export function createSlideDeck(widthMeters = 4.4, opts = {}) {
 	object.scale.setScalar(scale);
 
 	let index = -1;
+	let step = 0;       // шаг раскрытия: им управляет director, а показывает CSS
 	let dispose = null; // остановить «живой» слайд, когда с него уходят
 
 	function render() {
@@ -90,6 +91,7 @@ export function createSlideDeck(widthMeters = 4.4, opts = {}) {
 		dispose?.();
 		dispose = null;
 		slide.className = `slide ${def.cls || 'chalk'}`;
+		slide.dataset.step = String(step);
 		slide.innerHTML = dict[bundle][def.id] ?? '';
 		// Re-trigger the entrance animation.
 		slide.style.animation = 'none';
@@ -104,7 +106,18 @@ export function createSlideDeck(widthMeters = 4.4, opts = {}) {
 		const next = ((i % slides.length) + slides.length) % slides.length;
 		if (next === index) return;
 		index = next;
+		step = 0;
 		render();
+	}
+
+	/**
+	 * Шаг раскрытия слайда. Само раскрытие — на CSS: строки с `data-at` больше
+	 * текущего шага стоят прозрачными, но место занимают, поэтому список не
+	 * прыгает, когда строка появляется (см. .slide.roster в styles.css).
+	 */
+	function setStep(n) {
+		step = n;
+		slide.dataset.step = String(n);
 	}
 
 	/** Перерисовать текущий слайд — например, когда переключили язык. */
@@ -114,5 +127,9 @@ export function createSlideDeck(widthMeters = 4.4, opts = {}) {
 
 	setSlide(start);
 
-	return { object, setSlide, refresh, get index() { return index; }, count: slides.length };
+	return {
+		object, setSlide, setStep, refresh,
+		get index() { return index; },
+		count: slides.length,
+	};
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
-import { DEV, START_BEAT, STILL } from './config.js';
+import { DEV, START_BEAT, START_STEP, STILL } from './config.js';
 import { t, applyDocLang, onLangChange, toggleLang } from './i18n/index.js';
 import { beats } from './beats.js';
 import { Director } from './director.js';
@@ -121,6 +121,7 @@ canvas.addEventListener('pointerdown', () => {
 // --- go ---------------------------------------------------------------------
 
 director.goto(START_BEAT, { instant: true });
+if (START_STEP) director.setStep(START_STEP);
 
 const timer = new THREE.Timer(); // THREE.Clock в r185 объявлен устаревшим
 let devTick = 0;

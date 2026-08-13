@@ -87,7 +87,8 @@ export default {
 		},
 		'slide-roster': {
 			title: 'Medalists',
-			notes: 'Forty years in one list. Between 1984 and 2016 an ellipsis — that is a separate conversation.',
+			notes: 'Forty years in one list. Between 1984 and 2016 an ellipsis — that is a separate conversation. '
+				+ 'Two clicks: first 2016 (dimmed — they did not make it), then the last three rows.',
 		},
 		'sovenok': {
 			title: 'Sovenok',
@@ -162,11 +163,11 @@ export default {
 				<li><span class="y">1977</span><span>Dima von der Flaass</span></li>
 				<li><span class="y">1984</span><span>Andrey Astrelin</span></li>
 				<li class="gap"><span class="y">.<br>.<br>.</span><span></span></li>
-				<li><span class="y">2016</span><span>Andrey Sergunin and Ilya Dumansky
+				<li data-at="1" class="dim"><span class="y">2016</span><span>Andrey Sergunin and Ilya Dumansky
 					just missed out — team candidates</span></li>
-				<li><span class="y">2017</span><span>Nikita Dobronravov (twin brother Egor — a candidate)</span></li>
-				<li><span class="y">2019, 2020</span><span>Alexey Lvov</span></li>
-				<li><span class="y">2023, 2024</span><span>Ratibor Koptilin</span></li>
+				<li data-at="2"><span class="y">2017</span><span>Nikita Dobronravov (twin brother Egor — a candidate)</span></li>
+				<li data-at="2"><span class="y">2019, 2020</span><span>Alexey Lvov</span></li>
+				<li data-at="2"><span class="y">2023, 2024</span><span>Ratibor Koptilin</span></li>
 			</ul>`,
 
 		'spb': `

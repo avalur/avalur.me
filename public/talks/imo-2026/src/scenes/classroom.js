@@ -229,6 +229,7 @@ export function createClassroomStage({ cssScene }) {
 		scene,
 		cssRoot,
 		setSlide: deck.setSlide,
+		setStep: deck.setStep,
 		slideCount: deck.count,
 		/**
 		 * Плакаты на правой стене. `beat.panels = [1, 2]` — по индексу в

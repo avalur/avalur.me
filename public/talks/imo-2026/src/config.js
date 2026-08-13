@@ -9,6 +9,9 @@ export const DEV = params.has('dev');
 /** ?beat=7 — jump straight to a beat. Handy when rehearsing one fragment. */
 export const START_BEAT = Number.parseInt(params.get('beat') ?? '0', 10) || 0;
 
+/** ?step=2 — открыть бит сразу раскрытым (стоп-кадры, репетиция фрагмента). */
+export const START_STEP = Number.parseInt(params.get('step') ?? '0', 10) || 0;
+
 /** ?still — no slide entrance animations, for screenshots and printed stills. */
 export const STILL = params.has('still');
 

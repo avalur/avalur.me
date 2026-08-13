@@ -16,6 +16,7 @@ export class Director {
 	constructor({ renderer, cssRenderer, camera, cssScene, stages, beats, hud, retro }) {
 		Object.assign(this, { renderer, cssRenderer, camera, cssScene, stages, beats, hud, retro });
 		this.index = -1;
+		this.step = 0; // шаг раскрытия внутри бита (поле `steps` в beats.js)
 		this.state = 'idle';
 		this.elapsed = 0;
 		this.camState = null;
@@ -25,13 +26,16 @@ export class Director {
 
 	get beat() { return this.beats[this.index]; }
 	get stage() { return this.stages[this.stageName]; }
+	/** Сколько состояний у текущего бита: 1 — обычный бит, больше — с раскрытием. */
+	get stepCount() { return this.beat?.steps ?? 1; }
 
-	goto(i, { instant = false } = {}) {
+	goto(i, { instant = false, back = false } = {}) {
 		const target = THREE.MathUtils.clamp(i, 0, this.beats.length - 1);
 		if (target === this.index && this.state === 'idle') return;
 		const beat = this.beats[target];
 		const sameStage = this.stageName === beat.stage;
 		const canTween = !instant && sameStage && this.camState && this.camState.kind === beat.cam.kind;
+		this.pendingBack = back; // на каком шаге открыть бит, когда до него дойдёт дело
 
 		if (canTween) {
 			this.from = this.camState;
@@ -39,9 +43,9 @@ export class Director {
 			this.dur = Math.max(0.001, beat.dur ?? 3);
 			this.pending = target;
 			this.state = 'tween';
-			this.enterBeat(target);
+			this.enterBeat(target, back);
 		} else if (instant || !this.camState) {
-			this.enterBeat(target);
+			this.enterBeat(target, back);
 			this.camState = { ...beat.cam };
 			this.state = 'idle';
 			this.retro.fade = 0;
@@ -53,11 +57,38 @@ export class Director {
 		}
 	}
 
-	next() { this.goto(this.index + 1); }
-	prev() { this.goto(this.index - 1); }
+	/**
+	 * Вперёд. У бита может быть несколько шагов раскрытия: пока они не кончились,
+	 * клик открывает следующую строку слайда, а не улетает к следующему биту.
+	 */
+	next() {
+		if (this.state === 'idle' && this.step < this.stepCount - 1) {
+			this.setStep(this.step + 1);
+			return;
+		}
+		this.goto(this.index + 1);
+	}
 
-	/** Apply everything that is not camera movement. */
-	enterBeat(i) {
+	prev() {
+		if (this.state === 'idle' && this.step > 0) {
+			this.setStep(this.step - 1);
+			return;
+		}
+		this.goto(this.index - 1, { back: true });
+	}
+
+	/** Шаг раскрытия слайда: 0 — как бит открылся, дальше по клику. */
+	setStep(step) {
+		this.step = THREE.MathUtils.clamp(step, 0, this.stepCount - 1);
+		this.stage?.setStep?.(this.step);
+	}
+
+	/**
+	 * Apply everything that is not camera movement.
+	 * @param {boolean} back шли назад — значит слайд надо открыть уже раскрытым:
+	 *   докладчик эти строки уже показал, заново кликать по ним незачем
+	 */
+	enterBeat(i, back = false) {
 		this.index = i;
 		const beat = this.beat;
 
@@ -72,6 +103,7 @@ export class Director {
 		}
 		if (beat.slide !== undefined && this.stage.setSlide) this.stage.setSlide(beat.slide);
 		if (beat.panels && this.stage.setPanels) this.stage.setPanels(beat.panels);
+		this.setStep(back ? (beat.steps ?? 1) - 1 : 0);
 		// `captionWith: 'action'` — подпись ждёт начала анимации, а пока на экране
 		// остаётся подпись предыдущего бита (перелёт ещё «принадлежит» ему).
 		this.hud.setBeat(beat, i, this.beats.length, {
@@ -118,7 +150,7 @@ export class Director {
 				this.fadeT += dt;
 				this.retro.fade = Math.min(1, this.fadeT / FADE);
 				if (this.fadeT >= FADE) {
-					this.enterBeat(this.pending);
+					this.enterBeat(this.pending, this.pendingBack);
 					this.camState = { ...this.beat.cam };
 					this.fadeT = 0;
 					this.state = 'fadeIn';

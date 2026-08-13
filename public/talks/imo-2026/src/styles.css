@@ -290,6 +290,18 @@ body.still .hud-caption.on { opacity: 1; transform: none; transition: none; }
 	line-height: 0.62;
 	padding: 2px 0;
 }
+/* Раскрытие по клику: строка с `data-at` появляется на своём шаге бита
+   (`steps` в beats.js, шаг ставит director → data-step на слайде). Прячем
+   прозрачностью, а не `display: none`: место в гриде остаётся занятым, и список
+   не подпрыгивает, когда строка появляется. */
+.slide.roster li[data-at] > span { transition: opacity 0.45s ease-out; }
+.slide.roster[data-step="0"] li[data-at="1"] > span,
+.slide.roster[data-step="0"] li[data-at="2"] > span,
+.slide.roster[data-step="1"] li[data-at="2"] > span { opacity: 0; }
+/* 2016-й приглушён: до сборной ребята тогда не добрались. Гасим цветом, а не
+   прозрачностью — прозрачность здесь занята раскрытием. */
+.slide.roster li.dim span { color: rgba(242, 236, 220, 0.45); }
+.slide.roster li.dim .y { color: rgba(232, 213, 154, 0.42); }
 
 /* Санкт-Петербург: обложка книги слева, рассказ справа.
    Высоту обложки не задаём — строка забирает остаток слайда под заголовком, и
