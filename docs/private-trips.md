@@ -40,7 +40,9 @@ Use `.env.example` for variable names; configure **Vercel Preview** and **Vercel
 
 Before importing personal files, verify actual Vercel streaming with synthetic media larger than 20 MiB. Test GET, HEAD, full/middle/suffix Range requests, 416, cancellation and unauthorized access. Browser/CDN responses remain private and non-cacheable. Immutable revisions may use the storage's private upstream cache without skipping session or permission checks.
 
-For Blob import, use the local import command with `--blob` instead of `--local-dir`, with Blob environment variables and `--write`. Omit `--write` for a dry-run. Import validates expected files and hashes, uploads an immutable revision, then activates the catalog last. Never upload the DOCX or Telegram export, and never change the store to public.
+For Blob import, use the local import command with `--blob` instead of `--local-dir`, with Blob environment variables and `--write`. Omit `--write` for a dry-run. Import validates expected files and hashes, uploads an immutable revision, then activates the catalog last. Adding a year preserves the other catalog entries; record and compare their revision hashes before and after import. Never upload the DOCX or Telegram export, and never change the store to public.
+
+Photo-only trips can omit video and archive presentation notes. Set `albumLayout` to `masonry` to display each photograph at its original proportions; omit it or choose `grid` for the existing gallery. This option belongs to the private presentation manifest, together with the narrative and media references.
 
 ## OAuth setup
 

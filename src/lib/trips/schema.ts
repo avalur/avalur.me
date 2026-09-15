@@ -41,11 +41,13 @@ export function parseStory(value: unknown): TripStory {
 
 export function parsePresentation(value: unknown): TripPresentation {
   const v = record(value);
+  const albumLayout = v.albumLayout;
+  if (albumLayout !== undefined && albumLayout !== 'grid' && albumLayout !== 'masonry') throw new Error('Invalid album layout');
   const textKeys = ['dateLabel', 'region', 'heroSubtitle', 'heroLead', 'heroCaption', 'heroCredit', 'chaptersLabel', 'albumEyebrow', 'routeEyebrow', 'routeTitle', 'routeNote', 'memoryText', 'closingCredit'] as const;
   const lineKeys = ['narratorNoteLines', 'videoNoteLines', 'peopleTitleLines', 'memoryTitleLines'] as const;
   return {
-    ...Object.fromEntries(textKeys.map(key => [key, string(v[key])])) as Pick<TripPresentation, typeof textKeys[number]>,
-    ...Object.fromEntries(lineKeys.map(key => [key, strings(v[key])])) as Pick<TripPresentation, typeof lineKeys[number]>,
+    ...Object.fromEntries(textKeys.map(key => [key, string(key === 'memoryText' && v[key] === undefined ? '' : v[key])])) as Pick<TripPresentation, typeof textKeys[number]>,
+    ...Object.fromEntries(lineKeys.map(key => [key, strings((key === 'videoNoteLines' || key === 'memoryTitleLines') && v[key] === undefined ? [] : v[key])])) as Pick<TripPresentation, typeof lineKeys[number]>,
     heroTitleLines: array(v.heroTitleLines, item => { const l = record(item); return { text: string(l.text), ...(l.emphasis === true ? { emphasis: true } : {}) }; }),
     facts: array(v.facts, item => {
       const f = record(item); const icon = string(f.icon);
@@ -53,7 +55,8 @@ export function parsePresentation(value: unknown): TripPresentation {
       return { icon, label: string(f.label) };
     }),
     chapterVisuals: array(v.chapterVisuals, item => { const c = record(item); return { chapterId: string(c.chapterId, SLUG), photoIds: strings(c.photoIds) }; }),
-    videoContextLabels: stringMap(v.videoContextLabels),
+    videoContextLabels: stringMap(v.videoContextLabels === undefined ? {} : v.videoContextLabels),
+    ...(albumLayout === undefined ? {} : { albumLayout }),
   };
 }
 

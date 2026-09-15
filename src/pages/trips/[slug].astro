@@ -84,7 +84,7 @@ const visualPhotos = (chapterId: string) => (view.chapterVisuals.find(item => it
   <div class="wrap">
     <section class="section" id="photos" aria-labelledby="photos-heading">
       <div class="section-heading"><div><p class="eyebrow">{view.albumEyebrow}</p><h2 id="photos-heading">Фотоальбом</h2></div><p class="photo-count">{photos.length} фотографий · {trip.year}</p></div>
-      <div class="gallery" id="gallery">{photos.map((photo, index) => <figure class:list={['gallery-card', { 'gallery-extra': index >= 12 }]} hidden={index >= 12}><Photo photo={photo} thumb /><figcaption>{photo.caption}</figcaption></figure>)}</div>
+      <div class:list={['gallery', { 'gallery-masonry': view.albumLayout === 'masonry' }]} id="gallery">{photos.map((photo, index) => <figure class:list={['gallery-card', { 'gallery-extra': index >= 12 }]} hidden={index >= 12}><Photo photo={photo} thumb /><figcaption>{photo.caption}</figcaption></figure>)}</div>
       {photos.length > 12 && <div class="gallery-actions"><button type="button" class="button button-outline" id="gallery-more" aria-expanded="false" aria-controls="gallery"><span>Все фотографии ({photos.length})</span><Icon name="arrow-down" /></button></div>}
       <p class="sr-only" id="gallery-status" aria-live="polite">Показано {Math.min(12, photos.length)} из {photos.length} фотографий</p>
     </section>

@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { importLocal, prepareImport } from '../scripts/import-trips';
 import { loadStoredTrip } from '../src/lib/trips';
-import { parseManifest } from '../src/lib/trips/schema';
+import { parseManifest, parsePresentation } from '../src/lib/trips/schema';
 import { digest } from '../src/lib/trips/storage';
 
 let source: string;
@@ -71,6 +71,66 @@ test('manifest refuses arbitrary external URLs, path traversal and missing asset
   assert.throws(() => parseManifest(badPath, '2099', prepared.revision));
   const missing = structuredClone(prepared.manifest); delete missing.assets['photo-01'];
   assert.throws(() => parseManifest(missing, '2099', prepared.revision));
+});
+
+test('photo-only masonry import supplies absent section fields and preserves another trip', async () => {
+  const secondYear = '2098';
+  const presentation = JSON.parse(await readFile(resolve(source, 'data/presentation-2099.json'), 'utf8'));
+  for (const key of ['videoNoteLines', 'videoContextLabels', 'memoryTitleLines', 'memoryText']) delete presentation[key];
+  presentation.albumLayout = 'masonry';
+  const media = structuredClone(sourceMedia);
+  media.year = Number(secondYear);
+  const mediaDirectory = resolve(source, `assets/media/${secondYear}`);
+  await mkdir(mediaDirectory, { recursive: true });
+  for (const photo of media.photos) {
+    for (const key of ['src', 'thumb'] as const) {
+      const originalPath = photo[key];
+      photo[key] = originalPath.replace('/2099/', `/${secondYear}/`);
+      await writeFile(resolve(source, photo[key]), await readFile(resolve(source, originalPath)));
+    }
+  }
+  await writeFile(resolve(source, `data/story-${secondYear}.json`), await readFile(resolve(source, 'data/story-2099.json')));
+  await writeFile(resolve(source, `data/media-${secondYear}.json`), JSON.stringify(media));
+  await writeFile(resolve(source, `data/presentation-${secondYear}.json`), JSON.stringify(presentation));
+  const existing = await prepareImport(source, '2099');
+  const added = await prepareImport(source, secondYear);
+  assert.equal(added.manifest.trip.presentation.albumLayout, 'masonry');
+  assert.deepEqual(added.manifest.trip.presentation.videoNoteLines, []);
+  assert.deepEqual(added.manifest.trip.presentation.videoContextLabels, {});
+  assert.deepEqual(added.manifest.trip.presentation.memoryTitleLines, []);
+  assert.equal(added.manifest.trip.presentation.memoryText, '');
+  assert.deepEqual(added.manifest.trip.media.videos, []);
+  assert.deepEqual(added.manifest.trip.media.archivePhotos, []);
+  const destination = await mkdtemp(resolve(tmpdir(), 'trip-import-multiple-'));
+  try {
+    await importLocal(existing, destination);
+    const before = JSON.parse(await readFile(resolve(destination, 'catalog.json'), 'utf8'));
+    await importLocal(added, destination);
+    const after = JSON.parse(await readFile(resolve(destination, 'catalog.json'), 'utf8'));
+    assert.deepEqual(after.trips.map((trip: { slug: string }) => trip.slug), ['2099', secondYear]);
+    assert.deepEqual(after.trips[0], before.trips[0]);
+    assert.deepEqual((await loadStoredTrip('2099', { mode: 'local', directory: destination }))?.trip, existing.manifest.trip);
+    assert.deepEqual((await loadStoredTrip(secondYear, { mode: 'local', directory: destination }))?.trip, added.manifest.trip);
+  } finally { await rm(destination, { recursive: true, force: true }); }
+});
+
+test('presentation defaults preserve omitted layout and reject invalid optional values', async () => {
+  const input = JSON.parse(await readFile(resolve(source, 'data/presentation-2099.json'), 'utf8'));
+  const existing = parsePresentation(input);
+  assert.equal(Object.hasOwn(existing, 'albumLayout'), false);
+  assert.equal(JSON.stringify(parsePresentation(existing)), JSON.stringify(existing));
+  assert.equal(parsePresentation({ ...input, albumLayout: 'grid' }).albumLayout, 'grid');
+  for (const albumLayout of [null, '', 'columns', 4, [], {}]) {
+    assert.throws(() => parsePresentation({ ...input, albumLayout }), /Invalid album layout/);
+  }
+  for (const key of ['videoNoteLines', 'videoContextLabels', 'memoryTitleLines', 'memoryText']) {
+    assert.throws(() => parsePresentation({ ...input, [key]: null }));
+    assert.throws(() => parsePresentation({ ...input, [key]: 42 }));
+  }
+  assert.throws(() => parsePresentation({ ...input, videoNoteLines: 'notes' }));
+  assert.throws(() => parsePresentation({ ...input, videoContextLabels: [] }));
+  assert.throws(() => parsePresentation({ ...input, memoryTitleLines: {} }));
+  assert.throws(() => parsePresentation({ ...input, memoryText: [] }));
 });
 
 test('private Blob coalesces current catalog reads and caches only validated immutable manifests', async () => {

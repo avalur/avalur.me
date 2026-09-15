@@ -47,6 +47,7 @@ export interface TripPresentation {
   videoNoteLines: string[];
   videoContextLabels: Record<string, string>;
   albumEyebrow: string;
+  albumLayout?: 'grid' | 'masonry';
   peopleTitleLines: string[];
   routeEyebrow: string;
   routeTitle: string;
