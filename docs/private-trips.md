@@ -30,7 +30,7 @@ Registration tokens travel in URL fragments so they do not enter HTTP logs. The 
 
 ## Deployment
 
-Use `.env.example` for variable names; configure each environment separately:
+Use `.env.example` for variable names; configure **Vercel Preview** and **Vercel Production** separately. Set `SITE_URL=https://avalur-me-private-preview.vercel.app` in Preview and `SITE_URL=https://avalur.me` in Production. Credentials, private storage, database accounts, sessions and access grants must belong to the intended environment; do not copy the Preview environment wholesale into Production.
 
 - `SITE_URL`: exact HTTPS browser origin, checked on account mutations and callbacks.
 - Dedicated Postgres/Neon database with `prisma migrate deploy` applied. Keep preview/test accounts separate from production.
@@ -53,20 +53,27 @@ Create OAuth applications dedicated to avalur.me; do not reuse the ml-practice-t
 
 Google can have both exact callbacks registered. The current GitHub application settings allow up to 10 redirect URIs, so one dedicated avalur.me application can also contain both callbacks.
 
-Keep `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` server-only and scoped to **Vercel Preview only for now**. Registering a production callback does not enable production sign-in. Enable production variables only after the real provider flows have been validated in Preview; configuration alone does not verify a working OAuth flow.
+Set `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` as server-only variables in each Vercel environment that enables the corresponding provider. Even when one provider application covers both exact callbacks, configure its credentials separately in Preview and Production. Registering a callback alone does not enable sign-in: the deployed environment also needs the matching variables and `SITE_URL`.
 
-The owner first signs in with a password, then connects Google or GitHub in the “Вход через сервисы” section at `/account/`. The provider must return the **same verified email** as the signed-in account. Matching emails alone do not automatically link separate accounts.
+Google/GitHub account linking and subsequent sign-in after logout have been verified in Preview. Production uses a different origin and its own configuration, so its flows still require validation after deployment.
 
-### Before enabling production OAuth
+For an existing account, sign in with its password or an already connected provider, then connect Google or GitHub in the “Вход через сервисы” section at `/account/`. The provider must return the **same verified email** as the signed-in account; GitHub must use that address as its primary email. Matching emails alone do not automatically link separate accounts. An account created through OAuth can also set a password through email password recovery.
 
-- Keep the Google app in **Testing**, with only the owner explicitly added as a test user, while Preview validation continues. Other Google accounts are not enabled for this test.
-- Publish the public privacy page at **https://avalur.me/privacy/** before publishing the Google app. It must be reachable without signing in. Set this exact URL in the Google consent screen; a protected Preview URL does not meet this requirement.
-- Validate the real Google and GitHub sign-in and account-linking flows in Preview before enabling their Production environment variables. A configured provider is not evidence that its real OAuth flow has passed.
-- Production deployment and Google app publication are separate release steps. This implementation prepares the source on the current branch; committing and pushing that branch does not authorize a production release.
+With separate databases, Preview accounts do not automatically exist in Production. A controlled migration of the verified owner can preserve the password hash and provider identity records, using new database IDs and excluding sessions, OAuth access/refresh/ID tokens, email tokens and test accounts. Alternatively, the owner can create a new Production account through OAuth or email registration. Production `ADMIN_EMAILS` and the owner's Production `AccessGrant` must also be configured; creating or transferring the account does not grant either permission.
+
+### Production release checklist
+
+- Configure Production database migrations, private storage, mail, `AUTH_SECRET`, `ADMIN_EMAILS`, provider credentials and the exact Production `SITE_URL`. Add the owner and intended viewers to the Production access list without committing that list.
+- Make **https://avalur.me/privacy/** publicly reachable without signing in, and set this exact URL in the Google consent screen before publishing the Google app. A protected Preview URL does not meet this requirement.
+- Verify the Production callback URLs above in the provider settings. Complete Google app publication before offering Google sign-in to friends outside its test-user list. While Google remains in **Testing**, only explicitly listed test users can use that provider; the site's email access list does not change this Google restriction. Email and GitHub sign-in have their own configuration and do not depend on Google publication.
+- On the deployed Production origin, verify email registration and delivery, confirmation, password login and recovery, OAuth login and linking, and login again after logout. Check that the owner can manage access and an approved viewer can open trips, while a guest or an unapproved account cannot open pages or media. Verify revocation with an existing session.
+- Share the Production `/trips/` link after these checks pass. Preview verification and a successful deployment alone do not establish Production readiness.
 
 ## Access
 
 The verified owner manages email permissions at `/account/access/`. Adding an address does not create an account or send an invitation. Revocation applies on the next page/media request even with a live session.
+
+Viewers use the exact email granted access, then choose Google, GitHub or email registration/login. Normal login and registration preserve the requested trip URL through `next`; password recovery returns to `/account/`, where an approved viewer can open the cycling archive. A signed-in viewer without a matching grant sees a request to tell the owner which email they used.
 
 ```sh
 node --env-file=PRIVATE_ENV --import tsx scripts/manage-access.ts --grant ADDRESS
