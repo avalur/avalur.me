@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Семейный альбом Толи и Иры: видео и фотографии. С теплом, для родных.">
+  <link rel="canonical" href="https://avalur.me/family/tolya-i-ira/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Толя и Ира · Семейная история">
+  <meta property="og:description" content="Семейный альбом. С теплом, для родных.">
+  <meta property="og:url" content="https://avalur.me/family/tolya-i-ira/">
+  <meta property="og:image" content="https://avalur.me/family/tolya-i-ira/poster.jpg">
+  <title>Толя и Ира · Семейная история</title>
+  <style>
+    :root { --paper: #f6f0e5; --ink: #382d25; --muted: #76695d; --line: #d9cdbd; --accent: #86513b; --white: #fffaf2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 1280px; margin: 0 auto; padding: 48px 32px 64px; }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 0; font: 500 clamp(36px, 6vw, 66px)/1.08 Georgia, "Times New Roman", serif; letter-spacing: -.03em; }
+    .introduction { margin: 14px 0 0; color: var(--muted); }
+    .player-shell { margin-top: 30px; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--white); box-shadow: 0 12px 36px #4933240a; }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #201b17; object-fit: contain; }
+    .player-meta { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; padding: 18px 22px; }
+    .current { margin: 0; font-size: 15px; }
+    #current-photo { margin-left: 8px; color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+    #current-note { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; }
+    #playback-time { flex-shrink: 0; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .music { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 18px 2px 0; font-size: 14px; }
+    .music p { margin: 0; color: var(--muted); }
+    a { color: var(--accent); text-underline-offset: 4px; }
+    a:hover { text-decoration-thickness: 2px; }
+    .section-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 18px; margin-top: 42px; }
+    h2 { margin: 0; font: 500 29px/1.2 Georgia, "Times New Roman", serif; }
+    .instruction { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+    .filter { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--muted); font-size: 13px; }
+    input { width: 16px; height: 16px; accent-color: var(--accent); }
+    #shot-count { margin: 18px 0 10px; color: var(--muted); font-size: 12px; }
+    .shots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding: 0; margin: 0; list-style: none; }
+    .shot { display: block; width: 100%; height: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+    .shot:hover { border-color: var(--accent); }
+    .shot[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px #86513b26; }
+    .shot img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; border-radius: 5px; background: #e9e0d4; }
+    .shot-caption { display: flex; justify-content: space-between; gap: 8px; margin: 10px 3px 3px; font-size: 13px; }
+    .shot-id { font-weight: 700; letter-spacing: .025em; }
+    .shot-time { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .shot-note { display: block; margin: 0 3px 5px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .empty { margin-top: 30px; padding: 32px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); background: var(--white); }
+    .empty p { margin: 0; }
+    .empty p + p { margin-top: 8px; font-size: 14px; }
+    #filtered-empty { margin-top: 14px; padding: 24px; }
+    .footer { margin: 36px 0 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    @media (max-width: 900px) { .shots { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 640px) {
+      main { padding: 28px 16px 40px; }
+      .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .player-shell { margin-top: 24px; border-radius: 10px; }
+      .player-meta { padding: 14px; }
+      .section-heading { margin-top: 32px; }
+      .shot-time { font-size: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .shot { transition: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Семейная история</p>
+      <h1 id="film-title">Толя и Ира</h1>
+      <p class="introduction" id="draft-status">С теплом, для родных</p>
+    </header>
+    <div id="empty-state" class="empty">
+      <p>Видео готовится.</p>
+      <p>Обновите страницу, чтобы загрузить видео и фотографии.</p>
+    </div>
+    <div id="film-content" hidden>
+      <section class="player-shell" aria-label="Просмотр семейного видео">
+        <video id="film" controls preload="metadata" playsinline aria-label="Семейное видео «Толя и Ира»">
+          Ваш браузер не поддерживает воспроизведение видео.
+        </video>
+        <div class="player-meta">
+          <p class="current">Сейчас в видео <span id="current-photo">Титры</span><span id="current-note"></span></p>
+          <span id="playback-time">0:00</span>
+        </div>
+      </section>
+      <div class="music" id="music-block" hidden>
+        <p><span id="music-label">Музыка для финальной версии:</span> <span id="music-title"></span></p>
+        <a id="music-link" target="_blank" rel="noopener noreferrer" hidden>Послушать песню ↗</a>
+      </div>
+      <section aria-labelledby="shots-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="shots-title">Фотографии в фильме</h2>
+            <p class="instruction">Нажмите на фотографию, чтобы перейти к ней в видео.</p>
+          </div>
+          <label class="filter" id="filter-label"><input id="unconfirmed-only" type="checkbox">Показать кадры без подписей</label>
+        </div>
+        <p id="shot-count" aria-live="polite"></p>
+        <ul id="shots" class="shots"></ul>
+        <div id="filtered-empty" class="empty" hidden><p>В этой подборке нет кадров без подписей.</p></div>
+      </section>
+      <p class="footer">Семейный архив · Толя и Ира</p>
+    </div>
+  </main>
+  <script src="film.js?v=6eb0be91c619"></script>
+  <script>
+    (() => {
+      'use strict';
+      const data = window.FAMILY_FILM;
+      if (!data || typeof data.video !== 'string' || !data.video.trim()) return;
+      const byId = id => document.getElementById(id);
+      const video = byId('film');
+      const shots = (Array.isArray(data.shots) ? data.shots : [])
+        .filter(shot => shot && typeof shot.id === 'string' && Number.isFinite(shot.start) && Number.isFinite(shot.end) && shot.start >= 0 && shot.end > shot.start)
+        .slice().sort((a, b) => a.start - b.start);
+      const timeLabel = seconds => {
+        const total = Math.max(0, Math.floor(Number(seconds) || 0));
+        return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+      };
+      const title = typeof data.title === 'string' && data.title.trim() ? data.title : 'Толя и Ира';
+      document.title = `${title} · Семейная история`;
+      byId('film-title').textContent = title;
+      video.setAttribute('aria-label', `Семейное видео «${title}»`);
+      byId('draft-status').textContent = data.hasAudio ? 'С теплом, для родных' : 'Визуальный черновик · пока без звука';
+      if (typeof data.poster === 'string') video.poster = data.poster;
+      video.src = data.video;
+      byId('empty-state').hidden = true;
+      byId('film-content').hidden = false;
+
+      if (typeof data.musicTitle === 'string' && data.musicTitle.trim()) {
+        byId('music-block').hidden = false;
+        byId('music-title').textContent = data.musicTitle;
+        if (data.hasAudio) byId('music-label').textContent = 'Музыка:';
+        if (typeof data.musicUrl === 'string' && /^https?:\/\//i.test(data.musicUrl)) {
+          byId('music-link').href = data.musicUrl;
+          byId('music-link').hidden = false;
+        }
+      }
+
+      let pendingSeek = null;
+      let buttons = [];
+      function dominantShotAt(time) {
+        let current;
+        for (const shot of shots) {
+          if (time < shot.start || time >= shot.end) continue;
+          // During a dissolve the incoming photograph dominates after its midpoint.
+          if (!current || time >= (shot.start + Math.min(current.end, shot.end)) / 2) current = shot;
+        }
+        return current;
+      }
+      function shotSeekTime(shot) {
+        // Allow the one-second dissolve to finish, staying inside shorter shots too.
+        const inset = Math.min(1.05, (shot.end - shot.start) / 2);
+        return shot.start + inset;
+      }
+      function updateCurrent() {
+        const time = video.currentTime || 0;
+        const current = dominantShotAt(time);
+        byId('current-photo').textContent = current ? current.id : (shots.length ? 'Титры' : '—');
+        byId('current-note').textContent = current && typeof current.note === 'string' ? current.note : '';
+        const declaredDuration = Number(data.duration);
+        const duration = Number.isFinite(video.duration) && video.duration > 0
+          ? video.duration : (Number.isFinite(declaredDuration) && declaredDuration > 0 ? declaredDuration : 0);
+        byId('playback-time').textContent = `${timeLabel(time)}${duration > 0 ? ` / ${timeLabel(Math.round(duration))}` : ''}`;
+        buttons.forEach(({ button, shot }) => {
+          if (shot === current) button.setAttribute('aria-current', 'true');
+          else button.removeAttribute('aria-current');
+        });
+      }
+      function seekTo(start) {
+        if (video.readyState >= 1) {
+          video.currentTime = Math.min(start, Number.isFinite(video.duration) ? video.duration : start);
+          updateCurrent();
+        } else {
+          pendingSeek = start;
+          video.load();
+        }
+      }
+      function renderShots() {
+        const filtered = byId('unconfirmed-only').checked ? shots.filter(shot => !shot.confirmed) : shots;
+        byId('shots').replaceChildren();
+        buttons = [];
+        filtered.forEach(shot => {
+          const item = document.createElement('li');
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'shot';
+          button.setAttribute('aria-label', `Перейти к фотографии ${shot.id}, ${timeLabel(shot.start)}`);
+          if (typeof shot.thumbnail === 'string' && shot.thumbnail) {
+            const image = document.createElement('img');
+            image.src = shot.thumbnail;
+            image.alt = `Фотография ${shot.id}`;
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            button.append(image);
+          }
+          const caption = document.createElement('span');
+          caption.className = 'shot-caption';
+          const id = document.createElement('span');
+          id.className = 'shot-id';
+          id.textContent = shot.id;
+          const time = document.createElement('span');
+          time.className = 'shot-time';
+          time.textContent = timeLabel(shot.start);
+          caption.append(id, time);
+          button.append(caption);
+          const note = document.createElement('span');
+          note.className = 'shot-note';
+          note.textContent = typeof shot.note === 'string' && shot.note ? shot.note : (shot.confirmed ? 'Есть подпись' : 'Без подписи');
+          button.append(note);
+          button.addEventListener('click', () => seekTo(shotSeekTime(shot)));
+          item.append(button);
+          byId('shots').append(item);
+          buttons.push({ button, shot });
+        });
+        byId('shot-count').textContent = `Показано: ${filtered.length} из ${shots.length}`;
+        byId('filtered-empty').hidden = filtered.length !== 0;
+        byId('filtered-empty').firstElementChild.textContent = shots.length ? 'В этой подборке нет кадров без подписей.' : 'Список фотографий пока готовится.';
+        byId('filter-label').hidden = shots.length === 0;
+        updateCurrent();
+      }
+      video.addEventListener('timeupdate', updateCurrent);
+      video.addEventListener('seeked', updateCurrent);
+      video.addEventListener('durationchange', updateCurrent);
+      video.addEventListener('loadedmetadata', () => {
+        if (pendingSeek !== null) {
+          const seek = pendingSeek;
+          pendingSeek = null;
+          seekTo(seek);
+        }
+        updateCurrent();
+      });
+      video.addEventListener('error', () => {
+        byId('draft-status').textContent = 'Видеофайл пока недоступен · попробуйте обновить страницу позже';
+      });
+      byId('unconfirmed-only').addEventListener('change', renderShots);
+      renderShots();
+    })();
+  </script>
+</body>
+</html>
