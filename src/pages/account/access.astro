@@ -1,0 +1,34 @@
+---
+import AccountLayout from '../../layouts/AccountLayout.astro';
+import { getAccess } from '../../lib/access';
+import { getDb } from '../../lib/auth/db';
+export const prerender = false;
+let unavailable = false;
+let grants: { emailNormalized: string; revokedAt: Date | null }[] = [];
+try {
+  const access = await getAccess(Astro.request);
+  if (!access.user) return Astro.redirect('/login/?next=%2Faccount%2Faccess%2F');
+  if (!access.isAdmin) return Astro.redirect('/account/');
+  grants = await getDb().accessGrant.findMany({ where: { scope: 'trips' }, orderBy: { emailNormalized: 'asc' }, select: { emailNormalized: true, revokedAt: true } });
+} catch { unavailable = true; Astro.response.status = 503; }
+---
+<AccountLayout title="Доступ к велопоходам" lead="Люди из этого списка смогут смотреть архив после подтверждения своей почты." wide>
+  {unavailable ? <p class="notice" role="alert">Не удалось загрузить список. Попробуйте позже.</p> : <>
+    <form method="post" action="/api/account/access" data-account-form data-reload class="account-form">
+      <input type="hidden" name="action" value="grant" />
+      <label>Разрешить доступ для email<input type="email" name="email" autocomplete="off" required maxlength="254" /></label>
+      <button type="submit" class="primary">Добавить в список</button>
+      <p class="form-message" data-form-message role="status"></p>
+    </form>
+    {grants.length === 0 ? <p class="notice">Список пока пуст. Сейчас архив никому не открыт.</p> : <ul class="access-list">{grants.map(grant => <li>
+      <div><span class="email">{grant.emailNormalized}</span><span class="status">{grant.revokedAt ? 'Доступ отозван' : 'Доступ разрешён'}</span></div>
+      <form method="post" action="/api/account/access" data-account-form data-reload>
+        <input type="hidden" name="email" value={grant.emailNormalized} /><input type="hidden" name="action" value={grant.revokedAt ? 'grant' : 'revoke'} />
+        <button type="submit" class="secondary">{grant.revokedAt ? 'Вернуть' : 'Отозвать'}</button>
+        <p class="form-message" data-form-message role="status"></p>
+      </form>
+    </li>)}</ul>}
+    <p class="muted">Изменение списка не отправляет приглашений. Отзыв закрывает следующие запросы даже при действующем входе.</p>
+  </>}
+  <div class="account-links"><a href="/account/">← В личный кабинет</a></div>
+</AccountLayout>

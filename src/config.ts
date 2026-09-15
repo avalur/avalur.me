@@ -12,6 +12,7 @@ export const NAV_ITEMS = [
   { title: "Talks", href: "/talks" },
   { title: "Posts", href: "/posts" },
   { title: "Students", href: "/students" },
+  { title: "Account", href: "/account/" },
 ];
 
 export const SOCIAL_LINKS = [

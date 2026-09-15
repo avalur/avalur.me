@@ -1,0 +1,27 @@
+---
+import '../styles/account.css';
+interface Props { title: string; lead?: string; wide?: boolean }
+const { title, lead, wide = false } = Astro.props;
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>{title} · avalur.me</title>
+    <link rel="icon" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="account-header"><a class="account-brand" href="/">avalur.me</a><a href="/">На главную <span aria-hidden="true">↗</span></a></header>
+    <main class:list={['account-card', { wide }]}>
+      <div class="account-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 6v2"/></svg></div>
+      <h1>{title}</h1>
+      {lead && <p class="account-lead">{lead}</p>}
+      <slot />
+    </main>
+    <footer class="account-footer">Личный кабинет · avalur.me · <a href="/privacy/">Конфиденциальность</a></footer>
+    <script>import '../scripts/account';</script>
+  </body>
+</html>

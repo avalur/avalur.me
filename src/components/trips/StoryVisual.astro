@@ -1,0 +1,10 @@
+---
+import Photo from './Photo.astro';
+import type { TripPhoto } from '../../lib/trips/types';
+interface Props { photos: TripPhoto[]; }
+const { photos } = Astro.props;
+const [left, right] = photos;
+const layout = left && right ? `--photo-left:${left.width / left.height}fr;--photo-right:${right.width / right.height}fr` : undefined;
+---
+{photos.length === 1 && <figure class="story-figure"><Photo photo={photos[0]} /><figcaption>{photos[0].caption}</figcaption></figure>}
+{photos.length > 1 && <div class="story-diptych" style={layout}>{photos.map(photo => <figure><Photo photo={photo} /><figcaption>{photo.caption}</figcaption></figure>)}</div>}

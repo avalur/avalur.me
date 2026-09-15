@@ -1,0 +1,40 @@
+---
+import AccountLayout from '../../layouts/AccountLayout.astro';
+import AccountProviders from '../../components/AccountProviders.astro';
+import { getAccess } from '../../lib/access';
+import { getDb } from '../../lib/auth/db';
+import { oauthProviders } from '../../lib/auth/config';
+export const prerender = false;
+let access;
+let unavailable = false;
+const providers = oauthProviders();
+let connected: string[] = [];
+try {
+  access = await getAccess(Astro.request);
+  if (access.user?.emailVerified && providers.length) {
+    connected = (await getDb().account.findMany({ where: { userId: access.user.id, provider: { in: providers.map(provider => provider.id) } }, select: { provider: true } })).map(account => account.provider);
+  }
+} catch { unavailable = true; Astro.response.status = 503; }
+if (!unavailable && !access?.user) return Astro.redirect('/login/?next=%2Faccount%2F');
+---
+<AccountLayout title="Ваш аккаунт">
+  {unavailable ? <p class="notice" role="alert">Личный кабинет временно недоступен. Попробуйте зайти немного позже.</p> : <>
+    <p class="identity">{access!.user!.name || 'Здравствуйте'} · {access!.user!.email}</p>
+    {access!.canViewTrips ? <>
+      <div class="notice good">Вам открыт архив велопоходов. Приятного просмотра!</div>
+      <a class="primary" href="/trips/">Открыть велопоходы <span aria-hidden="true">→</span></a>
+    </> : access!.user!.emailVerified ? <div class="notice">Доступ к велопоходам пока не предоставлен. Если вы договаривались о доступе, сообщите владельцу сайта почту, с которой вошли.</div> : <>
+      <div class="notice">Сначала подтвердите вашу электронную почту.</div>
+      <form method="post" action="/api/account/register" data-account-form class="account-form"><input type="hidden" name="email" value={access!.user!.email || ''} /><button type="submit" class="secondary">Получить письмо для подтверждения</button><p class="form-message" data-form-message role="status"></p></form>
+    </>}
+    {access!.user!.emailVerified && providers.length > 0 && <section aria-labelledby="linked-services">
+      <h2 id="linked-services">Вход через сервисы</h2>
+      <p class="muted">Подключите сервис один раз, чтобы затем входить через него. В сервисе нужна та же подтверждённая почта, что у этого аккаунта; в GitHub — основная.</p>
+      <AccountProviders mode="link" connected={connected} />
+    </section>}
+    <div class="account-actions">
+      {access!.isAdmin && <a class="secondary" href="/account/access/">Управлять доступом</a>}
+      <form method="post" action="/api/account/logout" data-account-form><button type="submit" class="secondary">Выйти</button><p class="form-message" data-form-message role="status"></p></form>
+    </div>
+  </>}
+</AccountLayout>

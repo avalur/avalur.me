@@ -1,0 +1,18 @@
+---
+import AccountLayout from '../layouts/AccountLayout.astro';
+import AccountProviders from '../components/AccountProviders.astro';
+import { safeNext } from '../lib/auth/config';
+export const prerender = false;
+const next = safeNext(Astro.url.searchParams.get('next'));
+---
+<AccountLayout title="Добро пожаловать" lead="Начнём с вашей почты. Пришлём ссылку, по которой вы подтвердите адрес и выберете пароль.">
+  <AccountProviders next={next} />
+  <form method="post" action="/api/account/register" data-account-form class="account-form">
+    <input type="hidden" name="next" value={next} />
+    <label>Электронная почта<input type="email" name="email" autocomplete="email" required maxlength="254" /></label>
+    <button class="primary" type="submit">Получить письмо</button>
+    <p class="form-message" data-form-message role="status"></p>
+  </form>
+  <p class="muted">Доступ к личным материалам владелец сайта предоставляет отдельно.</p>
+  <div class="account-links"><a href={'/login/?next=' + encodeURIComponent(next)}>Уже есть аккаунт? Войти</a></div>
+</AccountLayout>

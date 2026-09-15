@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /trips/
+Disallow: /account/
+Disallow: /api/
 
 Sitemap: https://avalur.me/sitemap-index.xml

@@ -8,17 +8,19 @@ import Analytics from "../components/Analytics.astro";
 interface Props {
   title?: string;
   description?: string;
+  lang?: string;
+  image?: string | null;
 }
 
-const { title, description } = Astro.props;
+const { title, description, lang = "en", image = "/images/avalur.jpg" } = Astro.props;
 const pageTitle = title ? `${title} | ${SITE.title}` : SITE.title;
 const pageDescription = description || SITE.description;
 const canonicalUrl = new URL(Astro.url.pathname, SITE.url).href;
-const ogImage = new URL("/images/avalur.jpg", SITE.url).href;
+const ogImage = image ? new URL(image, SITE.url).href : null;
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang={lang} data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,12 +31,12 @@ const ogImage = new URL("/images/avalur.jpg", SITE.url).href;
     <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:image" content={ogImage} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
     <meta property="og:site_name" content={SITE.title} />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={pageDescription} />
-    <meta name="twitter:image" content={ogImage} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link

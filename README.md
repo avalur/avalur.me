@@ -1,4 +1,8 @@
-# Astro Starter Kit: Minimal
+# avalur.me
+
+The personal site uses Astro. Account registration and private cycling-trip pages are described in [docs/private-trips.md](docs/private-trips.md). Personal stories and media stay outside the public build and Git repository.
+
+## Original Astro starter notes
 
 ```sh
 npm create astro@latest -- --template minimal
@@ -32,11 +36,13 @@ All commands are run from the root of the project, from a terminal:
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
 | `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run dev`             | Runs the full site, including account and private-trip server routes, at `localhost:4321` |
 | `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run preview`         | Limited static build preview; does not serve account or private-trip server routes |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
+
+Use `npm run dev` with the [local account and database configuration](docs/private-trips.md#local-development) to test the complete site. The Vercel adapter does not provide a local server preview; validate the deployed build in the stable Vercel Preview environment.
 
 ## 👀 Want to learn more?
 

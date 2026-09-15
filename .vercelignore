@@ -1,0 +1,11 @@
+.private
+.agents
+.claude
+.cadence
+.idea
+.test-data
+.env*
+tests
+test-results
+playwright-report
+docs

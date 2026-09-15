@@ -1,0 +1,14 @@
+---
+import { oauthProviders } from '../lib/auth/config';
+interface Props { next?: string; mode?: 'login' | 'link'; connected?: string[] }
+const { next = '/account/', mode = 'login', connected = [] } = Astro.props;
+const providers = oauthProviders();
+---
+{providers.length > 0 && <>
+  <div class="provider-list">{providers.map(provider => {
+    const linked = mode === 'link' && connected.includes(provider.id);
+    return <button type="button" class:list={['provider-button', { 'provider-connected': linked }]} data-oauth-provider={linked ? undefined : provider.id} data-next={next} disabled={linked}>{linked ? `${provider.name} подключён ✓` : mode === 'link' ? `Подключить ${provider.name}` : `Продолжить с ${provider.name}`}</button>;
+  })}</div>
+  <p class="form-message" data-oauth-message role="status"></p>
+  {mode === 'login' && <div class="account-divider">или с почтой</div>}
+</>}

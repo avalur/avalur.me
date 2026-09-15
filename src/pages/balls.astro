@@ -31,8 +31,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     active: boolean; // false → render single white dot; true → render N rainbow fragments
   };
 
-  const canvas = document.getElementById("balls-canvas") as HTMLCanvasElement | null;
-  if (!canvas) throw new Error("canvas not found");
+  const canvasElement = document.getElementById("balls-canvas");
+  if (!(canvasElement instanceof HTMLCanvasElement)) throw new Error("canvas not found");
+  const canvas = canvasElement;
   const ctx = canvas.getContext("2d", { alpha: true })!;
 
   const mask = document.createElement("canvas");

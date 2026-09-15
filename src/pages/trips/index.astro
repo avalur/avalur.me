@@ -1,0 +1,29 @@
+---
+import TripLayout from '../../layouts/TripLayout.astro';
+import Icon from '../../components/trips/Icon.astro';
+import { getAccess } from '../../lib/access';
+import { loadCatalog } from '../../lib/trips/index';
+
+export const prerender = false;
+const privateHeaders = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive', 'Referrer-Policy': 'same-origin', 'Vary': 'Cookie' };
+Object.entries(privateHeaders).forEach(([name, value]) => Astro.response.headers.set(name, value));
+let access;
+try { access = await getAccess(Astro.request); }
+catch { return new Response('Раздел временно недоступен. Попробуйте позже.', { status: 503, headers: { ...privateHeaders, 'Content-Type': 'text/plain; charset=utf-8' } }); }
+if (!access.user) return new Response(null, { status: 303, headers: { ...privateHeaders, Location: '/login/?next=%2Ftrips%2F' } });
+if (!access.canViewTrips) return new Response(null, { status: 303, headers: { ...privateHeaders, Location: '/account/' } });
+let catalog;
+try { catalog = await loadCatalog(); }
+catch { return new Response('Раздел временно недоступен. Попробуйте позже.', { status: 503, headers: { ...privateHeaders, 'Content-Type': 'text/plain; charset=utf-8' } }); }
+---
+<TripLayout title="Архив велопоходов">
+  <section class="wrap archive-page" id="archive" aria-labelledby="archive-title">
+    <p class="eyebrow">Архив велопоходов</p>
+    <h1 id="archive-title">Дороги, к которым<br /><em>хочется вернуться.</em></h1>
+    <p class="archive-intro">Наши поездки — в историях, фотографиях и видео.</p>
+    <div class="archive-grid">
+      {catalog.trips.map(trip => <a class="archive-card" href={`/trips/${encodeURIComponent(trip.slug)}/`}><div class="archive-cover"><img src={trip.hero.src} alt={trip.hero.alt} width={trip.hero.width} height={trip.hero.height} loading="lazy" decoding="async" /><span class="archive-year">{trip.year}</span></div><div class="archive-copy"><p class="eyebrow">{trip.dateLabel}</p><h2>{trip.title}</h2><p>{trip.subtitle}</p><div class="archive-card-footer"><span>{trip.photoCount} фотографий · {trip.videoCount} видео</span><span class="archive-open">Открыть историю <Icon name="arrow-right" /></span></div></div></a>)}
+    </div>
+    {catalog.trips.length === 0 && <p class="archive-empty">Здесь появятся истории наших поездок.</p>}
+  </section>
+</TripLayout>

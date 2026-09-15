@@ -1,0 +1,22 @@
+---
+import AccountLayout from '../layouts/AccountLayout.astro';
+import AccountProviders from '../components/AccountProviders.astro';
+import { safeNext } from '../lib/auth/config';
+export const prerender = false;
+const oauthError = Astro.url.searchParams.get('error');
+const linkingRequired = oauthError === 'OAuthAccountNotLinked';
+const next = linkingRequired ? '/account/' : safeNext(Astro.url.searchParams.get('next'));
+---
+<AccountLayout title="С возвращением" lead="Войдите в свой аккаунт, чтобы открыть доступные вам материалы.">
+  {oauthError && <p class="notice" role="alert">{linkingRequired ? 'Аккаунт с этой почтой уже существует. Войдите с паролем или восстановите его через почту, затем подключите Google или GitHub в личном кабинете.' : oauthError === 'AccessDenied' ? 'Для входа нужна подтверждённая почта. При подключении сервиса она должна совпадать с почтой вашего аккаунта; в GitHub проверяется основная почта.' : 'Не удалось войти через сервис. Попробуйте ещё раз или войдите с паролем.'}</p>}
+  <AccountProviders next={next} />
+  <form method="post" action="/api/account/login" data-account-form class="account-form">
+    <input type="hidden" name="next" value={next} />
+    <label>Электронная почта<input type="email" name="email" autocomplete="email" required maxlength="254" /></label>
+    <label>Пароль<input type="password" name="password" autocomplete="current-password" required maxlength="200" /></label>
+    <button class="primary" type="submit">Войти</button>
+    <p class="form-message" data-form-message role="status"></p>
+  </form>
+  <div class="account-links"><a href={'/register/?next=' + encodeURIComponent(next)}>Создать аккаунт</a><a href="/forgot-password/">Забыли пароль?</a></div>
+  <noscript><p class="noscript">Для входа включите JavaScript в браузере.</p></noscript>
+</AccountLayout>

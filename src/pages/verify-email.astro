@@ -1,0 +1,18 @@
+---
+import AccountLayout from '../layouts/AccountLayout.astro';
+import { safeNext } from '../lib/auth/config';
+export const prerender = false;
+const next = safeNext(Astro.url.searchParams.get('next'));
+---
+<AccountLayout title="Завершим знакомство" lead="Укажите имя и придумайте пароль. После этого ваша почта будет подтверждена.">
+  <form method="post" action="/api/account/verify-email" data-account-form data-clear-password class="account-form">
+    <input type="hidden" name="token" data-email-token />
+    <input type="hidden" name="next" value={next} />
+    <label>Ваше имя<input type="text" name="name" autocomplete="name" required maxlength="100" /></label>
+    <label>Пароль<input type="password" name="password" autocomplete="new-password" minlength="10" maxlength="200" required aria-describedby="password-hint" /></label>
+    <p class="muted" id="password-hint">Не менее 10 символов. Можно использовать длинную фразу.</p>
+    <button class="primary" type="submit">Подтвердить почту и войти</button>
+    <p class="form-message" data-form-message role="status"></p>
+  </form>
+  <div class="account-links"><a href={'/register/?next=' + encodeURIComponent(next)}>Запросить новое письмо</a><a href="/login/">Ко входу</a></div>
+</AccountLayout>

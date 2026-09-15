@@ -1,0 +1,8 @@
+---
+import type { TripPhoto } from '../../lib/trips/types';
+interface Props { photo: TripPhoto; thumb?: boolean; eager?: boolean; }
+const { photo, thumb = false, eager = false } = Astro.props;
+---
+<button type="button" class="photo-open" data-photo={photo.id} aria-label={`Открыть фотографию: ${photo.caption}`}>
+  <img src={thumb ? photo.thumb : photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+</button>
