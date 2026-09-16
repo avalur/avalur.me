@@ -1,8 +1,8 @@
 ---
 import '../styles/trips.css';
 import Icon from '../components/trips/Icon.astro';
-interface Props { title: string; year?: number; trip?: boolean; hasVideos?: boolean; }
-const { title, year, trip = false, hasVideos = true } = Astro.props;
+interface Props { title: string; year?: number; trip?: boolean; hasVideos?: boolean; hasPhotos?: boolean; hasArchivePhotos?: boolean; hasRoute?: boolean; textOnly?: boolean; }
+const { title, year, trip = false, hasVideos = true, hasPhotos = true, hasArchivePhotos = false, hasRoute = true, textOnly = false } = Astro.props;
 const favicon = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#305b44"/><g fill="none" stroke="#f6f2e9" stroke-width="1.6"><circle cx="9" cy="21" r="5"/><circle cx="24" cy="21" r="5"/><path d="m9 21 6-12 7 12H9m13 0L16 7h-4m7-1h5l1 4"/></g></svg>');
 ---
 <!doctype html>
@@ -17,12 +17,12 @@ const favicon = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://w
     <link rel="icon" type="image/svg+xml" href={favicon} />
     <slot name="head" />
   </head>
-  <body id="top">
+  <body id="top" class:list={{ 'trip-text-only': textOnly }}>
     <a class="skip-link" href={trip ? '#story' : '#archive'}>{trip ? 'Перейти к рассказу' : 'Перейти к походам'}</a>
     <header class="site-header">
       <div class="wrap header-inner">
         <a class="brand" href="/trips/" aria-label="Вокруг Оби — архив походов"><span class="brand-icon"><Icon name="bike" /></span><span><span class="brand-name">Вокруг Оби</span><span class="brand-sub">Велопоходы друзей</span></span></a>
-        {trip && <nav class="header-nav" aria-label="Разделы страницы"><a href="#story">История</a><a href="#photos">Фотографии</a>{hasVideos && <a href="#video">Видео</a>}<a href="#route">Маршрут</a></nav>}
+        {trip && <nav class="header-nav" aria-label="Разделы страницы"><a href="#story">История</a>{hasPhotos ? <a href="#photos">Фотографии</a> : hasArchivePhotos && <a href="#memory">Фото из архива</a>}{hasVideos && <a href="#video">Видео</a>}{hasRoute ? <a href="#route">Маршрут</a> : <a href="#people">Участники</a>}</nav>}
         {year && <span class="header-year">{year}</span>}
       </div>
       <nav class="wrap archive-account-nav" aria-label="Аккаунт и архив">

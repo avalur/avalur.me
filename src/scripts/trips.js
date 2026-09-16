@@ -39,6 +39,8 @@
     counter.textContent = `${photo.year ? 'Из архива · ' + photo.year + ' · ' : ''}${photoIndex + 1} / ${activePhotos.length}`;
     caption.textContent = photo.caption;
     original.href = asset(photo.src);
+    document.getElementById('lightbox-prev').hidden = activePhotos.length < 2;
+    document.getElementById('lightbox-next').hidden = activePhotos.length < 2;
     if (motionToggle) {
       const clip = data.videos.find(item => item.id === photo.liveVideoId && item.displayKind === 'live');
       motionToggle.hidden = !clip;

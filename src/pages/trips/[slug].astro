@@ -26,8 +26,11 @@ const { story, media, presentation: view } = trip;
 const photos = media.photos;
 const archive = [...media.archivePhotos].sort((left, right) => (left.year ?? 0) - (right.year ?? 0));
 const lookup = new Map<string, TripPhoto>([...photos, ...archive].map(photo => [photo.id, photo]));
-const hero = lookup.get(media.heroId);
-if (!hero) return new Response('Раздел временно недоступен. Попробуйте позже.', { status: 503, headers: { ...privateHeaders, 'Content-Type': 'text/plain; charset=utf-8' } });
+const hero = media.heroId === null ? undefined : lookup.get(media.heroId);
+if (media.heroId !== null && !hero) return new Response('Раздел временно недоступен. Попробуйте позже.', { status: 503, headers: { ...privateHeaders, 'Content-Type': 'text/plain; charset=utf-8' } });
+const hasRoute = story.route.length > 0;
+const hasMedia = photos.length + archive.length + media.videos.length > 0;
+const singleArchive = archive.length === 1;
 const videoKindOrder = { video: 0, round: 1, live: 2 };
 const videos = [...media.videos].sort((left, right) => videoKindOrder[left.kind] - videoKindOrder[right.kind]).map(clip => {
   const seconds = Math.round(Number(clip.duration));
@@ -46,18 +49,18 @@ const visualPhotos = (chapterId: string) => (view.chapterVisuals.find(item => it
 const videoLookup = new Map(videos.map(clip => [clip.id, clip]));
 const visualVideos = (chapterId: string) => (view.chapterVisuals.find(item => item.chapterId === chapterId)?.videoIds ?? []).map(id => videoLookup.get(id)).filter((clip): clip is typeof videos[number] => Boolean(clip));
 ---
-<TripLayout title={`${story.title} · ${trip.year}`} year={trip.year} trip hasVideos={videos.length > 0}>
-  <link slot="head" rel="preload" as="image" href={hero.src} />
+<TripLayout title={`${story.title} · ${trip.year}`} year={trip.year} trip hasVideos={videos.length > 0} hasPhotos={photos.length > 0} hasArchivePhotos={archive.length > 0} hasRoute={hasRoute} textOnly={!hero}>
+  {hero && <link slot="head" rel="preload" as="image" href={hero.src} />}
   <div class="wrap">
     <section class="hero" aria-labelledby="trip-title">
       <div class="hero-copy">
-        <p class="hero-date">{view.dateLabel} <span>·</span> {view.region}</p>
+        <p class="hero-date">{view.dateLabel}{view.region && <> <span>·</span> {view.region}</>}</p>
         <h1 id="trip-title">{view.heroTitleLines.map((line, index) => <>{index > 0 && <br />}{line.emphasis ? <em>{line.text}</em> : line.text}</>)}</h1>
         <p class="hero-subtitle">{view.heroSubtitle}</p>
         <p class="hero-lead">{view.heroLead}</p>
-        <div class="hero-actions"><a class="button" href="#story">Читать историю <Icon name="arrow-down" /></a><a class="text-link" href="#photos">Смотреть фотографии <Icon name="arrow-right" /></a></div>
+        <div class="hero-actions"><a class="button" href="#story">Читать историю <Icon name="arrow-down" /></a>{photos.length > 0 ? <a class="text-link" href="#photos">Смотреть фотографии <Icon name="arrow-right" /></a> : archive.length > 0 && <a class="text-link" href="#memory">{singleArchive ? 'Смотреть архивный снимок' : 'Смотреть архивные фотографии'} <Icon name="arrow-right" /></a>}</div>
       </div>
-      <figure class="hero-photo"><Photo photo={hero} eager /><figcaption class="hero-caption"><span>{view.heroCaption}</span><span>{view.heroCredit}</span></figcaption></figure>
+      {hero && <figure class="hero-photo"><Photo photo={hero} eager /><figcaption class="hero-caption"><span>{view.heroCaption}</span><span>{view.heroCredit}</span></figcaption></figure>}
     </section>
     <div class="trip-strip" aria-label="О походе">{view.facts.map(fact => <span><Icon name={fact.icon} />{fact.label}</span>)}</div>
 
@@ -88,19 +91,19 @@ const visualVideos = (chapterId: string) => (view.chapterVisuals.find(item => it
   </section>}
 
   <div class="wrap">
-    <section class="section" id="photos" aria-labelledby="photos-heading">
+    {photos.length > 0 && <section class="section" id="photos" aria-labelledby="photos-heading">
       <div class="section-heading"><div><p class="eyebrow">{view.albumEyebrow}</p><h2 id="photos-heading">Фотоальбом</h2></div><p class="photo-count">{photoCountLabel(photos.length)} · {trip.year}</p></div>
       <div class:list={['gallery', { 'gallery-masonry': view.albumLayout === 'masonry' }]} id="gallery">{photos.map((photo, index) => <figure class:list={['gallery-card', { 'gallery-extra': index >= 12 }]} hidden={index >= 12}><Photo photo={photo} thumb /><figcaption>{photo.caption}</figcaption></figure>)}</div>
       {photos.length > 12 && <div class="gallery-actions"><button type="button" class="button button-outline" id="gallery-more" aria-expanded="false" aria-controls="gallery"><span>Все фотографии ({photos.length})</span><Icon name="arrow-down" /></button></div>}
       <p class="sr-only" id="gallery-status" aria-live="polite">Фотографии: показано {Math.min(12, photos.length)} из {photos.length}</p>
-    </section>
-    <div class="details-grid">
-      <section id="people" aria-labelledby="people-heading"><p class="eyebrow">Наша компания</p><h2 id="people-heading">{view.peopleTitleLines.map((line, index) => <>{index > 0 && <br />}{line}</>)}</h2><div class="people-grid">{story.participants.map(person => <div class="person"><span class="person-name">{person.displayName}</span><span class="person-role">{person.role}</span></div>)}</div></section>
-      <section id="route" aria-labelledby="route-heading"><p class="eyebrow">{view.routeEyebrow}</p><h2 id="route-heading">{view.routeTitle}</h2><p class="route-note">{view.routeNote}</p><ol class="route-stops">{story.route.map(stop => <li>{stop.label}<small>{stop.note}</small></li>)}</ol></section>
+    </section>}
+    <div class:list={['details-grid', { 'details-grid-single': !hasRoute }]}>
+      <section id="people" aria-labelledby="people-heading"><p class="eyebrow">Наша компания</p><h2 id="people-heading">{view.peopleTitleLines.map((line, index) => <>{index > 0 && <br />}{line}</>)}</h2><div class="people-grid">{story.participants.map(person => <div class="person"><span class="person-name">{person.displayName}</span><span class="person-role">{person.role}</span></div>)}</div>{view.peopleNote && <p class="route-note">{view.peopleNote}</p>}</section>
+      {hasRoute && <section id="route" aria-labelledby="route-heading"><p class="eyebrow">{view.routeEyebrow}</p><h2 id="route-heading">{view.routeTitle}</h2><p class="route-note">{view.routeNote}</p><ol class="route-stops">{story.route.map(stop => <li>{stop.label}<small>{stop.note}</small></li>)}</ol></section>}
     </div>
-    {archive.length > 0 && <section class="memory-section" aria-labelledby="memory-heading"><div><p class="eyebrow">Листая старые фотографии</p><h2 id="memory-heading">{view.memoryTitleLines.map((line, index) => <>{index > 0 && <br />}{line}</>)}</h2><p>{view.memoryText}</p></div><div class="memory-photos">{archive.map(photo => <figure><Photo photo={photo} thumb /><figcaption><span class="memory-year">{photo.year}</span><span>Из нашего архива</span></figcaption></figure>)}</div></section>}
+    {archive.length > 0 && <section class:list={['memory-section', { 'memory-section-single': singleArchive }]} id="memory" aria-labelledby="memory-heading"><div><p class="eyebrow">{view.memoryEyebrow ?? 'Листая старые фотографии'}</p><h2 id="memory-heading">{view.memoryTitleLines.map((line, index) => <>{index > 0 && <br />}{line}</>)}</h2><p>{view.memoryText}</p></div><div class="memory-photos">{archive.map(photo => <figure><Photo photo={photo} thumb={!singleArchive} /><figcaption><span class="memory-year">{photo.year}</span><span>{singleArchive ? photo.caption : 'Из нашего архива'}</span></figcaption></figure>)}</div></section>}
     <section class="closing" aria-label="Вместо послесловия"><p class="eyebrow">До следующей встречи</p><blockquote>«{story.closingQuote}»</blockquote><p>{view.closingCredit}</p></section>
   </div>
-  <Fragment slot="after-main"><Lightbox /><script is:inline type="application/json" id="page-data" set:html={pageData} /></Fragment>
+  <Fragment slot="after-main">{hasMedia && <><Lightbox /><script is:inline type="application/json" id="page-data" set:html={pageData} /></>}</Fragment>
 </TripLayout>
 <script>import '../../scripts/trips.js';</script>

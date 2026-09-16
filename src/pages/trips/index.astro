@@ -23,7 +23,13 @@ catch { return new Response('Раздел временно недоступен.
     <h1 id="archive-title">Дороги, к которым<br /><em>хочется вернуться.</em></h1>
     <p class="archive-intro">Наши поездки — в историях, фотографиях и видео.</p>
     <div class="archive-grid">
-      {catalog.trips.map(trip => <a class="archive-card" href={`/trips/${encodeURIComponent(trip.slug)}/`}><div class="archive-cover"><img src={trip.hero.src} alt={trip.hero.alt} width={trip.hero.width} height={trip.hero.height} loading="lazy" decoding="async" /><span class="archive-year">{trip.year}</span></div><div class="archive-copy"><p class="eyebrow">{trip.dateLabel}</p><h2>{trip.title}</h2><p>{trip.subtitle}</p><div class="archive-card-footer"><span>{photoCountLabel(trip.photoCount)}{trip.videoCount > 0 && <> · {trip.videoCount} видео</>}{trip.livePhotoCount > 0 && <> · {livePhotoCountLabel(trip.livePhotoCount)}</>}</span><span class="archive-open">Открыть историю <Icon name="arrow-right" /></span></div></div></a>)}
+      {catalog.trips.map(trip => <a class="archive-card" href={`/trips/${encodeURIComponent(trip.slug)}/`}>
+        <div class:list={['archive-cover', { 'archive-cover-text': !trip.hero }]}>
+          {trip.hero ? <img src={trip.hero.src} alt={trip.hero.alt} width={trip.hero.width} height={trip.hero.height} loading="lazy" decoding="async" /> : <div class="archive-cover-note" aria-hidden="true"><Icon name="bike" /><span>Из дневника</span></div>}
+          <span class="archive-year">{trip.year}</span>
+        </div>
+        <div class="archive-copy"><p class="eyebrow">{trip.dateLabel}</p><h2>{trip.title}</h2><p>{trip.subtitle}</p><div class="archive-card-footer"><span>{trip.photoCount > 0 ? photoCountLabel(trip.photoCount) : trip.archivePhotoCount > 0 ? 'История и фото из архива' : 'Короткая история'}{trip.videoCount > 0 && <> · {trip.videoCount} видео</>}{trip.livePhotoCount > 0 && <> · {livePhotoCountLabel(trip.livePhotoCount)}</>}</span><span class="archive-open">Открыть историю <Icon name="arrow-right" /></span></div></div>
+      </a>)}
     </div>
     {catalog.trips.length === 0 && <p class="archive-empty">Здесь появятся истории наших поездок.</p>}
   </section>

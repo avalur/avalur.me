@@ -35,3 +35,37 @@
 .chapter-video-duration{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .video-tabs{flex-wrap:wrap;column-gap:23px;row-gap:6px}
 @media(max-width:740px){.lightbox-motion{max-width:100%}.lightbox-canvas.has-motion{padding-bottom:60px}.lightbox-links{gap:15px}.photo-motion-label{left:7px;bottom:7px;font-size:9px;padding:3px 7px}}
+
+/* Entries without a cover photo read as pages from the same travel journal. */
+.trip-text-only .wrap{max-width:960px}
+.trip-text-only .hero{display:block;max-width:760px;margin-inline:auto;text-align:center;padding-block:62px 44px}
+.trip-text-only .hero-date,.trip-text-only .hero-actions{justify-content:center}
+.trip-text-only .hero-date:after{content:'';width:23px;height:1px;background:var(--green)}
+.trip-text-only h1{font-size:clamp(54px,6.5vw,86px)}
+.trip-text-only .hero-subtitle{max-width:570px;margin-inline:auto}
+.trip-text-only .hero-lead{max-width:520px;margin-inline:auto}
+.trip-text-only .section{padding-top:52px}
+.trip-text-only .story-grid{grid-template-columns:155px minmax(0,1fr);gap:42px}
+.trip-text-only .chapter{margin-top:32px}
+.trip-text-only .closing{padding-block:48px 56px}
+.trip-text-only .closing blockquote{font-size:31px;max-width:720px;margin-inline:auto}
+.details-grid-single{grid-template-columns:1fr;margin-top:44px;padding-top:32px}
+.details-grid-single #people{display:grid;grid-template-columns:1fr 1.8fr;column-gap:42px;align-items:start}
+.details-grid-single #people>.eyebrow{grid-column:1}
+.details-grid-single #people>h2{grid-column:1;font-size:30px}
+.details-grid-single .people-grid{grid-column:2;grid-row:1 / span 3;margin-top:0}
+@media(max-width:740px){.trip-text-only .hero{padding-block:38px 32px}.trip-text-only h1{font-size:clamp(49px,11vw,70px)}.trip-text-only .hero-subtitle{font-size:22px}.trip-text-only .section{padding-top:35px}.trip-text-only .story-grid{display:block}.trip-text-only .chapter{margin-top:28px}.trip-text-only .closing blockquote{font-size:27px}.details-grid-single #people{display:block}.details-grid-single .people-grid{margin-top:12px}.trip-text-only .header-nav{justify-content:flex-start;gap:30px}}
+
+/* A single archival photograph keeps its full frame and a legible date. */
+.memory-section-single{grid-template-columns:.8fr 1.5fr;gap:42px;margin-top:56px}
+.memory-section-single .eyebrow{font-size:10px;color:var(--green)}
+.memory-section-single .memory-photos{grid-template-columns:minmax(0,1fr);padding:4px}
+.memory-section-single .memory-photos figure{transform:rotate(-1deg);padding:10px 10px 12px}
+.memory-section-single .memory-photos img{aspect-ratio:auto;object-fit:contain}
+.memory-section-single .memory-photos figcaption{align-items:center;gap:18px}
+.memory-section-single .memory-photos figcaption span:last-child{display:block;font-size:11px}
+@media(max-width:740px){.memory-section-single{grid-template-columns:minmax(0,1fr);gap:24px;margin-top:40px}.memory-section-single p{max-width:490px}.memory-section-single .memory-photos figure{padding:8px 8px 10px}.memory-section-single .memory-photos figcaption{gap:12px}.memory-section-single .memory-photos figcaption span:last-child{font-size:10px}}
+
+.archive-cover-text{aspect-ratio:4/3;background:var(--soft);display:grid;place-items:center;min-height:220px}
+.archive-cover-note{display:grid;justify-items:center;gap:20px;color:var(--green);font:400 29px/1.3 var(--serif)}
+.archive-cover-note svg{width:76px;height:76px;stroke-width:1}

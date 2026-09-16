@@ -50,11 +50,13 @@ export interface TripPresentation {
   albumEyebrow: string;
   albumLayout?: 'grid' | 'masonry';
   peopleTitleLines: string[];
+  peopleNote?: string;
   routeEyebrow: string;
   routeTitle: string;
   routeNote: string;
   memoryTitleLines: string[];
   memoryText: string;
+  memoryEyebrow?: string;
   closingCredit: string;
 }
 
@@ -64,7 +66,7 @@ export interface Trip {
   year: number;
   story: TripStory;
   media: {
-    heroId: string;
+    heroId: string | null;
     featuredIds: string[];
     categories: Record<string, string>;
     photos: TripPhoto[];
@@ -80,8 +82,9 @@ export interface TripSummary {
   title: string;
   subtitle: string;
   dateLabel: string;
-  hero: Pick<TripPhoto, 'src' | 'thumb' | 'alt' | 'width' | 'height'>;
+  hero: Pick<TripPhoto, 'src' | 'thumb' | 'alt' | 'width' | 'height'> | null;
   photoCount: number;
+  archivePhotoCount: number;
   videoCount: number;
   livePhotoCount: number;
 }

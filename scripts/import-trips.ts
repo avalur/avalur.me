@@ -39,8 +39,9 @@ export async function prepareImport(source: string, year: string): Promise<Prepa
   const archiveInputs = array(media.archivePhotos, record);
   const videoInputs = array(media.videos, record);
   const ids = new Map<string, string>(); const assets: SourceAsset[] = [];
-  const mediaRoot = await realpath(resolve(sourceRoot, `assets/media/${year}`));
-  if (!mediaRoot.startsWith(`${sourceRoot}${sep}`)) throw new Error('Media directory escapes source');
+  const mediaRoot = photoInputs.length || archiveInputs.length || videoInputs.length
+    ? await realpath(resolve(sourceRoot, `assets/media/${year}`)) : null;
+  if (mediaRoot !== null && !mediaRoot.startsWith(`${sourceRoot}${sep}`)) throw new Error('Media directory escapes source');
   function remember(input: Record<string, unknown>, prefix: string, index: number) {
     const original = string(input.id, /^[a-zA-Z0-9_-]+$/);
     if (ids.has(original)) throw new Error('Duplicate input media identifier');
@@ -57,6 +58,7 @@ export async function prepareImport(source: string, year: string): Promise<Prepa
     const extension = contentType === 'image/webp' ? 'webp' : 'mp4';
     const required = new RegExp(`^assets/media/${year}/[a-zA-Z0-9_-]+\\.${extension}$`);
     if (!required.test(path)) throw new Error('Invalid input media path');
+    if (mediaRoot === null) throw new Error('Missing source media directory');
     const actual = await realpath(resolve(sourceRoot, path));
     const rel = relative(mediaRoot, actual);
     if (!rel || rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) throw new Error('Input media symlink escapes directory');
@@ -80,12 +82,12 @@ export async function prepareImport(source: string, year: string): Promise<Prepa
     if (kind !== 'video' && kind !== 'round' && kind !== 'live') throw new Error('Invalid source video kind');
     videos.push({ id, src: await asset(v.src, id, 'video/mp4'), poster: await asset(v.poster, `${id}-poster`, 'image/webp'), title: string(v.title), duration: number(v.duration), width: number(v.width, true), height: number(v.height, true), kind, context: string(v.context) });
   }
-  const order = array(presentation.albumOrder, reference);
+  const order = array(presentation.albumOrder === undefined ? [] : presentation.albumOrder, reference);
   if (new Set(order).size !== order.length || order.some(id => !photos.some(p => p.id === id))) throw new Error('Invalid initial album order');
   photos.sort((a, b) => (order.indexOf(a.id) < 0 ? order.length : order.indexOf(a.id)) - (order.indexOf(b.id) < 0 ? order.length : order.indexOf(b.id)));
   const parsedPresentation = parsePresentation(presentation);
   parsedPresentation.chapterVisuals = parsedPresentation.chapterVisuals.map(c => ({ ...c, photoIds: c.photoIds.map(reference), ...(c.videoIds === undefined ? {} : { videoIds: c.videoIds.map(reference) }) }));
-  const trip: Trip = { slug: year, year: Number(year), story: parseStory(storyInput), presentation: parsedPresentation, media: { heroId: reference(media.heroId), featuredIds: array(media.featuredIds, reference), categories: Object.fromEntries(Object.entries(record(media.categories)).map(([key, value]) => [string(key, SLUG), string(value)])), photos, videos, archivePhotos: archivePhotos.sort((a, b) => (a.year ?? 0) - (b.year ?? 0)) } };
+  const trip: Trip = { slug: year, year: Number(year), story: parseStory(storyInput), presentation: parsedPresentation, media: { heroId: media.heroId === null ? null : reference(media.heroId), featuredIds: array(media.featuredIds, reference), categories: Object.fromEntries(Object.entries(record(media.categories)).map(([key, value]) => [string(key, SLUG), string(value)])), photos, videos, archivePhotos: archivePhotos.sort((a, b) => (a.year ?? 0) - (b.year ?? 0)) } };
   const identity = { trip, assets: assets.map(({ id, size, sha256, contentType }) => ({ id, size, sha256, contentType })) };
   const revision = digest(JSON.stringify(identity));
   const manifest = parseManifest({ version: 1, trip, assets: Object.fromEntries(assets.map(a => [a.id, { path: `revisions/${year}/${revision}/assets/${a.id}.${a.contentType === 'image/webp' ? 'webp' : 'mp4'}`, size: a.size, sha256: a.sha256, contentType: a.contentType }])) }, year, revision);

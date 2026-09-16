@@ -44,9 +44,10 @@ export function parsePresentation(value: unknown): TripPresentation {
   const albumLayout = v.albumLayout;
   if (albumLayout !== undefined && albumLayout !== 'grid' && albumLayout !== 'masonry') throw new Error('Invalid album layout');
   const textKeys = ['dateLabel', 'region', 'heroSubtitle', 'heroLead', 'heroCaption', 'heroCredit', 'chaptersLabel', 'albumEyebrow', 'routeEyebrow', 'routeTitle', 'routeNote', 'memoryText', 'closingCredit'] as const;
+  const emptyTextKeys = new Set<string>(['region', 'heroCaption', 'heroCredit', 'albumEyebrow', 'routeEyebrow', 'routeTitle', 'routeNote', 'memoryText']);
   const lineKeys = ['narratorNoteLines', 'videoNoteLines', 'peopleTitleLines', 'memoryTitleLines'] as const;
   return {
-    ...Object.fromEntries(textKeys.map(key => [key, string(key === 'memoryText' && v[key] === undefined ? '' : v[key])])) as Pick<TripPresentation, typeof textKeys[number]>,
+    ...Object.fromEntries(textKeys.map(key => [key, string(emptyTextKeys.has(key) && v[key] === undefined ? '' : v[key])])) as Pick<TripPresentation, typeof textKeys[number]>,
     ...Object.fromEntries(lineKeys.map(key => [key, strings((key === 'videoNoteLines' || key === 'memoryTitleLines') && v[key] === undefined ? [] : v[key])])) as Pick<TripPresentation, typeof lineKeys[number]>,
     heroTitleLines: array(v.heroTitleLines, item => { const l = record(item); return { text: string(l.text), ...(l.emphasis === true ? { emphasis: true } : {}) }; }),
     facts: array(v.facts, item => {
@@ -54,9 +55,11 @@ export function parsePresentation(value: unknown): TripPresentation {
       if (icon !== 'people' && icon !== 'bike' && icon !== 'route') throw new Error('Invalid icon');
       return { icon, label: string(f.label) };
     }),
-    chapterVisuals: array(v.chapterVisuals, item => { const c = record(item); return { chapterId: string(c.chapterId, SLUG), photoIds: strings(c.photoIds), ...(c.videoIds === undefined ? {} : { videoIds: strings(c.videoIds) }) }; }),
+    chapterVisuals: array(v.chapterVisuals === undefined ? [] : v.chapterVisuals, item => { const c = record(item); return { chapterId: string(c.chapterId, SLUG), photoIds: strings(c.photoIds), ...(c.videoIds === undefined ? {} : { videoIds: strings(c.videoIds) }) }; }),
     videoContextLabels: stringMap(v.videoContextLabels === undefined ? {} : v.videoContextLabels),
     ...(albumLayout === undefined ? {} : { albumLayout }),
+    ...(v.memoryEyebrow === undefined ? {} : { memoryEyebrow: string(v.memoryEyebrow) }),
+    ...(v.peopleNote === undefined ? {} : { peopleNote: string(v.peopleNote) }),
   };
 }
 
@@ -75,7 +78,7 @@ export function parseTrip(value: unknown): Trip {
   const trip: Trip = {
     slug, year: number(v.year, true), story: parseStory(v.story), presentation: parsePresentation(v.presentation),
     media: {
-      heroId: string(m.heroId, ASSET_ID), featuredIds: array(m.featuredIds, item => string(item, ASSET_ID)), categories: stringMap(m.categories),
+      heroId: m.heroId === null ? null : string(m.heroId, ASSET_ID), featuredIds: array(m.featuredIds, item => string(item, ASSET_ID)), categories: stringMap(m.categories),
       photos: array(m.photos, photo), archivePhotos: array(m.archivePhotos, photo),
       videos: array(m.videos, item => {
         const p = record(item); const kind = string(p.kind);
@@ -87,7 +90,8 @@ export function parseTrip(value: unknown): Trip {
   const photos = new Set([...trip.media.photos, ...trip.media.archivePhotos].map(p => p.id));
   const allIds = [...photos, ...trip.media.videos.map(p => p.id)];
   const chapterIds = trip.story.chapters.map(c => c.id);
-  if (photos.size !== trip.media.photos.length + trip.media.archivePhotos.length || new Set(allIds).size !== allIds.length || new Set(chapterIds).size !== chapterIds.length || !photos.has(trip.media.heroId)) throw new Error('Invalid trip references');
+  const invalidHero = trip.media.heroId === null ? trip.media.photos.length > 0 : !photos.has(trip.media.heroId);
+  if (photos.size !== trip.media.photos.length + trip.media.archivePhotos.length || new Set(allIds).size !== allIds.length || new Set(chapterIds).size !== chapterIds.length || invalidHero) throw new Error('Invalid trip references');
   for (const id of trip.media.featuredIds) if (!photos.has(id)) throw new Error('Invalid featured photo');
   const videos = new Map(trip.media.videos.map(video => [video.id, video]));
   for (const photo of [...trip.media.photos, ...trip.media.archivePhotos]) {

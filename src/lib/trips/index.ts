@@ -65,12 +65,13 @@ export async function loadCatalog(): Promise<{ trips: TripSummary[] }> {
   const catalog = await readCatalog(config);
   const trips = await Promise.all(catalog.trips.map(async entry => {
     const { trip } = await readManifest(entry, config);
-    const hero = trip.media.photos.find(p => p.id === trip.media.heroId) ?? trip.media.archivePhotos.find(p => p.id === trip.media.heroId)!;
+    const hero = trip.media.photos.find(p => p.id === trip.media.heroId) ?? trip.media.archivePhotos.find(p => p.id === trip.media.heroId);
     return {
       slug: trip.slug, year: trip.year, title: trip.story.title, subtitle: trip.story.subtitle,
       dateLabel: trip.presentation.dateLabel,
-      hero: { src: hero.src, thumb: hero.thumb, alt: hero.alt, width: hero.width, height: hero.height },
+      hero: hero ? { src: hero.src, thumb: hero.thumb, alt: hero.alt, width: hero.width, height: hero.height } : null,
       photoCount: trip.media.photos.length,
+      archivePhotoCount: trip.media.archivePhotos.length,
       videoCount: trip.media.videos.filter(video => video.kind !== 'live').length,
       livePhotoCount: trip.media.videos.filter(video => video.kind === 'live').length,
     };
