@@ -70,7 +70,9 @@ export async function loadCatalog(): Promise<{ trips: TripSummary[] }> {
       slug: trip.slug, year: trip.year, title: trip.story.title, subtitle: trip.story.subtitle,
       dateLabel: trip.presentation.dateLabel,
       hero: { src: hero.src, thumb: hero.thumb, alt: hero.alt, width: hero.width, height: hero.height },
-      photoCount: trip.media.photos.length, videoCount: trip.media.videos.length,
+      photoCount: trip.media.photos.length,
+      videoCount: trip.media.videos.filter(video => video.kind !== 'live').length,
+      livePhotoCount: trip.media.videos.filter(video => video.kind === 'live').length,
     };
   }));
   return { trips };

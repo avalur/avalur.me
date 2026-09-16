@@ -44,6 +44,10 @@ For Blob import, use the local import command with `--blob` instead of `--local-
 
 Photo-only trips can omit video and archive presentation notes. Set `albumLayout` to `masonry` to display each photograph at its original proportions; omit it or choose `grid` for the existing gallery. This option belongs to the private presentation manifest, together with the narrative and media references.
 
+Motion companions use video `kind: 'live'` and an optional photo `liveVideoId` pointing to that clip. Optional `chapterVisuals[].videoIds` add links from a chapter to clips. The importer remaps all these references to canonical private media IDs and validates the relationships. Source identifiers and filenames may contain underscores; stored URLs and storage paths retain the existing restricted format. Photos, motion companions and posters all pass through the same authorized media endpoint.
+
+Deploy support for a new manifest feature before activating a catalog that uses it. The catalog loads every referenced manifest, so an unsupported video kind can make the archive unavailable even when older revisions are intact. Existing manifests may omit the new optional fields; their serialized content and revisions remain unchanged. Archive cards count motion photos separately from ordinary videos.
+
 ## OAuth setup
 
 Create OAuth applications dedicated to avalur.me; do not reuse the ml-practice-tasks clients. Register the exact callback URLs below, without wildcards. Always open the stable preview alias for sign-in, rather than a changing deployment URL, and set `SITE_URL` to that exact browser origin.

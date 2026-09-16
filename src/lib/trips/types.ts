@@ -18,6 +18,7 @@ export interface TripPhoto {
   alt: string;
   category: string;
   year?: number;
+  liveVideoId?: string;
 }
 
 export interface TripVideo {
@@ -28,7 +29,7 @@ export interface TripVideo {
   duration: number;
   width: number;
   height: number;
-  kind: 'video' | 'round';
+  kind: 'video' | 'round' | 'live';
   context: string;
 }
 
@@ -43,7 +44,7 @@ export interface TripPresentation {
   facts: { icon: 'people' | 'bike' | 'route'; label: string }[];
   narratorNoteLines: string[];
   chaptersLabel: string;
-  chapterVisuals: { chapterId: string; photoIds: string[] }[];
+  chapterVisuals: { chapterId: string; photoIds: string[]; videoIds?: string[] }[];
   videoNoteLines: string[];
   videoContextLabels: Record<string, string>;
   albumEyebrow: string;
@@ -82,6 +83,7 @@ export interface TripSummary {
   hero: Pick<TripPhoto, 'src' | 'thumb' | 'alt' | 'width' | 'height'>;
   photoCount: number;
   videoCount: number;
+  livePhotoCount: number;
 }
 
 export interface StoredAsset {

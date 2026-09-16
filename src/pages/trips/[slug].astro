@@ -6,6 +6,7 @@ import StoryVisual from '../../components/trips/StoryVisual.astro';
 import Lightbox from '../../components/trips/Lightbox.astro';
 import { getAccess } from '../../lib/access';
 import { loadTrip } from '../../lib/trips/index';
+import { photoCountLabel } from '../../lib/trips/labels';
 import type { TripPhoto } from '../../lib/trips/types';
 
 export const prerender = false;
@@ -27,18 +28,23 @@ const archive = [...media.archivePhotos].sort((left, right) => (left.year ?? 0) 
 const lookup = new Map<string, TripPhoto>([...photos, ...archive].map(photo => [photo.id, photo]));
 const hero = lookup.get(media.heroId);
 if (!hero) return new Response('Раздел временно недоступен. Попробуйте позже.', { status: 503, headers: { ...privateHeaders, 'Content-Type': 'text/plain; charset=utf-8' } });
-const videos = [...media.videos].sort((left, right) => Number(left.kind !== 'video') - Number(right.kind !== 'video')).map(clip => {
+const videoKindOrder = { video: 0, round: 1, live: 2 };
+const videos = [...media.videos].sort((left, right) => videoKindOrder[left.kind] - videoKindOrder[right.kind]).map(clip => {
   const seconds = Math.round(Number(clip.duration));
-  return { ...clip, displayKind: clip.kind === 'round' ? 'round' : 'video', durationLabel: `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` };
+  return { ...clip, displayKind: clip.kind, durationLabel: `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` };
 });
 const first = videos[0];
 const videoKinds = [
   { kind: 'video', label: 'Видео', count: videos.filter(clip => clip.displayKind === 'video').length },
   { kind: 'round', label: 'Кружочки', count: videos.filter(clip => clip.displayKind === 'round').length },
+  { kind: 'live', label: 'Живые фото', count: videos.filter(clip => clip.displayKind === 'live').length },
 ].filter(kind => kind.count > 0);
-const photoData = (photo: TripPhoto) => ({ id: photo.id, src: photo.src, alt: photo.alt, caption: photo.caption, year: photo.year });
+const videoContextDefaults = { video: 'Видео из похода', round: 'Видеокружок', live: 'Несколько секунд вокруг снимка' };
+const photoData = (photo: TripPhoto) => ({ id: photo.id, src: photo.src, alt: photo.alt, caption: photo.caption, year: photo.year, liveVideoId: photo.liveVideoId });
 const pageData = JSON.stringify({ photos: photos.map(photoData), archivePhotos: archive.map(photoData), videos: videos.map(({ id, src, poster, title, durationLabel, displayKind }) => ({ id, src, poster, title, durationLabel, displayKind })) }).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const visualPhotos = (chapterId: string) => (view.chapterVisuals.find(item => item.chapterId === chapterId)?.photoIds ?? []).map(id => lookup.get(id)).filter((photo): photo is TripPhoto => Boolean(photo));
+const videoLookup = new Map(videos.map(clip => [clip.id, clip]));
+const visualVideos = (chapterId: string) => (view.chapterVisuals.find(item => item.chapterId === chapterId)?.videoIds ?? []).map(id => videoLookup.get(id)).filter((clip): clip is typeof videos[number] => Boolean(clip));
 ---
 <TripLayout title={`${story.title} · ${trip.year}`} year={trip.year} trip hasVideos={videos.length > 0}>
   <link slot="head" rel="preload" as="image" href={hero.src} />
@@ -61,7 +67,7 @@ const visualPhotos = (chapterId: string) => (view.chapterVisuals.find(item => it
         <aside class="story-rail"><nav class="chapter-nav" aria-label="Главы рассказа"><p class="chapter-nav-title">{view.chaptersLabel}</p>{story.chapters.map((chapter, index) => <a href={`#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</a>)}</nav></aside>
         <article class="story-text" aria-label="Рассказ о походе">
           <div class="story-intro">{story.intro.map(paragraph => <p>{paragraph}</p>)}</div>
-          {story.chapters.map((chapter, index) => <section class="chapter" id={chapter.id} aria-labelledby={`heading-${chapter.id}`}><div class="chapter-top"><span class="chapter-number">{String(index + 1).padStart(2, '0')}</span><p class="eyebrow">{chapter.kicker}</p></div><h3 id={`heading-${chapter.id}`}>{chapter.title}</h3><div class="chapter-copy">{chapter.paragraphs.map(paragraph => <p>{paragraph}</p>)}</div><StoryVisual photos={visualPhotos(chapter.id)} /></section>)}
+          {story.chapters.map((chapter, index) => <section class="chapter" id={chapter.id} aria-labelledby={`heading-${chapter.id}`}><div class="chapter-top"><span class="chapter-number">{String(index + 1).padStart(2, '0')}</span><p class="eyebrow">{chapter.kicker}</p></div><h3 id={`heading-${chapter.id}`}>{chapter.title}</h3><div class="chapter-copy">{chapter.paragraphs.map(paragraph => <p>{paragraph}</p>)}</div><StoryVisual photos={visualPhotos(chapter.id)} videos={visualVideos(chapter.id)} /></section>)}
         </article>
       </div>
     </section>
@@ -71,10 +77,10 @@ const visualPhotos = (chapterId: string) => (view.chapterVisuals.find(item => it
     <div class="wrap">
       <div class="section-heading"><div><p class="eyebrow">Со звуком и движением</p><h2 id="video-heading">Видео из поездки</h2></div><p class="aside-note">{view.videoNoteLines.map((line, index) => <>{index > 0 && <br />}{line}</>)}</p></div>
       <div class="video-layout">
-        <div><div class="video-stage"><video id="trip-video" controls playsinline preload="metadata" poster={first.poster} src={first.src} aria-label={first.title}>Ваш браузер не поддерживает видео. <a href={first.src}>Открыть файл</a></video></div><div class="video-current"><h3 id="video-title">{first.title}</h3><span id="video-length">{first.durationLabel}</span></div></div>
+        <div><div class="video-stage"><video id="trip-video" controls playsinline tabindex="0" preload="metadata" poster={first.poster} src={first.src} aria-label={first.title}>Ваш браузер не поддерживает видео. <a href={first.src}>Открыть файл</a></video></div><div class="video-current"><h3 id="video-title">{first.title}</h3><span id="video-length">{first.durationLabel}</span></div></div>
         <div>
           <div class="video-tabs" role="group" aria-label="Тип видео">{videoKinds.map(kind => <button type="button" data-video-kind={kind.kind} aria-pressed={first.displayKind === kind.kind ? 'true' : 'false'}>{kind.label} · {kind.count}</button>)}</div>
-          <div class="video-list" aria-label="Выбрать видео">{videos.map((clip, index) => <button type="button" class="video-choice" data-video={clip.id} data-clip-kind={clip.displayKind} aria-pressed={index === 0 ? 'true' : 'false'} hidden={clip.displayKind !== first.displayKind}><img src={clip.poster} alt="" width="57" height="57" loading="lazy" /><span>{clip.title}<small>{(clip.context && view.videoContextLabels[clip.context]) || (clip.displayKind === 'round' ? 'Видеокружок' : 'Видео из похода')}</small></span><span class="video-duration">{clip.durationLabel}</span></button>)}</div>
+          <div class="video-list" aria-label="Выбрать видео">{videos.map((clip, index) => <button type="button" class="video-choice" data-video={clip.id} data-clip-kind={clip.displayKind} aria-pressed={index === 0 ? 'true' : 'false'} hidden={clip.displayKind !== first.displayKind}><img src={clip.poster} alt="" width="57" height="57" loading="lazy" /><span>{clip.title}<small>{(clip.context && view.videoContextLabels[clip.context]) || videoContextDefaults[clip.displayKind]}</small></span><span class="video-duration">{clip.durationLabel}</span></button>)}</div>
           <p class="video-help">Выберите ролик и нажмите воспроизведение.</p>
         </div>
       </div>
@@ -83,10 +89,10 @@ const visualPhotos = (chapterId: string) => (view.chapterVisuals.find(item => it
 
   <div class="wrap">
     <section class="section" id="photos" aria-labelledby="photos-heading">
-      <div class="section-heading"><div><p class="eyebrow">{view.albumEyebrow}</p><h2 id="photos-heading">Фотоальбом</h2></div><p class="photo-count">{photos.length} фотографий · {trip.year}</p></div>
+      <div class="section-heading"><div><p class="eyebrow">{view.albumEyebrow}</p><h2 id="photos-heading">Фотоальбом</h2></div><p class="photo-count">{photoCountLabel(photos.length)} · {trip.year}</p></div>
       <div class:list={['gallery', { 'gallery-masonry': view.albumLayout === 'masonry' }]} id="gallery">{photos.map((photo, index) => <figure class:list={['gallery-card', { 'gallery-extra': index >= 12 }]} hidden={index >= 12}><Photo photo={photo} thumb /><figcaption>{photo.caption}</figcaption></figure>)}</div>
       {photos.length > 12 && <div class="gallery-actions"><button type="button" class="button button-outline" id="gallery-more" aria-expanded="false" aria-controls="gallery"><span>Все фотографии ({photos.length})</span><Icon name="arrow-down" /></button></div>}
-      <p class="sr-only" id="gallery-status" aria-live="polite">Показано {Math.min(12, photos.length)} из {photos.length} фотографий</p>
+      <p class="sr-only" id="gallery-status" aria-live="polite">Фотографии: показано {Math.min(12, photos.length)} из {photos.length}</p>
     </section>
     <div class="details-grid">
       <section id="people" aria-labelledby="people-heading"><p class="eyebrow">Наша компания</p><h2 id="people-heading">{view.peopleTitleLines.map((line, index) => <>{index > 0 && <br />}{line}</>)}</h2><div class="people-grid">{story.participants.map(person => <div class="person"><span class="person-name">{person.displayName}</span><span class="person-role">{person.role}</span></div>)}</div></section>

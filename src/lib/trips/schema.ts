@@ -54,7 +54,7 @@ export function parsePresentation(value: unknown): TripPresentation {
       if (icon !== 'people' && icon !== 'bike' && icon !== 'route') throw new Error('Invalid icon');
       return { icon, label: string(f.label) };
     }),
-    chapterVisuals: array(v.chapterVisuals, item => { const c = record(item); return { chapterId: string(c.chapterId, SLUG), photoIds: strings(c.photoIds) }; }),
+    chapterVisuals: array(v.chapterVisuals, item => { const c = record(item); return { chapterId: string(c.chapterId, SLUG), photoIds: strings(c.photoIds), ...(c.videoIds === undefined ? {} : { videoIds: strings(c.videoIds) }) }; }),
     videoContextLabels: stringMap(v.videoContextLabels === undefined ? {} : v.videoContextLabels),
     ...(albumLayout === undefined ? {} : { albumLayout }),
   };
@@ -70,7 +70,7 @@ export function parseTrip(value: unknown): Trip {
   }
   function photo(item: unknown) {
     const p = record(item);
-    return { id: string(p.id, ASSET_ID), src: url(p.src), thumb: url(p.thumb), width: number(p.width, true), height: number(p.height, true), caption: string(p.caption), alt: string(p.alt), category: string(p.category), ...(p.year === undefined ? {} : { year: number(p.year, true) }) };
+    return { id: string(p.id, ASSET_ID), src: url(p.src), thumb: url(p.thumb), width: number(p.width, true), height: number(p.height, true), caption: string(p.caption), alt: string(p.alt), category: string(p.category), ...(p.year === undefined ? {} : { year: number(p.year, true) }), ...(p.liveVideoId === undefined ? {} : { liveVideoId: string(p.liveVideoId, ASSET_ID) }) };
   }
   const trip: Trip = {
     slug, year: number(v.year, true), story: parseStory(v.story), presentation: parsePresentation(v.presentation),
@@ -79,7 +79,7 @@ export function parseTrip(value: unknown): Trip {
       photos: array(m.photos, photo), archivePhotos: array(m.archivePhotos, photo),
       videos: array(m.videos, item => {
         const p = record(item); const kind = string(p.kind);
-        if (kind !== 'round' && kind !== 'video') throw new Error('Invalid video kind');
+        if (kind !== 'round' && kind !== 'video' && kind !== 'live') throw new Error('Invalid video kind');
         return { id: string(p.id, ASSET_ID), src: url(p.src), poster: url(p.poster), title: string(p.title), duration: number(p.duration), width: number(p.width, true), height: number(p.height, true), kind, context: string(p.context) };
       }),
     },
@@ -89,8 +89,13 @@ export function parseTrip(value: unknown): Trip {
   const chapterIds = trip.story.chapters.map(c => c.id);
   if (photos.size !== trip.media.photos.length + trip.media.archivePhotos.length || new Set(allIds).size !== allIds.length || new Set(chapterIds).size !== chapterIds.length || !photos.has(trip.media.heroId)) throw new Error('Invalid trip references');
   for (const id of trip.media.featuredIds) if (!photos.has(id)) throw new Error('Invalid featured photo');
+  const videos = new Map(trip.media.videos.map(video => [video.id, video]));
+  for (const photo of [...trip.media.photos, ...trip.media.archivePhotos]) {
+    if (photo.liveVideoId !== undefined && videos.get(photo.liveVideoId)?.kind !== 'live') throw new Error('Invalid live photo reference');
+  }
   for (const visual of trip.presentation.chapterVisuals) {
     if (!chapterIds.includes(visual.chapterId) || visual.photoIds.length < 1 || visual.photoIds.length > 2 || visual.photoIds.some(id => !photos.has(id))) throw new Error('Invalid chapter visual');
+    if (visual.videoIds && (new Set(visual.videoIds).size !== visual.videoIds.length || visual.videoIds.some(id => !videos.has(id)))) throw new Error('Invalid chapter video reference');
   }
   return trip;
 }
