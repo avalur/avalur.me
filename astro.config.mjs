@@ -17,7 +17,7 @@ export default defineConfig({
   output: "static",
   compressHTML: true,
   integrations: [mdx(), react(), sitemap({
-    filter: (page) => !/^\/(?:trips|account|api|login|register|verify-email|forgot-password|reset-password)(?:\/|$)/.test(new URL(page).pathname),
+    filter: (page) => !/^\/(?:trips|account|api|tetris|login|register|verify-email|forgot-password|reset-password)(?:\/|$)/.test(new URL(page).pathname),
   })],
   markdown: {
     processor: unified({
