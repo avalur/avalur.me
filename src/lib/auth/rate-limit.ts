@@ -5,7 +5,7 @@ import { HttpProblem } from './http';
 
 /** Only Vercel's overwritten proxy header is trusted; arbitrary forwarded-for
  * headers in local development cannot create unlimited new rate buckets. */
-function clientKey(request: Request): string {
+export function clientKey(request: Request): string {
   if (process.env.VERCEL === '1') {
     const ip = request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim();
     if (ip && /^[\da-f.:]{3,80}$/i.test(ip)) return ip;
