@@ -1,0 +1,18 @@
+
+.story-header .intro{max-width:none}
+.chapters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0 0}
+.chapter-jump{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border:1px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:66px}
+.chapter-jump:hover,.chapter-jump[aria-current=true]{border-color:var(--accent)}
+.chapter-jump[aria-current=true]{box-shadow:0 0 0 2px #86513b26}
+.chapter-jump span:last-child{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.soundtrack{margin-top:25px}.soundtrack h2{font-size:24px}
+.soundtrack-tracks{list-style:none;padding:0;margin:13px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.soundtrack-tracks li{padding:0;border:1px solid var(--line);border-radius:10px;background:var(--white)}
+.track-time{display:block;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;margin-bottom:6px}
+.track-title{font-size:14px;font-weight:600}.track-artist{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+.music-jump{display:block;width:100%;height:100%;padding:15px 17px;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;border-radius:9px}
+.soundtrack-tracks li:has(.music-jump[aria-current=true]){border-color:var(--accent);box-shadow:0 0 0 2px #86513b26}
+.music-jump:hover{background:#86513b09}.music-hint{color:var(--muted);font-size:13px;margin:10px 0 0}
+.music-jump:focus-visible,.chapter-jump:focus-visible,.shot:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.shot-note:empty{display:none}.current{min-width:0}#current-note{overflow-wrap:anywhere}
+@media(max-width:640px){.chapters,.soundtrack-tracks{grid-template-columns:1fr}.chapters{gap:8px}.chapter-jump{padding:13px 15px;min-height:0}.player-meta{gap:9px;align-items:flex-start}#playback-time{font-size:12px}}
