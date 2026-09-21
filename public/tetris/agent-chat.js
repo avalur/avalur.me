@@ -1,13 +1,25 @@
 //-------------------------------------------------------------------------
 // The chat panel on the right.
 //
-// It talks to the local proxy in server/serve.py, which forwards the request
-// to OpenRouter with the API key attached. The tool-calling loop runs here in
-// the browser: the model asks for a tool, we run it against the live game and
+// The browser talks to Pollinations directly: the service is keyless, sends
+// permissive CORS headers and speaks the OpenAI shape, so the page needs no
+// server and no API key of its own. The tool-calling loop runs here in the
+// browser: the model asks for a tool, we run it against the live game and
 // send the result back.
+//
+// The trade-off is that whatever the player types leaves the machine and goes
+// to a free third-party service, which publishes a live feed of the traffic
+// it serves. 'private' asks to be kept out of that feed; it is documented for
+// the image endpoint only, so the note under the input says it plainly rather
+// than promising privacy.
 //-------------------------------------------------------------------------
 
 var AgentChat = (function() {
+
+    var ENDPOINT   = 'https://text.pollinations.ai/openai';
+    var CATALOG    = 'https://text.pollinations.ai/models';
+    var REFERRER   = 'avalur.me';    // identifies the app, raises the rate limit
+    var WANTED     = 'openai-fast';  // preselected when the catalog offers it
 
     var MAX_TOOL_ROUNDS = 6;    // how many times the model may call tools in one turn
     var MAX_HISTORY     = 40;   // messages kept in the conversation
@@ -168,6 +180,8 @@ var AgentChat = (function() {
         var body = {
             model:    model,
             stream:   true,
+            referrer: REFERRER,
+            private:  true,
             messages: [{ role: 'system', content: systemPrompt() }].concat(messages),
             tools:    AgentTools.definitions
         };
@@ -175,12 +189,14 @@ var AgentChat = (function() {
         setPhase('sending the request');
         abort = new AbortController();
 
-        return fetch('/api/tetris/chat', {
+        return fetch(ENDPOINT, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify(body),
             signal:  abort.signal
         }).then(function(response) {
+            if (response.status === 429)
+                throw new Error('The free service is rate limiting us. Wait a few seconds and ask again.');
             if (!response.ok)
                 return response.text().then(function(text) { throw new Error(text || ('HTTP ' + response.status)); });
             setPhase('waiting for the model');
@@ -397,41 +413,36 @@ var AgentChat = (function() {
     }
 
     //---------------------------------------------------------------------
-    // startup: is the proxy running, and which models does it offer?
+    // startup: which models does the service offer right now?
+    //
+    // Only the tool-capable ones are listed - without tools the agent cannot
+    // touch the game, and the catalog changes as the free tier changes.
     //---------------------------------------------------------------------
     function connect() {
-        fetch('/api/tetris/status').then(function(r) { return r.json(); }).then(function(status) {
-            if (!status.hasKey) {
-                setConnection('Proxy is up, but OPENROUTER_API_KEY is not set', false);
-                return;
-            }
-            setConnection('Connected to OpenRouter', true);
-            model = status.model;
-            loadModels(status.model);
+        fetch(CATALOG).then(function(r) { return r.json(); }).then(function(catalog) {
+            var usable = (Array.isArray(catalog) ? catalog : []).filter(function(item) {
+                return item && item.name && item.tools;
+            });
+            if (!usable.length)
+                throw new Error('no tool-capable model');
+            fillModels(usable);
+            setConnection('Connected to Pollinations - free, no key, no account', true);
         }).catch(function() {
-            setConnection('Agent service is offline (click to retry)', false);
+            setConnection('The free model service is unreachable (click to retry)', false);
         });
     }
 
-    function loadModels(preferred) {
+    function fillModels(catalog) {
         var select = el('chat-model');
-        fetch('/api/tetris/models').then(function(r) { return r.json(); }).then(function(data) {
-            select.innerHTML = '';
-            (data.models || []).forEach(function(item) {
-                var option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.name || item.id;
-                select.appendChild(option);
-            });
-            if (preferred && !(data.models || []).some(function(m) { return m.id === preferred; })) {
-                var option = document.createElement('option');
-                option.value = option.textContent = preferred;
-                select.insertBefore(option, select.firstChild);
-            }
-            select.value = model = preferred || select.value;
-        }).catch(function() {
-            select.innerHTML = '<option>' + (preferred || 'no models') + '</option>';
+        select.innerHTML = '';
+        catalog.forEach(function(item) {
+            var option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.description || item.name;
+            select.appendChild(option);
         });
+        var preferred = catalog.some(function(item) { return item.name === WANTED; }) ? WANTED : catalog[0].name;
+        select.value = model = preferred;
     }
 
     //---------------------------------------------------------------------
