@@ -3,9 +3,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import NetworkBg from "../../components/NetworkBg.astro";
 import { getCollection } from "astro:content";
 
-const posts = (await getCollection("blog")).sort(
+const posts = (await getCollection("blog", ({ data }) => import.meta.env.DEV || !data.draft)).sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
+const agentTeachingPost = posts.find((post) => post.id === "teaching-with-agent-swarms");
+const remainingPosts = posts.filter((post) => post.id !== "teaching-with-agent-swarms");
 ---
 
 <BaseLayout title="Posts" description="Thoughts, tutorials, and insights on technology, AI, math, and education">
@@ -21,6 +23,45 @@ const posts = (await getCollection("blog")).sort(
 
   <div class="max-w-5xl mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {agentTeachingPost && (
+        <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #0F766E;border-top:5px solid #0F766E;" lang="ru">
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <time class="text-sm text-gray-500" datetime={agentTeachingPost.data.date.toISOString()}>
+                {agentTeachingPost.data.date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+              {agentTeachingPost.data.readingTime && (
+                <span class="text-sm text-gray-400">&middot; {agentTeachingPost.data.readingTime}</span>
+              )}
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              <a href={`/posts/${agentTeachingPost.id}?lang=ru`} class="hover:text-teal-600 transition-colors">
+                {agentTeachingPost.data.title}
+              </a>
+            </h2>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4">{agentTeachingPost.data.description}</p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              {agentTeachingPost.data.tags.map((tag, index) => (
+                <span class={index === 0 ? "bg-teal-100 text-teal-700 text-xs px-2 py-1 rounded-md font-medium" : "bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium"}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div class="flex items-center gap-5">
+              <a href={`/posts/${agentTeachingPost.id}?lang=ru`} class="text-teal-600 font-semibold text-sm hover:text-teal-800 transition-colors">
+                Читать &rarr;
+              </a>
+              <a href={`/posts/${agentTeachingPost.id}?lang=en`} class="text-teal-600 font-semibold text-sm hover:text-teal-800 transition-colors" lang="en">
+                English &rarr;
+              </a>
+            </div>
+          </div>
+        </article>
+      )}
       <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #1565C0;border-top:5px solid #1565C0;">
         <div class="p-6">
           <div class="flex items-center gap-3 mb-3">
@@ -205,7 +246,7 @@ const posts = (await getCollection("blog")).sort(
         </div>
       </article>
       {
-        posts.map((post, index) => (
+        remainingPosts.map((post, index) => (
           <Fragment>
           {index === 0 && (
             <article class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300">

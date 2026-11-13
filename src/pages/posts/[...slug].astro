@@ -6,7 +6,7 @@ import NewsletterForm from "../../components/NewsletterForm.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = (await getCollection("blog")).sort(
+  const posts = (await getCollection("blog", ({ data }) => import.meta.env.DEV || !data.draft)).sort(
     (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
   );
   return posts.map((post, index) => ({
@@ -28,6 +28,11 @@ const { Content } = await render(post);
     <article class="post-content px-4 py-12">
       <!-- Article Header -->
       <header class="mb-8">
+      {post.data.draft && (
+        <p class="mb-4 text-sm font-medium" style="color: var(--accent);">
+          Черновик · Local draft · Excluded from production builds
+        </p>
+      )}
       <a
         href="/posts"
         class="inline-flex items-center gap-1 text-sm font-medium mb-6 transition-colors duration-200"
