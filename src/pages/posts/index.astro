@@ -6,8 +6,9 @@ import { getCollection } from "astro:content";
 const posts = (await getCollection("blog", ({ data }) => import.meta.env.DEV || !data.draft)).sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
+const squaresPost = posts.find((post) => post.id === "squares-in-squares");
 const agentTeachingPost = posts.find((post) => post.id === "teaching-with-agent-swarms");
-const remainingPosts = posts.filter((post) => post.id !== "teaching-with-agent-swarms");
+const remainingPosts = posts.filter((post) => post.id !== "teaching-with-agent-swarms" && post.id !== "squares-in-squares");
 ---
 
 <BaseLayout title="Posts" description="Thoughts, tutorials, and insights on technology, AI, math, and education">
@@ -23,6 +24,40 @@ const remainingPosts = posts.filter((post) => post.id !== "teaching-with-agent-s
 
   <div class="max-w-5xl mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {squaresPost && (
+        <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #C2410C;border-top:5px solid #C2410C;">
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <time class="text-sm text-gray-500" datetime={squaresPost.data.date.toISOString()}>
+                {squaresPost.data.date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+              {squaresPost.data.readingTime && (
+                <span class="text-sm text-gray-400">&middot; {squaresPost.data.readingTime}</span>
+              )}
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              <a href={`/posts/${squaresPost.id}`} class="hover:text-orange-600 transition-colors">
+                {squaresPost.data.title}
+              </a>
+            </h2>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4">Pack <i>n</i> unit squares into the smallest square: exact geometry, penalty optimisation, LP polishing and DP over gadgets&nbsp;&mdash; with a project task for my Algorithm Engineering students.</p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              {squaresPost.data.tags.map((tag, index) => (
+                <span class={index === 0 ? "bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-md font-medium" : "bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium"}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <a href={`/posts/${squaresPost.id}`} class="text-orange-600 font-semibold text-sm hover:text-orange-800 transition-colors">
+              Read More &rarr;
+            </a>
+          </div>
+        </article>
+      )}
       {agentTeachingPost && (
         <article class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border:2px solid #0F766E;border-top:5px solid #0F766E;">
           <div class="p-6">
